@@ -16,6 +16,7 @@ char *blackbody[] = {"black", "darkred", "orange", "yellow", "white", NULL};
 char *spectrum[] = {"black", "red", "orange", "yellow", "violet", NULL};
 char *redgreen[] = {"red", "darkred", "black", "darkgreen", "green", NULL};
 char *greenred[] = {"green", "darkgreen", "black", "darkred", "red", NULL};
+char *twocolorarray[] = {"green", "yellow", "red", NULL};
 
 
 /*****************************************************************************
@@ -123,10 +124,10 @@ char** getColorMap (int colorMap) {
     return redgreen;
   case 4 :
     return greenred;
+  case 5 :
+    return twocolorarray;
   default:
     colorError(invalid);
     break;
   }
 } /* getColorMap */
-
-

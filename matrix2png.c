@@ -403,10 +403,6 @@ int main (int argc, char **argv) {
   if (colorMap > 0) { 
     DEBUG_CODE(1, fprintf(stderr, "Using color map %d\n", colorMap););
   } else {
-    if (bkgColorInput != NULL) {
-      string2color(bkgColorInput, &bkgColor);
-      if (bkgColor == 0) die("Illegal background color chosen");
-    }
     if (minColorInput != NULL) {
       string2color(minColorInput, &minColor);
       if (minColor == 0) die("Illegal mincolor chosen");
@@ -415,6 +411,10 @@ int main (int argc, char **argv) {
       string2color(maxColorInput, &maxColor);
       if (maxColor == 0) die("Illegal maxcolor chosen");
     }
+  }
+  if (bkgColorInput != NULL) {
+    string2color(bkgColorInput, &bkgColor);
+    if (bkgColor == 0) die("Illegal background color chosen");
   }
 
 
