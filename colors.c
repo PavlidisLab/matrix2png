@@ -366,7 +366,7 @@ void copyPaletteToNew(gdImagePtr dst, gdImagePtr src)
 colorV_T* initColorVByName (color_T named) {
   colorV_T* return_value;
   return_value = (colorV_T*)mymalloc(sizeof(colorV_T));
-  if (named != NULL) { 
+  if (named != (color_T)NULL) { 
     return_value->namedcolor = named;
   } else {
     return_value->namedcolor = 0;

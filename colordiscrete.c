@@ -11,7 +11,7 @@
 #include "colordiscrete.h"
 #include "colors.h"
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 
 DISCRETEMAP_T* readDiscreteMap(FILE* file) 
 {
