@@ -32,6 +32,7 @@ MATRIXINFO_T* newMatrixInfo(void) {
   MATRIXINFO_T* return_value;
   return_value = (MATRIXINFO_T*)mymalloc(sizeof(MATRIXINFO_T));
   return_value->discreteMap = NULL;
+  return_value->hilites = FALSE;
   return(return_value);
 } /* newMatrixInfo */
 
@@ -242,7 +243,6 @@ gdImagePtr rawmatrix2img (
 	      value = min;
 	    }
 	  }
-	  // 	colorcode = (int)( (value - min) / stepsize) + NUMRESERVEDCOLORS;
 	  colorcode = (int)(( (value - min) / stepsize) + NUMRESERVEDCOLORS);
 	  if (colorcode > gdImageColorsTotal(img) - 1)
 	    colorcode = gdImageColorsTotal(img) - 1;
@@ -321,7 +321,7 @@ int main (int argc, char **argv) {
   BOOLEAN_T skipformatline = FALSE; /* if selected, assumes that we ARE using RDB format */
   BOOLEAN_T ellipses = FALSE; /* draw ellipses or circles instead of rectangles */
   BOOLEAN_T normalize = FALSE; /* normalize the rows N(0,1) */
-  int hiliteval = NULL;
+  //  int hiliteval = NULL;
   double contrast = DEFAULTCONTRAST;
   int numcolors = DEFAULTNUMCOLORS;
   int colorMap = DEFAULTCOLORMAP;
@@ -400,8 +400,8 @@ int main (int argc, char **argv) {
 	       colorMap = atoi(_OPTION_));
      SIMPLE_FLAG_OPTN(1, discrete, : Use discretized mapping of values to colors; use -dmap to assign a mapping file,
      	       discrete);
-     DATA_OPTN(1, hiliteval, <value to use as highlights> : Assign an integer numerical value which are shown in the highlight color,
-	       hiliteval = atoi(_OPTION_));
+     //     DATA_OPTN(1, hiliteval, <value to use as highlights> : Assign an integer numerical value which are shown in the highlight color,
+	       //     	       hiliteval = atoi(_OPTION_));
      DATA_OPTN(1, dmap, <mapping file> : Discrete color mapping file to use for discrete mapping (default = preset),
      	       discreteMappingFileName = _OPTION_);
      DATA_OPTN(1, numr, : Number of rows to process starting from the top of the matrix by default,
@@ -588,10 +588,10 @@ int main (int argc, char **argv) {
   matrixInfo->discreteMap = discreteMap;
   matrixInfo->numColors = numcolors;
 
-  if (hiliteval) {
-    matrixInfo->hiliteval = hiliteval;
-    matrixInfo->hilites = TRUE;
-  }
+  //  if (hiliteval) {
+  //    matrixInfo->hiliteval = hiliteval;
+  //    matrixInfo->hilites = TRUE;
+  //  }
 
   DEBUG_CODE(1, dumpMatrixInfo(matrixInfo););
   
