@@ -14,7 +14,7 @@
 
 /* how many colors are set aside - includes the background color and
    white and black and grey */
-#define NUMRESERVEDCOLORS 7
+#define NUMRESERVEDCOLORS 4
 
 /* reserve one color out of 256 for the background color, one for
  * white, and an extra for the 'middle' of the scale */

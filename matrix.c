@@ -1217,9 +1217,22 @@ void find_matrix_min_and_max (MATRIX_T* matrix, MTYPE* min, MTYPE* max,
 }
 
 
+
 /* find both the max and min of a matrix, and their locations in the
    matrix. (ties are not given special treatment) */
-void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, MTYPE* min, MTYPE* max, 
+int simple_compare (const void* elem1, const void* elem2)
+{
+  MTYPE value1 = *((MTYPE*)elem1);
+  MTYPE value2 = *((MTYPE*)elem2);
+  if (value1 > value2) {
+    return(1);
+  } else if (value1 < value2) {
+    return(-1);
+  }
+  return(0);
+}
+
+void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, double outliers, MTYPE* min, MTYPE* max, 
 			      int* maxrow, int* maxcol, int* minrow, int* mincol) 
 {
   int i,j;
@@ -1232,27 +1245,45 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, MTY
   lminrow = 0;
   lmincol = 0;
 
-  for (i=0; i<num_rows; i++) {
-    for(j=0; j<num_cols; j++) {
-      value = matrix[i][j];
-      if (value < lmin) {
-	lmin = value;
-	lminrow = i;
-	lmincol = j;
-      } else if (value > lmax) {
-	lmax = value;
-	lmaxrow = i;
-	lmaxcol = j;
+  myassert(TRUE, outliers >= 0.0 && outliers <= 100.0, "Invalid outliers value %f", outliers);
+
+  if (outliers) {
+    // do this by concatenating the rows of the matrix
+    int index_dist;
+    MTYPE* concatenated_data = (MTYPE*)mymalloc(sizeof(MTYPE)*num_rows*num_cols);
+    for (i=0; i<num_rows; i++) {
+      for(j=0; j< num_cols;j++) {
+	concatenated_data[i*(j+1)] = matrix[i][j];
+      }
+    }
+    qsort(concatenated_data, num_rows * num_cols, sizeof(MTYPE), simple_compare);
+    index_dist = (int)ceil(((double)num_rows * (double)num_cols * outliers/100.0));
+    lmin = concatenated_data[index_dist];
+    lmax = concatenated_data[num_rows * num_cols - index_dist - 1];
+    free(concatenated_data);
+  } else {
+    for (i=0; i<num_rows; i++) {
+      for(j=0; j<num_cols; j++) {
+	value = matrix[i][j];
+	if (value < lmin) {
+	  lmin = value;
+	  lminrow = i;
+	  lmincol = j;
+	} else if (value > lmax) {
+	  lmax = value;
+	  lmaxrow = i;
+	  lmaxcol = j;
+	}
       }
     }
   }
 
   *min = lmin;
   *max = lmax;
-  *maxrow = lmaxrow;
-  *maxcol = lmaxcol;
-  *minrow = lminrow;
-  *mincol = lmincol;
+  //  *maxrow = lmaxrow;
+  //*maxcol = lmaxcol;
+  //*minrow = lminrow;
+  //*mincol = lmincol;
 }
 
 

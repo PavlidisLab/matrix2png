@@ -176,8 +176,8 @@ gdImagePtr rawmatrix2img (
   
   /* figure out the value-to-color mapping */
   if (useDataRange && matrix[0] != NULL) {
-    int minindx, maxindx, minindy, maxindy; /* these are thrown away */
-    find_rawmatrix_min_and_max(matrix, numrows, numcols, &min, &max, &maxindx, &maxindy, &minindx, &minindy);
+    int minindx, maxindx, minindy, maxindy; /* caution: these are not used now  */
+    find_rawmatrix_min_and_max(matrix, numrows, numcols, matrixInfo->outliers, &min, &max, &maxindx, &maxindy, &minindx, &minindy);
     min/=contrast;
     max/=contrast;
   } else {
@@ -203,7 +203,7 @@ gdImagePtr rawmatrix2img (
       value = matrix[i][j];
       
       /* clip color if necessary */
-      if (!useDataRange || contrast != 1.0) {
+      if (!useDataRange || contrast != 1.0 || matrixInfo->outliers) {
 	if (value > max) {
 	  value = max;
 	} else if (value < min) {
@@ -273,7 +273,8 @@ int main (int argc, char **argv) {
   int numcolors = DEFAULTNUMCOLORS;
   int colorMap = DEFAULTCOLORMAP;
   int numtodo = -1;
-  
+  double outliers = 0.0;
+
   /* the following are given in the format xDIVIDERy */
   char* rangeInput = NULL;
   char* pixsizeInput = NULL;
@@ -334,6 +335,8 @@ int main (int argc, char **argv) {
 	       colorMap = atoi(_OPTION_));
      DATA_OPTN(1, numtodo, Number of rows to process,
 	       numtodo = atoi(_OPTION_));
+     DATA_OPTN(1, outliers, Trim this percent of outliers (only without the -range option),
+	       outliers = atof(_OPTION_));
      SIMPLE_CFLAG_OPTN(1, b, passThroughBlack);
      SIMPLE_CFLAG_OPTN(1, d, dodividers);
      SIMPLE_CFLAG_OPTN(1, s, doscalebar);
@@ -372,6 +375,14 @@ int main (int argc, char **argv) {
     ypixSize = (int)parseval2;
     if (xpixSize <= 0 || ypixSize <= 0) die("Illegal values for x and/or y pixel sizes range %d %d", xpixSize, ypixSize);
     DEBUG_CODE(1, fprintf(stderr, "Pixels set to %d by %d\n", xpixSize, ypixSize););
+  }
+
+  if (outliers && rangeInput) {
+    die("Cannot specifiy outlier trimming as well as the -range option\n");
+  }
+
+  if (outliers < 0.0 || outliers > 100.0) {
+    die("Please select an outlier trimming value that is a valid percentage\n");
   }
 
   /* convert user-defined colors into corresponding color_T */
@@ -440,8 +451,9 @@ int main (int argc, char **argv) {
    ******************************************************************/
   usedRegion = initUsedRegion();
   matrixInfo = newMatrixInfo();
-  matrixInfo->xblocksize = xpixSize;
+  matrixInfo->xblocksize = xpixSize; // slowly migrating to this instead of passing a million parameters
   matrixInfo->yblocksize = ypixSize;
+  matrixInfo->outliers = outliers;
 
   DEBUG_CODE(1, fprintf(stderr, "Building image\n"););
   /* make the image as specified */

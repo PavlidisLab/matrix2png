@@ -42,6 +42,7 @@ typedef struct matrixinfo_t {
   int yblocksize;
   double minval;
   double maxval;
+  double outliers;
   BOOLEAN_T dividers;
 } MATRIXINFO_T;
 
