@@ -87,7 +87,7 @@ int hash (char* key, int keylength, HASHTABLE_T* hashtable) {
     hashVal+= hashtable->table_size; 
   } 
   return hashVal; 
-} 
+} /* hash */
 
 
 /*  find where something lives */
@@ -108,7 +108,7 @@ int findPos(char* key, int keylength, HASHTABLE_T* hashtable) {
 	     );
 
   return current; 
-}
+} /* findpos */
 
 
 /*    retrieve the a key's content */
@@ -118,7 +118,7 @@ HTYPE find (HASHTABLE_T* hashtable, char* key) {
   current = findPos(key, strlen(key), hashtable); 
   returnval = isActive(hashtable, current) ? hashtable->table[current] : NULL;
   return returnval;
-}
+} /* find */
 
 
 /*    retrieve the a key's content's index */
@@ -129,6 +129,14 @@ int findindex (HASHTABLE_T* hashtable, char* key) {
   returnval = isActive(hashtable, current) ? current : -1;
   return returnval;
 }
+
+/* allocate space for the table, given the size.
+HASHTABLE_T* inittable(int size, void(*al)(HASHTABLE_T* hashtable, int index, HTYPE value) ) {
+  
+
+
+
+} /* inittable */
 
 
 /* insert a value into the table. Give the size of the value if we
@@ -162,7 +170,7 @@ void insert (HASHTABLE_T* hashtable, char* key, HTYPE value) {
   if (++numStored > hashtable->table_size / 2) { 
     rehash(hashtable); 
   }
-} 
+} /* insert */
 
 
 /*   check if a position is being used  */
@@ -206,7 +214,7 @@ void rehash(HASHTABLE_T* hashtable) {
   hashtable->keys = newtable->keys;
   hashtable->table_size = newtable->table_size;
   free(newtable);
-}
+} /* rehash */
 
 
 /* Free the memory for a table, including all the data it contains, if
@@ -234,7 +242,7 @@ void freetable(HASHTABLE_T* hashtable) {
   }
   free(hashtable->keys);
   free(hashtable);
-}
+} /* freetable */
 
 /* this is really for debuggin */
 void printHash(HASHTABLE_T* hashtable) {
@@ -254,7 +262,7 @@ void printHash(HASHTABLE_T* hashtable) {
       }
     }
   }
-}
+} /* printhash */
 
 /*
  * hash.c

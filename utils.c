@@ -12,6 +12,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/va_list.h>
 #include <math.h>
 #include <assert.h>
 #include "utils.h"
@@ -91,9 +92,7 @@ BOOLEAN_T open_file
 /********************************************************************
  * See .h file for description.
  ********************************************************************/
-void die
-  (char *format, 
-   ...)
+void die  (char *format, ...)
 {
   va_list  argp;
 

@@ -6,6 +6,6 @@ matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c	\
 	colorscalebar.c locations.c cmdparse.c \
 	colormap.c
 
-INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN -DDEBUG -DSTRINGHASH -I/usr/include
+INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN -DSTRINGHASH 
 ETAGS_ARGS = ./*.h ./*.c /usr/include/gd.h 
 TAGS_DEPENDENCIES =  /usr/include/gd.h
