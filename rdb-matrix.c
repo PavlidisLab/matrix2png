@@ -1,8 +1,8 @@
 /*****************************************************************************
  * FILE: rdb-matrix.c
  * AUTHOR: William Grundy, Paul Pavlidis
- * CREATE DATE: 4/19/99, 2/2001
- * PROJECT: GENEX -> PLOTKIT
+ * CREATE DATE: 4/19/99
+ * PROJECT: GENEX -> PLOTKIT, etc.
  * DESCRIPTION: A matrix data structure with labels on rows and columns.
  *****************************************************************************/
 #include "rdb-matrix.h"
@@ -200,7 +200,7 @@ static BOOLEAN_T is_comment
   }
 
   /* Is it a hash mark? */
-  return(this_char == '#');
+  return(this_char == COMMENT_CHAR);
 }
 
 /***********************************************************************
@@ -216,7 +216,7 @@ static void read_one_row
   fgets_result = fgets(one_row, length, infile);
 
   if (one_row[strlen(one_row) - 1] != '\n') {
-    die("Matrix lines too long.  Increase length.");
+    die("Empty file; or matrix lines too long.");
   }
 }
 
@@ -535,12 +535,23 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 	    )
 	  {
 	    if (!(startcol >= 0 && i_column < startcol)) { // only if we've reached the required column selected by the user, if any.
-	      if(i_read >= num_cols) {
-		die("More data than column headings: Check data file format for correct header including 'corner string'.");
+	      if(i_read >= num_cols) { /* Don't do anything. Probably
+					  a trailing tab character -
+					  ignore it. This relaxes the
+					  requirements for the end of
+					  a line. If the entire column
+					  is blank, then we needn't be
+					  concerned. If there is any
+					  data in this extrac column
+					  it is caught by the
+					  following case. */
+
+		//		die("More data than column headings: Check data file format for correct header including 'corner string'.");
+	      } else {
+		set_array_item(i_read, NaN(), this_row);
+		num_missing++;
+		i_read++;
 	      }
-	      set_array_item(i_read, NaN(), this_row);
-	      num_missing++;
-	      i_read++;
 	    }
 	  }
 	else // not a missing dataum, store the value.
@@ -550,9 +561,10 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 	      num_scanned = sscanf(string, MSCAN, &one_value);
 	      if(i_read >= num_cols) {
 		die("More data than column headings: Check data file format for correct header including 'corner string'.");
+	      } else {
+		set_array_item(i_read, one_value, this_row);
+		i_read++;
 	      }
-	      set_array_item(i_read, one_value, this_row);
-	      i_read++;
 	    }
 	  }
 	this_char = 0;

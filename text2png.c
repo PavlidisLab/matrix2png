@@ -58,7 +58,7 @@ void calcTextDimensions (STRING_LIST_T* strings,
   int numstrings;
   int maxstring;
 
-  maxstring = max_string_length(strings);
+  maxstring = max_string_length(strings);  
   numstrings = get_num_strings(strings);
   if (numstrings < numtodo) {
     //    die ("Request to calculate space for more strings than are available (%d requested, %d available)\n", numtodo, numstrings);

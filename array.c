@@ -5,8 +5,9 @@
  * COPYRIGHT: 1997-1999, Regents of the University of California
 
  * DESCRIPTION: Some simple array-handling routines. This version
- * (modified by Paul) handles missing values. In some cases it relies
- * on the IEEE standard specification which states that all operations
+ * (modified by Paul) handles missing values for most functions (todo:
+ * exceptions of log-space functions). In some cases it relies on the
+ * IEEE standard specification which states that all operations
  * involving NaN result in NaN; in other cases, this result must be
  * avoided to prevent entire arrays being assigned NaN. This extra
  * checking will make this code somewhat slower than the
@@ -314,8 +315,7 @@ double dot_product
 }
 
 /***********************************************************************
- * Add a scalar value to each element of an array, unless it is
- * missing.
+ * Add a scalar value to each element of an array
  ***********************************************************************/
 void scalar_add
   (ATYPE    value,
@@ -326,15 +326,12 @@ void scalar_add
   
   num_items = get_array_length(array);
   for (i_item = 0; i_item < num_items; i_item++) {
-    if(isnan(get_array_item(i_item, array)))
-      continue;
     incr_array_item(i_item, value, array);
   }
 }
 
 /***********************************************************************
- * Multiply each element of an array by a scalar value,unless the
- * element is missing in which case it remains nan.
+ * Multiply each element of an array by a scalar value
  ***********************************************************************/
 void scalar_mult
   (ATYPE    value,
@@ -347,8 +344,6 @@ void scalar_mult
   num_items = get_array_length(array);
 
   for (i_item = 0; i_item < num_items; i_item++) {
-    if(isnan(get_array_item(i_item, array)))
-      continue;
     set_array_item(i_item, get_array_item(i_item, array) * value, array);
   }
 }
@@ -780,7 +775,7 @@ void mean_center_array
 
 
 /***********************************************************************
- * Normalize the elements of an array to sum to 1.0.
+ * Normalize the elements of an array to sum to 1.0. - missing values are ignored.
  ***********************************************************************/
 void normalize
   (ATYPE    close_enough, /* If the total is close to 1.0, don't bother. */
@@ -796,7 +791,9 @@ void normalize
     return;
   }
 
-  /* If there's nothing in the array, then return a uniform distribution. */
+  /* If there's nothing in the array, then return a uniform
+     distribution. Missing values are counted in determining
+     length. */
   if (total == 0.0) {
     init_array(1.0 / (ATYPE)get_array_length(array), array);
     return;
@@ -838,7 +835,8 @@ void unlog_array
 }
 
 /***********************************************************************
- * Compute the sum of an array in log space.
+ * Compute the sum of an array in log space. - if there are missing
+ * values, this is NaN todo: deal with missing values.
  ***********************************************************************/
 ATYPE log_array_total
   (ARRAY_T* array)
@@ -858,7 +856,7 @@ ATYPE log_array_total
 }
 
 /***********************************************************************
- * Normalize an array in log space.
+ * Normalize an array in log space.todo: deal with missing values.
  ***********************************************************************/
 void log_normalize
   (ATYPE    close_enough,
@@ -897,7 +895,7 @@ void log_normalize
 }
 
 /***********************************************************************
- * Mix two arrays in log space.
+ * Mix two arrays in log space. todo: deal with missing values.
  ***********************************************************************/
 void mix_log_arrays
   (float    mixing, /* Percent of array2 that will be retained. */

@@ -13,8 +13,12 @@
 #include "string-list.h"
 #include <stdio.h>
 #include <string.h>
+#include "hash.h"
+#include "matrix2png.h"
 
-/* read a discrete map file */
+/*****************************************************************************
+ * Read a discrete map from a file, or assign the default map.
+ *****************************************************************************/
 DISCRETEMAP_T* readDiscreteMap(FILE* file) 
 {
   char one_row[MAX_DROW];
@@ -22,27 +26,30 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
   int num_scanned;
   int one_value;
   char colorbuf[MAX_DROW];
+  char buf[10];
 
   DISCRETEMAP_T* return_value;
   return_value = allocateDiscreteMap();
 
   if (file == NULL) { // define the default map.
     int i;
-    char buf[10];
-    color_T colorary[DEFAULT_DISCRETE_MAPSIZE] = DEFAULT_DISCRETE_MAPARY;
+    color_T colorary[] = DEFAULT_DISCRETE_MAPARY; // see colordiscrete.h for definition.
 
-    for (i=0; i< DEFAULT_DISCRETE_MAPSIZE; i++) { // this is a total hack. Just assign values 'at random'
+    for (i=0; colorary[i] != NULL; i++) {
       if (return_value->maxcount <= return_value->count) {
 	growDiscreteMap(return_value);
       }
       return_value->colors[return_value->count]->namedcolor = colorary[i];
-
+      return_value->values[return_value->count] = i;
       sprintf(buf, "%d", return_value->count + 1);
       DEBUG_CODE(1, fprintf(stderr, "No label so got %s\n", buf););
       add_string(buf, return_value->labels); // use the integer value
       return_value->count++;
     }
   } else {
+
+    /* Read the first row, which is a header.*/
+    fgets(one_row, MAX_DROW, file);
 
     while(1) {
       if (fgets(one_row, MAX_DROW, file) == NULL) {
@@ -83,7 +90,6 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 	}
 
 	string_ptr = strtok(NULL, "\t\n\r"); // the color
-
 	if (string_ptr == NULL)	die("No color read for discrete map\n");
 	DEBUG_CODE(1, fprintf(stderr, "Got %s\n", string_ptr););
 	strcpy(colorbuf, string_ptr);
@@ -93,13 +99,15 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 	  add_string(string_ptr, return_value->labels); // use the label
 	  DEBUG_CODE(1, fprintf(stderr, "got %s\n", string_ptr););
 	} else { // make up a label.
-	  char buf[10]; // space for an integer value.
-	  sprintf(buf, "%d", return_value->count + 1);
+	  sprintf(buf, "%d", one_value);
 	  DEBUG_CODE(1, fprintf(stderr, "No label so got %s\n", buf););
 	  add_string(buf, return_value->labels); // use the integer value
 	}
-
+	return_value->values[return_value->count] = one_value; 
+	return_value->consecints[return_value->count] = return_value->count; // we need this...
 	string2color(colorbuf, return_value->colors[return_value->count]);
+	sprintf(buf, "%d", return_value->values[return_value->count]);
+	insert(return_value->mapping, buf, &(return_value->consecints[return_value->count]));
 	return_value->count++;
       }
     }
@@ -111,7 +119,10 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
   return(return_value);
 }
 
-/* allocate memory and initialize a discrete mapping data structure */
+
+/*****************************************************************************
+ * allocate memory and initialize a discrete mapping data structure
+ *****************************************************************************/
 DISCRETEMAP_T* allocateDiscreteMap(void)
 {
   int i;
@@ -119,17 +130,23 @@ DISCRETEMAP_T* allocateDiscreteMap(void)
 
   return_value = (DISCRETEMAP_T*)mymalloc(sizeof(DISCRETEMAP_T));
   return_value->colors = (colorV_T**)mymalloc(sizeof(colorV_T*)*DMAP_INITIAL_COUNT);
+  return_value->values = (int*)mymalloc(sizeof(int)*DMAP_INITIAL_COUNT);
+  return_value->consecints = (int*)mymalloc(sizeof(int)*DMAP_INITIAL_COUNT);
 
   for (i=0; i<DMAP_INITIAL_COUNT; i++) {
     return_value->colors[i] = initColorVByName((color_T)0);
   }
 
   return_value->labels = new_string_list();
+
+  return_value->default_used = FALSE;
   return_value->default_colorcode = initColorVByName((color_T)0);
   string2color(DEFAULT_DISCRETE_COLOR, return_value->default_colorcode);
+
   return_value->count = 0;
   return_value->maxcount = DMAP_INITIAL_COUNT;
-
+  return_value->usedValues = inittable(DMAP_INITIAL_COUNT);
+  return_value->mapping = inittable(DMAP_INITIAL_COUNT);
   if (strlen(DEFAULT_DISCRETE_LABEL) > DEFAULT_DISCRETE_LABEL_BUFSIZE)
     die("Default discrete label is too long. Need to increase defined DEFAULT_DISCRETE_LABEL_BUFSIZE");
   strcpy(return_value->defaultlabel, DEFAULT_DISCRETE_LABEL);
@@ -137,8 +154,10 @@ DISCRETEMAP_T* allocateDiscreteMap(void)
   return(return_value);
 }
 
+/*****************************************************************************
+ *Free a discrete map 
+ *****************************************************************************/
 void freeDiscreteMap(DISCRETEMAP_T* dmap) {
-  //  free(dmap->values);
   int i;
   for (i=0; i<dmap->count; i++) {
     free(dmap->colors[i]);
@@ -146,14 +165,22 @@ void freeDiscreteMap(DISCRETEMAP_T* dmap) {
   free_string_list(dmap->labels);
   free(dmap->default_colorcode);
   free(dmap->colors);
+  freetable(dmap->usedValues);
+  freetable(dmap->mapping);
+  free(dmap->values);
+  free(dmap->consecints);
   free(dmap);
 }
 
+/*****************************************************************************
+ * Make more room in a discrete map.
+ *****************************************************************************/
 void growDiscreteMap(DISCRETEMAP_T* dmap) {
   int newsize = dmap->count + DMAP_INITIAL_COUNT;
   int i;
   DEBUG_CODE(1, fprintf(stderr, "Growing map\n"););
-  //  dmap->values = (int*)myrealloc(dmap->values, sizeof(int)*newsize);
+  dmap->values = (int*)myrealloc(dmap->values, sizeof(int)*newsize);
+  dmap->consecints = (int*)myrealloc(dmap->consecints, sizeof(int)*newsize);
   dmap->colors = (colorV_T**)myrealloc(dmap->colors, newsize*sizeof(colorV_T*));
 
   for (i=dmap->count; i<newsize; i++) {
@@ -164,6 +191,39 @@ void growDiscreteMap(DISCRETEMAP_T* dmap) {
   DEBUG_CODE(1, fprintf(stderr, "Grew map\n"););
 }
 
+/*****************************************************************************
+ * Check the data for actual use of the values. Used for scale bar
+ *****************************************************************************/
+void checkDiscreteUsedValues(MATRIXINFO_T* matrixInfo)
+{
+  int i,j;
+  static int notnull = 1;
+  int* k;
+  char buf[100];
+  for (i=0; i<matrixInfo->numrows; i++) {
+    for(j=0; j<matrixInfo->numcols; j++) {
+
+      if (isnan(get_matrix_cell(i,j,matrixInfo->matrix)))
+	continue;
+      
+      sprintf(buf, "%d", (int)get_matrix_cell(i,j,matrixInfo->matrix));
+      k = (int*)find(matrixInfo->discreteMap->mapping, buf);
+      if (k == NULL) {
+	matrixInfo->discreteMap->default_used = TRUE;
+	//	fprintf(stderr, "Default is needed for %s\n", buf);
+      } else {
+	insert(matrixInfo->discreteMap->usedValues, buf, &notnull);
+	//	fprintf(stderr, "Found usage of %s\n", buf);
+      }
+    }
+  }
+  DEBUG_CODE(1, fprintf(stderr, "There are %d values used (not including the default)\n", matrixInfo->discreteMap->usedValues->num_items););
+}
+
+
+/*****************************************************************************
+ * Add colors to gdimage pallete for discete map.
+ *****************************************************************************/
 void allocateColorsDiscrete (gdImagePtr img, 
 			     DISCRETEMAP_T* dmap,
 			     colorV_T* backgroundColor, 	

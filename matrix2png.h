@@ -16,6 +16,7 @@
 #include "string-list.h"
 #include "utils.h"
 #include "matrix.h"
+#include "matrixinfo.h"
 #include "colordiscrete.h"
 #include "colors.h"
 
@@ -31,31 +32,6 @@
 #define DEFAULTDESCTEXTLOC (defineLocation("rightmiddle", rightmiddle, 1.0, 0.5))
 #define DEFAULTXPIXSIZE 2
 #define DEFAULTYPIXSIZE 2
-
-/* data structure for storing the details of the matrix image */
-typedef struct matrixinfo_t {
-  int ulx; /* upper left x etc */
-  int uly;
-  int lrx;
-  int lry;
-  int numrows; 
-  int numcols; 
-  int numColors;
-  int xblocksize;
-  int yblocksize;
-  double minval;
-  double maxval;
-  double outliers;
-  int xminSize; // todo: not needed
-  int yminSize; // todo: not needed
-  DISCRETEMAP_T* discreteMap;
-  USED_T* usedRegion;
-  BOOLEAN_T dividers;
-  BOOLEAN_T circles;
-} MATRIXINFO_T;
-
-/* create a new matrixinfo struct */
-MATRIXINFO_T* newMatrixInfo(void);
 
 /* function which: given a matrix, and some other information, returns
  * a pointer to a gdimage object */

@@ -40,7 +40,7 @@
 #define DEFAULTSCALEBARLENGTH 150
 #define DEFAULTSCALEBARHEIGHT 8
 #define DEFAULTSCALEBARBLOCKSIZE 10
-#define PADDING 5 /* pixel padding for some text features */
+#define PADDING 3 /* pixel padding for some text features */
 
 /* add a scale bar to an image. Must designate where to put it. If
  * space was not allotted in the image for the scale bar. It uses the
@@ -53,7 +53,8 @@ void drawScaleBar (
 	       int yStart,
 	       int thickness,
 	       int length,
-	       double* blocksize
+	       double* blocksize,
+	       MATRIXINFO_T* matrixInfo
 	       );
 
 void checkScaleBarDims (

@@ -30,6 +30,7 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
   int barWidth, barHeight;
   int xtotaloffset, ytotaloffset;
   double blocksize;
+
   
   // The following are 'reasonable' settings. For discrete mappings,
   // the text is always vertical for horizontal scale bars. (but here
@@ -44,11 +45,16 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
   barWidth  = DEFAULTSCALEBARLENGTH;
   if (matrixInfo->numColors > DEFAULTSCALEBARLENGTH) {
     barWidth  = matrixInfo->numColors; // allot one pixel per color, please.
-  } else if (matrixInfo->discreteMap) { // allot one font width/height per pixel please
-    if (!vertical && matrixInfo->discreteMap->count * CHARWIDTH > DEFAULTSCALEBARLENGTH ) {
-      barWidth = matrixInfo->discreteMap->count * CHARWIDTH;
-    } else if (vertical && matrixInfo->discreteMap->count * (LABELHEIGHT + 1) > DEFAULTSCALEBARLENGTH) {
-      barWidth = matrixInfo->discreteMap->count * (LABELHEIGHT + 1);
+  } else if (matrixInfo->discreteMap) { // allot one font width/height per value please.
+    int SKIPDEFAULT = 1;
+    checkDiscreteUsedValues(matrixInfo); 
+    if (matrixInfo->discreteMap->default_used) {
+      SKIPDEFAULT = 0;
+    }
+    if (!vertical) {
+      barWidth = (matrixInfo->discreteMap->count - SKIPDEFAULT) * (CHARWIDTH + 1);
+    } else if (vertical) {
+      barWidth = (matrixInfo->discreteMap->count - SKIPDEFAULT)  * (LABELHEIGHT + 1) ;
     }
   }
   barHeight = DEFAULTSCALEBARHEIGHT;
@@ -72,7 +78,7 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
   matrixInfo->lry += ytotaloffset;
 
   DEBUG_CODE(1, fprintf(stderr, "Adding scale bar at %d %d, %d by %d, offset %d %d\n", x, y, featureWidth, featureHeight, xoffset, yoffset););
-  drawScaleBar(img, vertical, x+xoffset, y+yoffset, barHeight, barWidth, &blocksize );
+  drawScaleBar(img, vertical, x+xoffset, y+yoffset, barHeight, barWidth, &blocksize, matrixInfo);
   labelScaleBar(img, includeMidVal, vertical, rotateLabels, x+xoffset, y+yoffset, barHeight, barWidth, blocksize, matrixInfo);
 
 } /* addScaleBar */

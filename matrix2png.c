@@ -23,7 +23,9 @@
 #include "cmdline.h"
 #include "cmdparse.h"
 #include "addextras.h"
+#include "matrixinfo.h"
 #include <float.h>
+
 
 /* create a new matrixinfo struct */
 MATRIXINFO_T* newMatrixInfo(void) {
@@ -113,6 +115,8 @@ gdImagePtr rawmatrix2img (
   int dividerColor = 0;
   int xSize = matrixInfo->xblocksize;
   int ySize = matrixInfo->yblocksize;
+  char buf[10];
+  int* k;
 
   /* create image to fit (1 pixel dividers)*/
   if (includeDividers) {
@@ -197,10 +201,26 @@ gdImagePtr rawmatrix2img (
       if (isnan(value)) {
 	colorcode = MISSING;
       } else if (matrixInfo->discreteMap != NULL) {
+	if (0) {
+	  value = value; // the old way....
+	} else { // hash way, allows flexibility in the values. Only
+		 // problem is that values in the file are coerced to
+		 // ints.
+	  sprintf(buf, "%d", (int)value);
+	  k = (int*)find(matrixInfo->discreteMap->mapping, buf);
+	  //	  fprintf(stderr, "Seeking: %s", buf);
+	  if (k==NULL) {
+	    value = (double)(-1);
+	    //	    fprintf(stderr, ": got null\n");
+	  } else {
+	    value = (double)(*k);
+	    //	    fprintf(stderr, ": got %d\n", (int)value);
+	  }
+	}
 	if (value > matrixInfo->discreteMap->count || value < 0) {
 	  colorcode = DEFAULT_DISCRETE_COLOR_INDEX;
 	} else {
-	  colorcode = (int)value + NUMRESERVEDCOLORS;
+	  colorcode = (int)value + NUMRESERVEDCOLORS + 1;
 	}
       } else {
  	/* clip color if necessary */
@@ -540,6 +560,7 @@ int main (int argc, char **argv) {
   usedRegion = initUsedRegion();
   matrixInfo = newMatrixInfo();
 
+  matrixInfo->matrix = dataMatrix;
   matrixInfo->xblocksize = xpixSize;
   matrixInfo->yblocksize = ypixSize;
   matrixInfo->outliers = outliers;

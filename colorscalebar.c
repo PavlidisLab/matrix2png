@@ -66,10 +66,16 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
   char middleLabel [MAXLABELLENGTH];
   int maxlength = 0;
 
+  int SKIPDEFAULT = 1;
+
   /* get the strings we need for labeling. The edge labels get special status. */
   if (matrixInfo->discreteMap == NULL) {
     double scaleMin = matrixInfo->minval;
     double scaleMax = matrixInfo->maxval;
+
+    if (matrixInfo->discreteMap->default_used) {
+      SKIPDEFAULT = 0;
+    }
 
     /* figure out maximum string length */
     sprintf(leftLabel, LABELFORMAT, scaleMin);
@@ -93,8 +99,10 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
     strcpy(rightLabel, get_nth_string(matrixInfo->discreteMap->count - 1, matrixInfo->discreteMap->labels));
     maxlength = max_string_length(matrixInfo->discreteMap->labels);
 
-    if ((int)strlen(matrixInfo->discreteMap->defaultlabel) > maxlength)
-      maxlength = strlen(matrixInfo->discreteMap->defaultlabel);
+    if (SKIPDEFAULT == 0) {
+      if ((int)strlen(matrixInfo->discreteMap->defaultlabel) > maxlength)
+	maxlength = strlen(matrixInfo->discreteMap->defaultlabel);
+    }
   }
 
   DEBUG_CODE(1, fprintf(stderr, "Longest string is %d, charwidth %d\n", maxlength, CHARWIDTH););
@@ -150,13 +158,21 @@ void drawScaleBar (
 	       int yStart,
 	       int thickness,
 	       int length,
-	       double* blockLength
+	       double* blockLength,
+	       MATRIXINFO_T* matrixInfo
 	       )
 {
   int i;
   double x, y;
   int numColors = gdImageColorsTotal(img);
   int width, height;
+
+  int SKIPDEFAULT; 
+  if (matrixInfo->discreteMap != NULL && !matrixInfo->discreteMap->default_used) {
+    SKIPDEFAULT = 1; 
+  } else {
+    SKIPDEFAULT = 0; 
+  }
 
   if (vertical) {
     width = thickness;
@@ -165,10 +181,10 @@ void drawScaleBar (
     width = length;
     height = thickness;
   }
-  
+
   checkScaleBarDims(img, vertical, xStart, yStart, thickness, length);
  
-  *blockLength = ((double)length/(numColors - NUMRESERVEDCOLORS));
+  *blockLength = ((double)length/(numColors - NUMRESERVEDCOLORS ));
   if (*blockLength < 1.0) *blockLength = 1.0;
   
   DEBUG_CODE(1, fprintf(stderr, "Block length is %f and there will be %d colors in the scale bar\n", *blockLength, numColors - NUMRESERVEDCOLORS););
@@ -176,14 +192,21 @@ void drawScaleBar (
   x = (double)xStart;
   y = (double)yStart;
 
-  for (i = NUMRESERVEDCOLORS; i<numColors; i++) {
+  for (i = NUMRESERVEDCOLORS + SKIPDEFAULT; i<numColors; i++) {
     if (vertical) { /* high values at the top */
-      gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + *blockLength, numColors + NUMRESERVEDCOLORS - 1 - i);
+      gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + *blockLength, numColors + NUMRESERVEDCOLORS + SKIPDEFAULT - 1 - i);
       y+= *blockLength;
     } else { /* high values at the right */
       gdImageFilledRectangle(img, x, yStart, x + *blockLength, yStart + thickness, i);
       x+= *blockLength;
     }
+  }
+
+  /* draw a black box around the scale bar. */
+  if (vertical) {
+    gdImageRectangle(img, xStart, yStart, x + thickness, y, 2);
+  }  else {
+    gdImageRectangle(img, xStart, yStart, x, y + thickness, 2);
   }
 
 } /* drawScaleBar */
@@ -213,6 +236,7 @@ void labelScaleBar (
   int textIntensity;
   double scaleMin = matrixInfo->minval;
   double scaleMax = matrixInfo->maxval;
+  int SKIPDEFAULT = 1;
 
   checkScaleBarDims(img, vertical, scaleBarxStart, scaleBaryStart, scaleBarthickness, scaleBarlength);
 
@@ -228,19 +252,28 @@ void labelScaleBar (
   if (matrixInfo->discreteMap != NULL) {
     int i;
     int numvals = matrixInfo->discreteMap->count;
+
+    if (matrixInfo->discreteMap->default_used) {
+      SKIPDEFAULT = 0;
+    }
+
     if (vertical) {
       // add the bottom label for default values
-      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength - LABELHEIGHT, 
-		    (unsigned char*)matrixInfo->discreteMap->defaultlabel,  gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      if (SKIPDEFAULT == 0) {
+	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength - LABELHEIGHT, 
+		      (unsigned char*)matrixInfo->discreteMap->defaultlabel,  gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      }
       for (i=0; i<numvals; i++) {
-	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + blocksize*i, 
+	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + blocksize*i - 2,
 		      (unsigned char*)get_nth_string(numvals - i - 1, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
     } else { // horizontal
-      gdImageStringUp(img, LABELFONT, scaleBarxStart - 1, scaleBaryStart - PADDING, // the minus one is a position tweak. Sorry!
-		      (unsigned char*)matrixInfo->discreteMap->defaultlabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      if (SKIPDEFAULT == 0) { // default value at the left.
+	gdImageStringUp(img, LABELFONT, scaleBarxStart - 1, scaleBaryStart - PADDING, // the minus one is a position tweak. Sorry!
+			(unsigned char*)matrixInfo->discreteMap->defaultlabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      }
       for (i=0; i<numvals; i++) {
-	gdImageStringUp(img, LABELFONT, scaleBarxStart - 1 + blocksize*(i+1), scaleBaryStart - PADDING,  // the minus one is a position tweak. Sorry!
+	gdImageStringUp(img, LABELFONT, scaleBarxStart - 1 + blocksize*(i+SKIPDEFAULT), scaleBaryStart - PADDING,  // the minus one is a position tweak. Sorry!
 		      (unsigned char*)get_nth_string(i, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
     }
@@ -301,6 +334,3 @@ void labelScaleBar (
 /* 
  * colorscalebar.c
  */
-
-
-

@@ -1,3 +1,8 @@
+2002-07-04  Paul Pavlidis  <pavlidis@microarray>
+
+	* hash.c: This is now working after being
+	long-neglected.
+
 2002-07-03  Paul Pavlidis  <pavlidis@microarray>
 
 	* colorscalebar.c: Many improvements - scale bars work much better

@@ -81,9 +81,11 @@ void allocateColors (
   color2rgb(backgroundColor, &backgroundRed, &backgroundGreen, &backgroundBlue);
   color2rgb(missingColor, &missingRed, &missingGreen, &missingBlue);
   
-  /* the following calls take care of the 'reserved' colors that
-     we need to have around. Some colors could get allocated twice
-     this way */
+  /* the following calls take care of the 'reserved' colors that we
+     need to have around. Some colors could get allocated twice this
+     way. Todo: make the always-required colors allocated in a
+     separate function call, because this is done in several places in the
+     code. */
 
   /* allocate the background color, index 0 */
   checkColor(gdImageColorAllocate(img, backgroundRed, backgroundGreen, backgroundBlue));
@@ -316,8 +318,8 @@ void makeColors (gdImagePtr img,
 
 
 /*****************************************************************************
- * figure out if black or white text should be used, depending on the
- * background color
+ * Figure out if black or white text should be used, depending on the
+ * background color. This could be better.
  *****************************************************************************/
 int chooseContrastingColor(gdImagePtr img)
 {
@@ -325,10 +327,10 @@ int chooseContrastingColor(gdImagePtr img)
   r = gdImageRed(img, 0); /* Note that these are documented as gdImageColorRed etc - maybe it is so in the latest version of gd? */
   g = gdImageGreen(img, 0);
   b = gdImageBlue(img, 0);
-  if (r < 128 && g < 128 && b < 128) {
-    return  255; /* use white */
+  if (r + g + b < 325) { /* if color is dark, use white. The value 325 was arrived at by experientation. */
+    return 255;/* use white */
   } else {
-    return 0; /* use black */
+    return  0;  /* use black */
   }
 } /* choosecontrastingColor */
 
@@ -382,7 +384,7 @@ colorV_T* initColorVByName (color_T named) {
   return(return_value);
 }
 
-/* error codes */
+/* error codes. This is not really that useful any more, should probably just use 'die' */
 void colorError(colorerrorcode_T colorerrorcode, ...)
 {
   va_list  argp;

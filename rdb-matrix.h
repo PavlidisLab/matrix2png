@@ -13,6 +13,8 @@
 #include "array.h"
 #include "utils.h"
 
+/* lines beginning with this are taken to be comments */
+#define COMMENT_CHAR '#'
 
 /***************************************************************************
  * Define the RDB matrix type.

@@ -65,7 +65,7 @@ PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
 bin_PROGRAMS = matrix2png
-matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c 	utils.c text2png.c rdb-matrix.c addextras.c colors.c 	colormap.c colordiscrete.c 	colorscalebar.c locations.c cmdparse.c 
+matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c 	utils.c text2png.c rdb-matrix.c addextras.c colors.c 	colormap.c colordiscrete.c 	colorscalebar.c locations.c cmdparse.c hash.c primes.c
 
 
 #INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN  -Wall -W -Werror
@@ -87,7 +87,7 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 matrix2png_OBJECTS =  matrix2png.o string-list.o matrix.o array.o \
 utils.o text2png.o rdb-matrix.o addextras.o colors.o colormap.o \
-colordiscrete.o colorscalebar.o locations.o cmdparse.o
+colordiscrete.o colorscalebar.o locations.o cmdparse.o hash.o primes.o
 matrix2png_LDADD = $(LDADD)
 matrix2png_DEPENDENCIES = 
 matrix2png_LDFLAGS = 
@@ -106,9 +106,9 @@ TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/addextras.P .deps/array.P .deps/cmdparse.P \
 .deps/colordiscrete.P .deps/colormap.P .deps/colors.P \
-.deps/colorscalebar.P .deps/locations.P .deps/matrix.P \
-.deps/matrix2png.P .deps/rdb-matrix.P .deps/string-list.P \
-.deps/text2png.P .deps/utils.P
+.deps/colorscalebar.P .deps/hash.P .deps/locations.P .deps/matrix.P \
+.deps/matrix2png.P .deps/primes.P .deps/rdb-matrix.P \
+.deps/string-list.P .deps/text2png.P .deps/utils.P
 SOURCES = $(matrix2png_SOURCES)
 OBJECTS = $(matrix2png_OBJECTS)
 

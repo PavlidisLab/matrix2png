@@ -23,9 +23,9 @@ struct string_list_t {
 /*************************************************************************
  * Allocate dynamic memory for a string list.
  *************************************************************************/
-#define DEFAULT_MAX_STRINGS 10
-#define DEFAULT_STRING_LENGTH 1
-#define DEFAULT_LINE_LENGTH 5000 /* max length of a line read from a file */
+#define DEFAULT_MAX_STRINGS 100
+#define DEFAULT_STRING_LENGTH 1 /* max_string_length reports at minimum this value, so this should be set to 1 */
+#define DEFAULT_LINE_LENGTH 50000 /* max length of a line read from a file */
 STRING_LIST_T* new_string_list
   ()
 {
@@ -402,7 +402,7 @@ char* combine_string_list
 
 
 /*****************************************************************************
- * Read a list of strings from a given file. Paul fixed this to work with longer lines of text.
+ * Read a list of strings from a given file.
  *****************************************************************************/
 STRING_LIST_T* read_string_list
   (FILE* infile)

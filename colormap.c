@@ -148,7 +148,7 @@ void allocateColorMap (
 
 
 /*****************************************************************************
- * 
+ * Decipher a color map request
  *****************************************************************************/
 char** getColorMap (int colorMap) {
   DEBUG_CODE(1, fprintf(stderr, "Requested Color map is %d\n", colorMap););
