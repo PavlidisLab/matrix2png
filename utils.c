@@ -1,4 +1,4 @@
-/********************************************************************
+x/********************************************************************
  * FILE: utils.c
  * AUTHOR: William Noble Grundy
  * CREATE DATE: 9-8-97
@@ -8,11 +8,9 @@
  ********************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <sys/time.h>
 #include <sys/resource.h>
-#include <sys/va_list.h>
 #include <math.h>
 #include <assert.h>
 #include "utils.h"
@@ -94,14 +92,6 @@ BOOLEAN_T open_file
  ********************************************************************/
 void die  (char *format, ...)
 {
-  va_list  argp;
-
-  fprintf(stderr, "FATAL: ");
-  va_start(argp, format);
-  vfprintf(stderr, format, argp);
-  va_end(argp);
-  fprintf(stderr, "\n");
-  fflush(stderr);
 
 #ifdef DEBUG
   abort();
@@ -120,32 +110,16 @@ void myassert
    char * const    format,
    ...)
 {
-  va_list  argp;
-
-  if (!test) {
-
-    if (die_on_error) {
-      fprintf(stderr, "FATAL: ");
-    } else {
-      fprintf(stderr, "WARNING: ");
-    }
-
-    /* Issue the error message. */
-    va_start(argp, format);
-    vfprintf(stderr, format, argp);
-    va_end(argp);
-    fprintf(stderr, "\n");
-    fflush(stderr);
     
-    if (die_on_error) {
+  if (die_on_error) {
 #ifdef DEBUG
-      abort();
+    abort();
 #else
-      exit(1);
+    exit(1);
 #endif
-    }
-  }      
-}
+  }
+}      
+
 
 
 
@@ -520,44 +494,11 @@ char * copy_string
   return(*target);
 }
 
-#ifdef MAIN
-int main (int argc, char *argv[])
-{
-  FILE *infile;
-  char word[1000];
-  long seed;
-  int i, j;
-
-  if (argc != 2) {
-    die("USAGE: utils <filename>");
-  }
-
-  if (open_file(argv[1], "r", 1, "input", "", &infile) == 0)
-    exit(1);
-
-  while (fscanf(infile, "%s", word) == 1)
-    printf("%s ", word);
-
-  fclose(infile);
-
-  /* Test the random number generator. */
-  seed = time(0);
-  my_srand(seed);
-  printf("\nSome random numbers (seed=%ld): \n", seed);
-  for (i = 0; i < 10; i++) {
-    for (j = 0; j < 10; j++) {
-      printf("%6.4f ", my_drand());
-    }
-    printf("\n");
-  }
-  return(0);
-}
-
-#endif /* main */
-
 /*
  * Local Variables:
  * mode: c
  * c-basic-offset: 2
  * End:
  */
+
+

@@ -26,7 +26,6 @@ AC_CHECK_LIB(z, main)
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(sys/time.h)
-AC_CHECK_HEADERS(sys/va_list.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
