@@ -590,6 +590,15 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
       }
       i_char++; // advance in string.
     }
+
+    /* Make sure we got enough values (counting missing values */
+    if (!(colstoread > 0 && i_read < colstoread) && i_read < get_num_strings(col_names)) {
+      die("Line %d didn't have enough fields in it. Expected %d based on header, found only %d. If a missing value was intended, it must be properly indicated (see documentation).",
+	  i_row,
+	  colstoread > 0 ? colstoread : get_num_strings(col_names), 
+	  i_read );
+    }
+
     /* Add this row to the matrix. */
     grow_matrix(this_row, matrix);
   }

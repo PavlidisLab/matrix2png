@@ -1,6 +1,6 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
 
-# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -65,7 +65,15 @@ PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
 bin_PROGRAMS = matrix2png
-matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c 	utils.c text2png.c rdb-matrix.c addextras.c colors.c 	colormap.c colordiscrete.c 	colorscalebar.c locations.c cmdparse.c hash.c primes.c 	matrix2png.h string-list.h matrix.h array.h 	utils.h text2png.h rdb-matrix.h addextras.h colors.h 	colormap.h colordiscrete.h 	colorscalebar.h locations.h cmdparse.h hash.h primes.h 	cmdline.h matrixinfo.h
+matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c \
+	utils.c text2png.c rdb-matrix.c addextras.c colors.c \
+	colormap.c colordiscrete.c \
+	colorscalebar.c locations.c cmdparse.c hash.c primes.c \
+	matrix2png.h string-list.h matrix.h array.h \
+	utils.h text2png.h rdb-matrix.h addextras.h colors.h \
+	colormap.h colordiscrete.h \
+	colorscalebar.h locations.h cmdparse.h hash.h primes.h \
+	cmdline.h matrixinfo.h
 
 
 #INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN  -Wall -W -Werror
@@ -249,7 +257,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

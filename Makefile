@@ -1,6 +1,7 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Generated automatically from Makefile.in by configure.
+# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
 
-# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -11,11 +12,10 @@
 # PARTICULAR PURPOSE.
 
 
-SHELL = /bin/bash
+SHELL = /bin/sh
 
 srcdir = .
 top_srcdir = .
-
 prefix = ..
 exec_prefix = ${prefix}
 
@@ -45,10 +45,10 @@ AUTOCONF = autoconf
 AUTOMAKE = automake
 AUTOHEADER = autoheader
 
-INSTALL = ./install-sh -c
+INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = ${INSTALL} -m 644
-INSTALL_SCRIPT = ${INSTALL}
+INSTALL_SCRIPT = ${INSTALL_PROGRAM}
 transform = s,x,x,
 
 NORMAL_INSTALL = :
@@ -62,10 +62,18 @@ CC = gcc
 LN_S = ln -s
 MAKEINFO = makeinfo
 PACKAGE = matrix2png
-VERSION = 1.0.2
+VERSION = 1.0.3
 
 bin_PROGRAMS = matrix2png
-matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c 	utils.c text2png.c rdb-matrix.c addextras.c colors.c 	colormap.c colordiscrete.c 	colorscalebar.c locations.c cmdparse.c hash.c primes.c 	matrix2png.h string-list.h matrix.h array.h 	utils.h text2png.h rdb-matrix.h addextras.h colors.h 	colormap.h colordiscrete.h 	colorscalebar.h locations.h cmdparse.h hash.h primes.h 	cmdline.h matrixinfo.h
+matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c \
+	utils.c text2png.c rdb-matrix.c addextras.c colors.c \
+	colormap.c colordiscrete.c \
+	colorscalebar.c locations.c cmdparse.c hash.c primes.c \
+	matrix2png.h string-list.h matrix.h array.h \
+	utils.h text2png.h rdb-matrix.h addextras.h colors.h \
+	colormap.h colordiscrete.h \
+	colorscalebar.h locations.h cmdparse.h hash.h primes.h \
+	cmdline.h matrixinfo.h
 
 
 #INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN  -Wall -W -Werror
@@ -80,7 +88,7 @@ CONFIG_CLEAN_FILES =
 PROGRAMS =  $(bin_PROGRAMS)
 
 
-DEFS = -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE=\"matrix2png\" -DVERSION=\"1.0.2\" -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DHAVE_LIBGD=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_STDIO_H=1 -DHAVE_ASSERT_H=1 -DHAVE_STRING_H=1 -DHAVE_VPRINTF=1 -DHAVE_DOPRNT=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1  -I. -I$(srcdir) 
+DEFS =  -DPACKAGE=\"matrix2png\" -DVERSION=\"1.0.3\" -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DHAVE_LIBGD=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TIME_H=1 -DHAVE_STDIO_H=1 -DHAVE_ASSERT_H=1 -DHAVE_STRING_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1  -I. -I$(srcdir) 
 CPPFLAGS = 
 LDFLAGS = 
 LIBS = -lgd -lz -lpng -lm 
@@ -249,7 +257,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
