@@ -266,6 +266,7 @@ int main (int argc, char **argv) {
   FILE* pngout;
   char* dataFilename = NULL;
   FILE* dataFile;
+  FILE* discreteMappingFile;
   MATRIX_T* dataMatrix;
   RDB_MATRIX_T* rdbdataMatrix;
   USED_T* usedRegion; /* keep track of free space on the image canvas */
@@ -291,6 +292,8 @@ int main (int argc, char **argv) {
   int numr = -1; /* number of rows to process */
   int numc = -1; /* number of columsn to process */
   double outliers = 0.0;
+  int startrow = 0;
+  int startcol = 0;
 
   /* the following are given in the format xDIVIDERy */
   char* rangeInput = NULL;
@@ -352,16 +355,23 @@ int main (int argc, char **argv) {
 	       bkgColorInput = _OPTION_);
      DATA_OPTN(1, map, : color map choice: overrides min/max colors (default = 0 (none) ),
 	       colorMap = atoi(_OPTION_));
-     DATA_OPTN(1, numr, Number of rows to process,
+     DATA_OPTN(1, discrete, <mapping file> : Use discretized mapping of values to colors as defined by <mapping file>,
+	       discreteMappingFile = _OPTION_);
+     DATA_OPTN(1, numr, : Number of rows to process starting from the top of the matrix by default,
 	       numr = atoi(_OPTION_));
-     DATA_OPTN(1, numc, Number of columns to process,
+     DATA_OPTN(1, numc, : Number of columns to process starting from the left edge of the matrix by default,
 	       numc = atoi(_OPTION_));
-     DATA_OPTN(1, numtodo, Number of rows to process (deprecated),
+     DATA_OPTN(1, numtodo, : Number of rows to process (deprecated),
 	       numr = atoi(_OPTION_));
-     DATA_OPTN(1, outliers, Trim this percent of outliers (only without the -range option),
+     DATA_OPTN(1, outliers, : Trim this percent of outliers (only without the -range option),
 	       outliers = atof(_OPTION_));
-     DATA_OPTN(1, verbose, Verbosity of the output 1|2|3|4|5 (default=2),
+     DATA_OPTN(1, verbose, : Verbosity of the output 1|2|3|4|5 (default=2),
 	       verbosity = (VERBOSE_T)atoi(_OPTION_));
+     DATA_OPTN(1, startrow, : Index of the first row to be processed; can combine with numr (default=1),
+	       startrow = atoi(_OPTION_));
+     DATA_OPTN(1, startcol, : Index of the first column to be processed; can combine with numc (default=1),
+	       startrow = atoi(_OPTION_));
+     
      SIMPLE_CFLAG_OPTN(1, b, passThroughBlack);
      SIMPLE_CFLAG_OPTN(1, d, dodividers);
      SIMPLE_CFLAG_OPTN(1, s, doscalebar);
@@ -452,6 +462,14 @@ int main (int argc, char **argv) {
 
   if (docolnames)
     colnames = get_col_names(rdbdataMatrix);
+
+  if (startrow >= 1) {
+    startrow--;
+  }
+
+  if (startcol >= 1) {
+    startcol--;
+  }
 
   if (numr < 0 || numr > numactualrows)
     numr = numactualrows;    
