@@ -11,6 +11,7 @@
 #include "colorscalebar.h"
 #include "colors.h"
 #include "utils.h"
+#include <math.h>
 #include <string.h>
 #include <stdio.h>
 #include "matrix2png.h"
@@ -84,7 +85,8 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
 	maxlength = strlen(leftLabel);
       else if (strlen(rightLabel) >= strlen(leftLabel) && strlen(rightLabel) >=  strlen(middleLabel)) 
 	maxlength = strlen(rightLabel);
-      else maxlength = strlen(middleLabel);
+      else 
+	maxlength = strlen(middleLabel);
     } else {
       if (strlen(leftLabel) >= strlen(rightLabel))
 	maxlength = strlen(leftLabel);
@@ -168,15 +170,26 @@ void drawScaleBar (
 {
   int i;
   double x, y;
-  int numColors = gdImageColorsTotal(img);
+  int numColors = 0;
   int width, height;
-
   int SKIPDEFAULT; 
+
+
+
   if (matrixInfo->discreteMap != NULL && !matrixInfo->discreteMap->default_used) {
-    SKIPDEFAULT = 1; 
+    DEBUG_CODE(1, fprintf(stderr, "Discrete scalebar: skipping default value\n"););
+    SKIPDEFAULT = 1;
   } else {
-    SKIPDEFAULT = 0; 
+    SKIPDEFAULT = 0;
   }
+
+  if (matrixInfo->discreteMap != NULL) {
+    numColors = matrixInfo->discreteMap->count;
+  } else {
+    numColors = gdImageColorsTotal(img) - NUMRESERVEDCOLORS;
+  }
+
+  DEBUG_CODE(1, fprintf(stderr, "There are %d colors allocated in the image total.\n", numColors););
 
   if (vertical) {
     width = thickness;
@@ -187,18 +200,20 @@ void drawScaleBar (
   }
 
   checkScaleBarDims(img, vertical, xStart, yStart, thickness, length);
- 
-  *blockLength = ((double)length/(numColors - NUMRESERVEDCOLORS ));
+
+  *blockLength = (double)length/(numColors + (SKIPDEFAULT ? 0 : 1));
+
   if (*blockLength < 1.0) *blockLength = 1.0;
   
-  DEBUG_CODE(1, fprintf(stderr, "Block length is %f and there will be %d colors in the scale bar\n", *blockLength, numColors - NUMRESERVEDCOLORS););
+  DEBUG_CODE(1, fprintf(stderr, "Block length is %f and there will be %d colors in the scale bar of target length %d\n", *blockLength, numColors, length););
   
   x = (double)xStart;
   y = (double)yStart;
 
-  for (i = NUMRESERVEDCOLORS; i<numColors-1; i++) {
+  for (i = NUMRESERVEDCOLORS; i< numColors + NUMRESERVEDCOLORS; i++) {
     if (vertical) {
       if (matrixInfo->discreteMap != NULL) { /* in order entered */
+	DEBUG_CODE(1, fprintf(stderr, "Drawing discrete colorbar block for color %d at x=%d, y=%d\n", i+1, (int)xStart, (int)y););
 	gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + *blockLength, i + 1);
       } else { /* high values at the top */
 	gdImageFilledRectangle(img, xStart, (int)y, xStart + thickness, (int)(y + *blockLength), numColors + NUMRESERVEDCOLORS - 1 - i);
@@ -224,8 +239,10 @@ void drawScaleBar (
   /* draw a black box around the scale bar. */
   if (vertical) {
     gdImageRectangle(img, xStart - 1, yStart - 1, x + thickness, y, 2);
+    DEBUG_CODE(1, fprintf(stderr, "Actual length of color bar is %d\n", (int)(y - yStart)););
   }  else {
     gdImageRectangle(img, xStart - 1, yStart - 1, x, y + thickness, 2);
+    DEBUG_CODE(1, fprintf(stderr, "Actual length of color bar is %d\n", (int)(x - xStart));); 
   }
 
 } /* drawScaleBar */
@@ -274,6 +291,8 @@ void labelScaleBar (
 
     if (matrixInfo->discreteMap->default_used) {
       SKIPDEFAULT = 0;
+    } else {
+      SKIPDEFAULT = 1;
     }
 
     if (vertical) {
@@ -335,6 +354,7 @@ void labelScaleBar (
 	gdImageString(img, LABELFONT, scaleBarxStart -  CHARWIDTH*strlen(leftLabel)/2, scaleBaryStart - LABELHEIGHT, 
 		      (unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
 	/* right label */
+	DEBUG_CODE(1, fprintf(stderr, "Putting right scale bar label at x=%d, bar length is %d, label has length %d, scale starts at %d\n", scaleBarxStart + scaleBarlength -  CHARWIDTH*strlen(rightLabel)/2, scaleBarlength, CHARWIDTH*strlen(rightLabel), scaleBarxStart););
 	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarlength -  CHARWIDTH*strlen(rightLabel)/2, scaleBaryStart - LABELHEIGHT,
 		      (unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
 	

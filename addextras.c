@@ -46,7 +46,7 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
   barWidth  = DEFAULTSCALEBARLENGTH;
 
   if (matrixInfo->numColors > DEFAULTSCALEBARLENGTH) {
-    barWidth  = matrixInfo->numColors; // allot one pixel per color, please.
+    barWidth  = matrixInfo->numColors; // allot at least one pixel per color, please.
   } else if (matrixInfo->discreteMap) { // allot one font width/height per value please.
     int SKIPDEFAULT = 1;
     checkDiscreteUsedValues(matrixInfo); 
@@ -54,14 +54,13 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
       SKIPDEFAULT = 0;
     }
     if (!vertical) {
-      barWidth = (matrixInfo->discreteMap->count - SKIPDEFAULT) * (CHARWIDTH + 1);
+      barWidth = (matrixInfo->discreteMap->count + (SKIPDEFAULT ? 0 : 1)) * (CHARWIDTH + 1);
     } else if (vertical) {
-      barWidth = (matrixInfo->discreteMap->count - SKIPDEFAULT)  * (LABELHEIGHT + 1) ;
+      barWidth = (matrixInfo->discreteMap->count + (SKIPDEFAULT ? 0 : 1))  * (LABELHEIGHT + 1) ;
     }
+    DEBUG_CODE(1, fprintf(stderr, "Scale bar width will be %d for %d colors and %d defaults\n", barWidth, matrixInfo->discreteMap->count, SKIPDEFAULT ? 0 : 1););
   }
   barHeight = DEFAULTSCALEBARHEIGHT;
-
-
 
   /* get the total size including labels and padding */
   getTotalScaleBarDims(TRUE, includeMidVal, vertical, rotateLabels, barWidth, barHeight, 
@@ -81,7 +80,7 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
   matrixInfo->lrx += xtotaloffset;
   matrixInfo->lry += ytotaloffset;
 
-  DEBUG_CODE(1, fprintf(stderr, "Adding scale bar at %d %d, %d by %d, offset %d %d\n", x, y, featureWidth, featureHeight, xoffset, yoffset););
+  DEBUG_CODE(1, fprintf(stderr, "Adding scale bar of length %d at %d %d, %d by %d, offset %d %d\n", barWidth, x, y, featureWidth, featureHeight, xoffset, yoffset););
   drawScaleBar(img, vertical, x+xoffset, y+yoffset, barHeight, barWidth, &blocksize, matrixInfo);
   labelScaleBar(img, includeMidVal, vertical, rotateLabels, x+xoffset, y+yoffset, barHeight, barWidth, blocksize, matrixInfo);
 
@@ -113,7 +112,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   linespacing = yBlockSize - font->h;
   DEBUG_CODE(1, if(linespacing<0) die("Linespacing is < 0"););
 
-  calcTextDimensions(rowLabels, matrixInfo->numrows, FALSE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
+  calcTextDimensions(rowLabels, matrixInfo->rowsToUse, FALSE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
   DEBUG_CODE(1, fprintf(stderr, "Adding row labels %d %d\n", textWidth, textHeight););
 
   // todo: make location user-settable.
@@ -123,7 +122,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   matrixInfo->uly += yoffset;
   matrixInfo->lrx += xoffset;
   matrixInfo->lry += yoffset;
-  stringlist2image(img, rowLabels, matrixInfo->numrows, FALSE, FALSE, TEXTPADDING, linespacing, initX, initY, font);
+  stringlist2image(img, rowLabels, matrixInfo->rowsToUse, FALSE, FALSE, TEXTPADDING, linespacing, initX, initY, font);
 
 } /* addRowLabels */
 

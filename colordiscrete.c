@@ -82,7 +82,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 	    die("Default discrete label is too long. Need to increase defined DEFAULT_DISCRETE_LABEL_BUFSIZE");
 	  strcpy(return_value->defaultlabel, string_ptr);
 	}
-	return_value->default_used = TRUE;
+	//	return_value->default_used = TRUE; // only set this if we actually see the need for the default value.
 
 	string2color(colorbuf, return_value->default_colorcode);
       } else { // regular value.
@@ -203,6 +203,8 @@ void checkDiscreteUsedValues(MATRIXINFO_T* matrixInfo)
   static int notnull = 1;
   int* k;
   char buf[100];
+  matrixInfo->discreteMap->default_used = FALSE;
+
   for (i=0; i<matrixInfo->numrows; i++) {
     for(j=0; j<matrixInfo->numcols; j++) {
 
@@ -213,14 +215,15 @@ void checkDiscreteUsedValues(MATRIXINFO_T* matrixInfo)
       k = (int*)find(matrixInfo->discreteMap->mapping, buf);
       if (k == NULL) {
 	matrixInfo->discreteMap->default_used = TRUE;
-	//	fprintf(stderr, "Default is needed for %s\n", buf);
+	//	DEBUG_CODE(1, fprintf(stderr, "Default is needed for %s\n", buf););
       } else {
 	insert(matrixInfo->discreteMap->usedValues, buf, &notnull);
-	//	fprintf(stderr, "Found usage of %s\n", buf);
+	//	DEBUG_CODE(1, fprintf(stderr, "Found usage of %s\n", buf););
       }
     }
   }
   DEBUG_CODE(1, fprintf(stderr, "There are %d values used (not including the default)\n", matrixInfo->discreteMap->usedValues->num_items););
+  DEBUG_CODE(1, fprintf(stderr, "The default %s used\n", matrixInfo->discreteMap->default_used ? "is" : "is not"););
 }
 
 
