@@ -23,7 +23,7 @@
 /*****************************************************************************
  * addScaleBar
  *****************************************************************************/
-void addScaleBar(gdImagePtr img, USED_T* usedRegion, MATRIXINFO_T* matrixInfo)    
+void addScaleBar(gdImagePtr img, USED_T* usedRegion, MATRIXINFO_T* matrixInfo, int numcolors)
 {
   int x, y, xoffset, yoffset; /* the offsets are where the actual scale bar starts, exclusive of labels */
   int featureWidth, featureHeight;
@@ -33,7 +33,11 @@ void addScaleBar(gdImagePtr img, USED_T* usedRegion, MATRIXINFO_T* matrixInfo)
   BOOLEAN_T vertical = FALSE;
   BOOLEAN_T includeMidVal = FALSE;
   
-  barWidth =  DEFAULTSCALEBARLENGTH;
+  if (numcolors > DEFAULTSCALEBARLENGTH) {
+    barWidth  = numcolors;
+  } else {
+    barWidth  = DEFAULTSCALEBARLENGTH;
+  }
   barHeight = DEFAULTSCALEBARHEIGHT;
 
   /* should check to see that the default width is enough. */

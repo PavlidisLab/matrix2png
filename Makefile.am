@@ -7,5 +7,5 @@ matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c	\
 	colormap.c
 
 INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN -DSTRINGHASH
-ETAGS_ARGS = ./*.h ./*.c /usr/include/gd.h 
-TAGS_DEPENDENCIES =  /usr/include/gd.h
+ETAGS_ARGS = ./*.h ./*.c /usr/local/include/gd.h 
+TAGS_DEPENDENCIES =  /usr/local/include/gd.h

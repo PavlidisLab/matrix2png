@@ -459,7 +459,7 @@ int main (int argc, char **argv) {
   if (dorownames) addRowLabels(img, rownames, usedRegion, ypixSize, matrixInfo);
   if (dodesctext) addRowLabels(img, desctext, usedRegion, ypixSize, matrixInfo);
   if (docolnames) addColLabels(img, colnames, usedRegion, xpixSize, matrixInfo);
-  if (doscalebar) addScaleBar(img, usedRegion, matrixInfo);
+  if (doscalebar) addScaleBar(img, usedRegion, matrixInfo, numcolors);
 
   /* test: add highlight to some of the image */
   DEBUG_CODE(0, 

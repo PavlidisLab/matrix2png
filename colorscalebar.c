@@ -27,7 +27,7 @@ void checkScaleBarDims (
 			int length
 			)
 {
-  int numColors = gdImageColorsTotal(img) - 1; /* ignore the background color */
+  int numColors = gdImageColorsTotal(img) - 1 - NUMRESERVEDCOLORS; /* ignore the background color etc. */
   int width, height;
 
   if (vertical) {
@@ -42,7 +42,7 @@ void checkScaleBarDims (
   if (width < 1 || height < 1)  die("Attempt to draw scalebar with insufficient thickness or length\n");
   if (xStart < 0 || yStart <0 || xStart > gdImageSX(img) || yStart > gdImageSY(img) ) die("Attempt to draw scalebar outside of image\n");
   if (xStart + width > gdImageSX(img) || yStart+ height > gdImageSY(img)) die("Scalebar will exceed image bounds\n");
-  if (length < numColors) die("Scalebar is too narrow to show all values\n");
+  if (length < numColors) die("Scalebar is too narrow (%d) to show all %d values\n", length, numColors);
   
 } /* checkScaleBarDims */
 
