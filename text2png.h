@@ -21,6 +21,7 @@
 #define TEXTPADDING 2  /* extra space, used at the beginning of strings */
 #define DIVIDERCHARS  "\t" /* characters which don't render properly with gd fonts */
 #define DIVIDERWIDTH 1 /* how much blanks we turn DIVIDERCHARS into */
+
 /*****************************************************************************
  * calcTextDimensions - calculate the space needed for the text
  *****************************************************************************/

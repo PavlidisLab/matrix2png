@@ -1,9 +1,16 @@
 /********************************************************************
  * FILE: array.c
  * AUTHOR: William Noble Grundy, Paul Pavlidis
- * PROJECT: MHMM, prob-exp
+ * PROJECT: MHMM, prob-exp, matrix2png....etc.
  * COPYRIGHT: 1997-1999, Regents of the University of California
- * DESCRIPTION: Some simple array-handling routines.
+
+ * DESCRIPTION: Some simple array-handling routines. This version
+ * (modified by Paul) handles missing values. In some cases it relies
+ * on the IEEE standard specification which states that all operations
+ * involving NaN result in NaN; in other cases, this result must be
+ * avoided to prevent entire arrays being assigned NaN. This extra
+ * checking will make this code somewhat slower than the
+ * non-missingvalue-checking version.
  ********************************************************************/
 #include "array.h"
 #include "utils.h"
@@ -95,6 +102,21 @@ int get_array_length
   check_null_array(array);
   return(array->num_items);
 }
+
+/* get array length, NOT counting missing values */
+int get_array_length_m 
+(ARRAY_T* array)
+{
+  int i;
+  int return_value = 0;
+  check_null_array(array);
+  for (i=0; i<array->num_items; i++) {
+    if(!isnan(get_array_item(i, array)))
+      return_value++;
+  }
+  return(return_value);
+}
+
 
 /* The following two functions are only used when array bounds
    checking is turned on. Otherwise, they are replaced by macros in
@@ -222,7 +244,8 @@ BOOLEAN_T equal_arrays
 }
 
 /***********************************************************************
- * Add two arrays.
+ * Add two arrays, total in array2. If either array is missing a
+ * value, the sum is nan.
  ***********************************************************************/
 void sum_array
   (ARRAY_T* array1,
@@ -242,7 +265,8 @@ void sum_array
 }
 
 /***********************************************************************
- * Compute the element-by-element product of two arrays.
+ * Compute the element-by-element product of two arrays. If either
+ * value is missing, the product is nan.
  ***********************************************************************/
 void element_product
   (ARRAY_T* array1,
@@ -263,7 +287,8 @@ void element_product
 }
 
 /***********************************************************************
- * Compute the dot product of two arrays.
+ * Compute the dot product of two arrays. If either corresponding
+ * value is nan, the values are ignored.
  ***********************************************************************/
 double dot_product
   (ARRAY_T* array1,
@@ -278,14 +303,19 @@ double dot_product
   num_items = get_array_length(array1);
   return_value = 0.0;
   for (i_item = 0; i_item < num_items; i_item++) {
-    return_value += get_array_item(i_item, array1) *
-      get_array_item(i_item, array2);
+    if(isnan(get_array_item(i_item, array1)) || isnan(get_array_item(i_item, array2))) {
+      continue; 
+    } else {
+      return_value += get_array_item(i_item, array1) *
+	get_array_item(i_item, array2);
+    }
   }
   return(return_value);
 }
 
 /***********************************************************************
- * Add a scalar value to each element of an array.
+ * Add a scalar value to each element of an array, unless it is
+ * missing.
  ***********************************************************************/
 void scalar_add
   (ATYPE    value,
@@ -296,12 +326,15 @@ void scalar_add
   
   num_items = get_array_length(array);
   for (i_item = 0; i_item < num_items; i_item++) {
+    if(isnan(get_array_item(i_item, array)))
+      continue;
     incr_array_item(i_item, value, array);
   }
 }
 
 /***********************************************************************
- * Multiply each element of an array by a scalar value.
+ * Multiply each element of an array by a scalar value,unless the
+ * element is missing in which case it remains nan.
  ***********************************************************************/
 void scalar_mult
   (ATYPE    value,
@@ -314,12 +347,15 @@ void scalar_mult
   num_items = get_array_length(array);
 
   for (i_item = 0; i_item < num_items; i_item++) {
+    if(isnan(get_array_item(i_item, array)))
+      continue;
     set_array_item(i_item, get_array_item(i_item, array) * value, array);
   }
 }
 
 /***********************************************************************
- * Compute the sum of the elements in an array.
+ * Compute the sum of the elements in an array, not including missing
+ * values.
  ***********************************************************************/
 ATYPE array_total
   (ARRAY_T* array)
@@ -332,6 +368,8 @@ ATYPE array_total
   num_items = get_array_length(array);
 
   for (i_item = 0; i_item < num_items; i_item++) {
+    if (isnan(get_array_item(i_item, array)))
+	continue;
     total += get_array_item(i_item, array);
   }
   return(total);
@@ -399,7 +437,7 @@ ATYPE get_array_key
 }
 
 /***********************************************************************
- * Compute the sum of the squares of the elements in an array.
+ * Compute the sum of the squares of the elements in an array, not including missing values.
  ***********************************************************************/
 ATYPE sum_of_squares
   (ARRAY_T* array)
@@ -413,6 +451,8 @@ ATYPE sum_of_squares
   num_items = get_array_length(array);
 
   for (i_item = 0; i_item < num_items; i_item++) {
+    if(isnan(get_array_item(i_item,array)))
+      continue;
     value = get_array_item(i_item, array);
     total += value * value;
   }
@@ -420,7 +460,8 @@ ATYPE sum_of_squares
 }
 
 /***********************************************************************
- * Compute the sum of the squares of the differences between two arrays.
+ * Compute the sum of the squares of the differences between two
+ * arrays, exluding elements which are missing in either array.
  ***********************************************************************/
 ATYPE sum_of_square_diffs
   (ARRAY_T* array1,
@@ -437,6 +478,8 @@ ATYPE sum_of_square_diffs
 
   num_items = get_array_length(array1);
   for (i_item = 0; i_item < num_items; i_item++) {
+    if (isnan(get_array_item(i_item, array1)) || isnan(get_array_item(i_item, array2)))
+      continue;
     diff = get_array_item(i_item, array1) - get_array_item(i_item, array2);
     total += diff * diff;
   }
@@ -455,7 +498,8 @@ double euclidean_distance
 
 
 /***********************************************************************
- * Compute the correlation r between two arrays. (Paul)
+ * Compute the correlation r between two arrays. (Paul) If a value is
+ * missing in either array, that index is ignored.
  ***********************************************************************/
 double correlation_coeff 
   (ARRAY_T* array1,
@@ -472,7 +516,7 @@ double correlation_coeff
   check_null_array(array1);
   check_null_array(array2);
   check_array_dimensions(TRUE, array1, array2);
-  size = array1->num_items;
+  //  size = array1->num_items;
 
   meanarray1 = ave_array(array1);
   meanarray2 = ave_array(array2);
@@ -480,7 +524,10 @@ double correlation_coeff
   stdevarray2 = sqrt(array_variance(array2));
 
   for (i=0; i < size; i++) {
+    if (isnan(get_array_item(i, array1)) || isnan(get_array_item(i, array2))) // only if both aren't missing.
+      continue;
     sum += ((get_array_item(i, array1) - meanarray1)  *  (get_array_item(i, array2) - meanarray2))/(stdevarray1 * stdevarray2);
+    size++;
   }
   return (double)(sum/(size - 1));
 }
@@ -488,7 +535,8 @@ double correlation_coeff
 /***********************************************************************
  * Compute the median value in an array.
  *
- * Sorts the array as a side effect.
+ * Sorts the array as a side effect. TODO: make this behave correctly
+ * with missing values.
  ***********************************************************************/
 ATYPE compute_median
   (ARRAY_T* array)
@@ -608,7 +656,7 @@ void swap_arrays (ARRAY_T* array1, ARRAY_T* array2)
 #ifdef NOT_INT
 
 /***********************************************************************
- * Divide corresponding elements in two arrays.
+ * Divide corresponding elements in two arrays
  ***********************************************************************/
 void dot_divide
   (ARRAY_T* array1,
@@ -630,7 +678,7 @@ void dot_divide
 
 
 /***********************************************************************
- * Compute the average of an array.
+ * Compute the average of an array (non-missing values only)
  ***********************************************************************/
 ATYPE ave_array
   (ARRAY_T* array)
@@ -640,7 +688,7 @@ ATYPE ave_array
   check_null_array(array);  
 
   /* Check for zero length. */
-  num_items = get_array_length(array);
+  num_items = get_array_length_m(array);
   if (num_items == 0) {
     die("Attempting to average the elements of an empty array.\n");
   }
@@ -655,7 +703,7 @@ ATYPE ave_array
 ATYPE array_variance
   (ARRAY_T* array)
 {
-  int num_items;
+  int num_items, num_nonmissing;
   int i_item;
   ATYPE average;
   ATYPE error;
@@ -666,11 +714,17 @@ ATYPE array_variance
 
   total_error = 0.0;
   num_items = get_array_length(array);
+  num_nonmissing = get_array_length_m(array);
+
+  if (num_nonmissing == 0)    die("Attempting to get the variance of an empty array");
+
   for (i_item = 0; i_item < num_items; i_item++) {
+    if(isnan(get_array_item(i_item, array)))
+      continue;
     error = get_array_item(i_item, array) - average;
     total_error += error * error;
   }
-  return(total_error / (ATYPE)(num_items - 1));
+  return(total_error / (ATYPE)(num_nonmissing - 1));
 }
   
 
@@ -688,6 +742,8 @@ void sum_to_zero
 
   num_items = get_array_length(array);
   for (i_item = 0; i_item < num_items; i_item++) {
+    if(isnan(get_array_item(i_item, array)))
+      continue;
     incr_array_item(i_item, -ave, array);
   }
 }

@@ -435,7 +435,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   /* Read the first row. */
   read_one_row(infile, MAX_ROW, one_row);
 
-  /* Keep reading till we get past the comments. */
+  /* Keep reading til we get past the comments. */
   while (is_comment(one_row)) {
     read_one_row(infile, MAX_ROW, one_row);
   }
@@ -472,7 +472,8 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   }
 
   num_cols = get_num_strings(col_names);
-  
+  DEBUG_CODE(1, fprintf(stderr, "There are %d columns of data\n", num_cols););
+
   /* Allocate the matrix. */
   matrix = allocate_matrix(0, num_cols);
 
@@ -491,9 +492,18 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
     if (fgets(one_row, MAX_ROW, infile) == NULL || (rowstoread >= 0 && i_row >= rowstoread)) {
       break;
     }
-
     if (startrow > 0 && i_row < startrow) {
       continue;
+    }
+
+    // chomp.
+    if(one_row[strlen(one_row) - 1] == '\n') {
+      one_row[strlen(one_row) - 1] = '\0';
+    }
+
+    // trim dos linefeed
+    if(one_row[strlen(one_row) - 1] == '\r') {
+      one_row[strlen(one_row) - 1] = '\0';
     }
 
     // read the row name
@@ -505,7 +515,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
     string[i_char] = '\0';
     i_char++; // go past the tab we just encountered.
 
-    /* clean up any stray dos linefeeds  and add it to the list.*/
+    /* clean up any stray dos linefeed in the row name,  and add it to the list.*/
     if (string[strlen(string) - 1] == '\r') {
       string[strlen(string) - 1] = '\0';
     }
@@ -515,25 +525,32 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
     i_column = 0;
     length = strlen(one_row);
     i_read = 0;
-    while (i_char < length && !(colstoread > 0 && i_read >= colstoread )) {
-      if (one_row[i_char] == '\t' || i_char == length - 2) {
-	if (
-	    (one_row[i_char-1] == '\t') || // tab tab something.
-	    (one_row[i_char-1] == '-' && (one_row[i_char-2] == '\t' || i_char == length-2)) || // tab - (tab|nl)
-	    (one_row[i_char-1] == ' ' && (one_row[i_char-2] == '\t' || i_char == length-2)) // tab spc (tab|nl)
+    while (i_char <= length && !(colstoread > 0 && i_read >= colstoread )) { // note we purposely read just past the end.
+      if (one_row[i_char] == '\t' || i_char == length) { // check for missing value.
+	if ((one_row[i_char] == '\t' && 
+	    ((one_row[i_char-1] == '\t') || // tab tab
+	    (one_row[i_char-1] == '-' && one_row[i_char-2] == '\t') || // tab - tab // means we went through a cell and didn't get a value.
+	    (one_row[i_char-1] == ' ' && one_row[i_char-2] == '\t'))) // tab spc tab // means we went through a cell and didn't get a value.	    
+	    || (i_char == length && (one_row[i_char-1] == '\t' || one_row[i_char-1] == ' ' || one_row[i_char-1] == '-'))	     // we're at the end but didn't read any numerical characters.
 	    )
 	  {
-	    if (!(startcol >= 0 && i_column < startcol)) { // only if we've reached the required column.
+	    if (!(startcol >= 0 && i_column < startcol)) { // only if we've reached the required column selected by the user, if any.
+	      if(i_read >= num_cols) {
+		die("More data than column headings: Check data file format for correct header including 'corner string'.");
+	      }
 	      set_array_item(i_read, NaN(), this_row);
 	      num_missing++;
 	      i_read++;
 	    }
 	  }
-	else // not a missing dataum, just do the ususal thing
+	else // not a missing dataum, store the value.
 	  {
 	    if (!(startcol >= 0 && i_column < startcol)) { // only if we've reached the required column.
 	      string[this_char] = '\0';
 	      num_scanned = sscanf(string, MSCAN, &one_value);
+	      if(i_read >= num_cols) {
+		die("More data than column headings: Check data file format for correct header including 'corner string'.");
+	      }
 	      set_array_item(i_read, one_value, this_row);
 	      i_read++;
 	    }
@@ -549,7 +566,10 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
     /* Add this row to the matrix. */
     grow_matrix(this_row, matrix);
   }
-  DEBUG_CODE(1, fprintf(stderr, "%d missing values\n", num_missing););
+  if (verbosity > NORMAL_VERBOSE) {
+    fprintf(stderr, "%d missing values\n", num_missing);
+  }
+
   num_rows = get_num_strings(row_names);
 
   /* Assemble it all into an RDB matrix. */

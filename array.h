@@ -66,6 +66,9 @@ ARRAY_T* allocate_array
  ***********************************************************************/
 int get_array_length
   (ARRAY_T* array);
+int get_array_length_m
+  (ARRAY_T* array);
+
 
 #ifdef BOUNDS_CHECK
 #define get_array_item(index,array) get_array_item_defcheck(index,array)
@@ -73,7 +76,7 @@ int get_array_length
 #else
 #define get_array_item(index,array) ((ARRAY_T*)array)->items[index]
 #define set_array_item(index,value,array) ((ARRAY_T *)array)->items[index] \
-                                         = value
+                                         = value;
 #endif 
 
 /* The following two functions are only used when array bounds

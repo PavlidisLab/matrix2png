@@ -72,7 +72,7 @@ void allocateColors (
 		     );
 
 /* report error in color allocation or definition */
-void colorError(colorerrorcode_T colorerrorcode);
+void colorError(colorerrorcode_T colorerrorcode, ...);
 
 /* check that a valid color was allocated */
 void checkColor(int color);

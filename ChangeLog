@@ -1,3 +1,27 @@
+2002-07-03  Paul Pavlidis  <pavlidis@microarray>
+
+	* colorscalebar.c: Many improvements - scale bars work much better
+	now, including discrete values.
+
+	* colors.c (allocateColors): works better with small numbers of
+	colors. Added darkblue preset color. Color error messages are more
+	informative (but now the colorerror thing seems silly).
+
+	* colormap.c: Added numerous new maps. Maps work better with low
+	color numbers selected.
+
+	* colordiscrete.c: Discrete mappings can be used. Default map uses
+	all the preset colors except for grey.
+
+	* cmdline.h: CFLAG_OPTN shows a description in the usage line.
+
+	* array.c: Functions handle missing values.
+
+	* rdb-matrix.c (read_rdb_matrix_wmissing): Missing values at the
+	ends of lines are now detected more robustly.
+
+	* matrix2png.c: -numcols is now -numcolors.
+
 2002-05-08  Paul Pavlidis  <pavlidis@microarray>
 
 	* normalize: added command line option -n to normalize the rows i.e.,

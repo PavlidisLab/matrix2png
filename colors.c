@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "colors.h"
 #include "cmdparse.h"
+#include <stdarg.h>
 
 /**********************************************************
  * Allocate a color table for an image. The start and end colors can
@@ -188,7 +189,7 @@ void string2color(char* string, colorV_T* colorVal)
     colorVal->namedcolor = darkblue;
   } else {
     colorVal->namedcolor = 0;
-    colorError(invalid);
+    colorError(invalid, "(\"%s\" is not a valid choice)", string);
   }
   DEBUG_CODE(1, fprintf(stderr, "String \"%s\" to color: Got %d %d %d name: %d\n", string, colorVal->rgb[0],  colorVal->rgb[1],  colorVal->rgb[2], (int)(colorVal->namedcolor)););
 
@@ -263,7 +264,7 @@ void checkValidRGB(colorV_T* color) {
   int i;
   for (i=0; i<2; i++) {
     if (color->rgb[i] < MINRGB || color->rgb[i] > MAXRGB) {
-      colorError(badrgb);
+      colorError(badrgb, "(%d - must be a value from %d to %d)", color->rgb[i], MINRGB, MAXRGB);
     }
   }
 }
@@ -340,7 +341,7 @@ int chooseContrastingColor(gdImagePtr img)
 void checkColor(int colorReturn) 
 {
   if (colorReturn < 0) {
-    colorError(nocolor);
+    colorError(nocolor, "(%d)", colorReturn);
   }
 } /* checkColor */
 
@@ -382,27 +383,46 @@ colorV_T* initColorVByName (color_T named) {
 }
 
 /* error codes */
-void colorError(colorerrorcode_T colorerrorcode)
+void colorError(colorerrorcode_T colorerrorcode, ...)
 {
+  va_list  argp;
+  char* format = NULL;
+
+  fprintf(stderr, "Color selection error: ");
   switch (colorerrorcode) {
   case nocolor:
-    die("Could not allocate any more colors\n");
+    fprintf(stderr, "Could not allocate any more colors ");
     break;
   case invalid:
-    die("Illegal color selected\n");
+    fprintf(stderr, "Illegal color selected ");
     break;
   case norange:
-    die("Illegal color range: min and max colors must not be the same\n");
+    fprintf(stderr, "Illegal color range: min and max colors must not be the same.");
     break;
   case toomany:
-    die("Illegal number of colors: Value must be <= %d (one color is reserved for background)\n", MAXCOLORS);
+    fprintf(stderr, "Illegal number of colors: Value must be <= %d (one color is reserved for background) ", MAXCOLORS);
     break;
   case toofew:
-    die("Illegal number of colors: too few\n");
+    fprintf(stderr, "Illegal number of colors: too few.");
     break;
   case badrgb:
-    die("Invalid RGB value\n");
+    fprintf(stderr, "Invalid RGB value ");
   default:
     break;
   }
+  va_start(argp, colorerrorcode);
+  format = va_arg(argp, char*);
+  if (format != NULL) {
+    vfprintf(stderr, format, argp);
+  }
+  va_end(argp);
+  fprintf(stderr, "\n");
+  fflush(stderr);
+
+#ifdef DEBUG
+  abort();
+#else
+  exit(1);
+#endif
+
 } /* color error */

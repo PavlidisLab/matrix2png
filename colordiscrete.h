@@ -21,7 +21,8 @@
 #define DEFAULT_DISCRETE_COLOR_INDEX 5
 #define DEFAULT_DISCRETE_COLOR "grey"
 #define MAX_DROW 1000
-#define DEFAULT_DISCRETE_MAPSIZE 8 // how many colors to use when a map file is not specified. Used by readdiscretemap
+#define DEFAULT_DISCRETE_MAPSIZE 13 // how many colors to use when a map file is not specified. Used by readdiscretemap
+#define DEFAULT_DISCRETE_MAPARY {red, blue, green, magenta, cyan, yellow, violet, orange, darkred, darkblue, darkgreen, black, white}
 
 /* struct defining a discrete value to color mapping */
 typedef struct discretemap_t 

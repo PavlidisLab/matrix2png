@@ -26,21 +26,24 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
   DISCRETEMAP_T* return_value;
   return_value = allocateDiscreteMap();
 
-  if (file == NULL) {
+  if (file == NULL) { // define the default map.
     int i;
     char buf[10];
-    color_T colorary[DEFAULT_DISCRETE_MAPSIZE] = {red, blue, green, magenta, cyan, yellow, violet, orange};
+    color_T colorary[DEFAULT_DISCRETE_MAPSIZE] = DEFAULT_DISCRETE_MAPARY;
+
     for (i=0; i< DEFAULT_DISCRETE_MAPSIZE; i++) { // this is a total hack. Just assign values 'at random'
       if (return_value->maxcount <= return_value->count) {
 	growDiscreteMap(return_value);
       }
       return_value->colors[return_value->count]->namedcolor = colorary[i];
+
       sprintf(buf, "%d", return_value->count + 1);
       DEBUG_CODE(1, fprintf(stderr, "No label so got %s\n", buf););
       add_string(buf, return_value->labels); // use the integer value
       return_value->count++;
     }
   } else {
+
     while(1) {
       if (fgets(one_row, MAX_DROW, file) == NULL) {
 	break;
@@ -51,44 +54,54 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
       }
       
       string_ptr = strtok(one_row, "\t"); // the value
-      if (string_ptr == NULL) die("No value read from discrete map file\n");
+
+      if (string_ptr == NULL) die("Failed to read a value from discrete map file\n");
       
       if (strcmp(string_ptr, DEFAULT_DISCRETE_STRING) == 0) { // default value.
 	string_ptr = strtok(NULL, "\t\n\r"); // the color
-	if (string_ptr == NULL)	die("No color read for discrete map \n");
+
+	if (string_ptr == NULL)	
+	  die("No color read for discrete map \n");
+
 	strcpy(colorbuf, string_ptr);
 	string_ptr = strtok(NULL, "\t\n\r"); // the label, if any
+
 	if (string_ptr != NULL) {
 	  DEBUG_CODE(1, fprintf(stderr, "Got %s\n", string_ptr););
 	  if (strlen(string_ptr) > DEFAULT_DISCRETE_LABEL_BUFSIZE)
 	    die("Default discrete label is too long. Need to increase defined DEFAULT_DISCRETE_LABEL_BUFSIZE");
+
 	  strcpy(return_value->defaultlabel, string_ptr);
 	}
+
 	string2color(colorbuf, return_value->default_colorcode);
-      } else {
+      } else { // regular value.
 	num_scanned = sscanf(string_ptr, "%d", &one_value);
+
 	if (num_scanned == 0) {
 	  die("Missing or invalid value in the discrete map file");
 	}
-	//      return_value->values[return_value->count] = one_value; // not needed yet.
-	
+
 	string_ptr = strtok(NULL, "\t\n\r"); // the color
+
 	if (string_ptr == NULL)	die("No color read for discrete map\n");
 	DEBUG_CODE(1, fprintf(stderr, "Got %s\n", string_ptr););
 	strcpy(colorbuf, string_ptr);
 	string_ptr = strtok(NULL, "\t\n\r"); // the label
+
 	if (string_ptr != NULL) {
 	  add_string(string_ptr, return_value->labels); // use the label
 	  DEBUG_CODE(1, fprintf(stderr, "got %s\n", string_ptr););
-	} else {
+	} else { // make up a label.
 	  char buf[10]; // space for an integer value.
 	  sprintf(buf, "%d", return_value->count + 1);
 	  DEBUG_CODE(1, fprintf(stderr, "No label so got %s\n", buf););
 	  add_string(buf, return_value->labels); // use the integer value
 	}
+
+	string2color(colorbuf, return_value->colors[return_value->count]);
+	return_value->count++;
       }
-      string2color(colorbuf, return_value->colors[return_value->count]);
-      return_value->count++;
     }
     if (return_value->count > MAXCOLORS) {
       // because one color may correspond to the same color, this isn't really accurate, but it is simple.
@@ -103,19 +116,24 @@ DISCRETEMAP_T* allocateDiscreteMap(void)
 {
   int i;
   DISCRETEMAP_T* return_value = NULL;
+
   return_value = (DISCRETEMAP_T*)mymalloc(sizeof(DISCRETEMAP_T));
   return_value->colors = (colorV_T**)mymalloc(sizeof(colorV_T*)*DMAP_INITIAL_COUNT);
+
   for (i=0; i<DMAP_INITIAL_COUNT; i++) {
     return_value->colors[i] = initColorVByName((color_T)0);
   }
+
   return_value->labels = new_string_list();
   return_value->default_colorcode = initColorVByName((color_T)0);
   string2color(DEFAULT_DISCRETE_COLOR, return_value->default_colorcode);
   return_value->count = 0;
   return_value->maxcount = DMAP_INITIAL_COUNT;
+
   if (strlen(DEFAULT_DISCRETE_LABEL) > DEFAULT_DISCRETE_LABEL_BUFSIZE)
     die("Default discrete label is too long. Need to increase defined DEFAULT_DISCRETE_LABEL_BUFSIZE");
   strcpy(return_value->defaultlabel, DEFAULT_DISCRETE_LABEL);
+
   return(return_value);
 }
 
@@ -137,9 +155,11 @@ void growDiscreteMap(DISCRETEMAP_T* dmap) {
   DEBUG_CODE(1, fprintf(stderr, "Growing map\n"););
   //  dmap->values = (int*)myrealloc(dmap->values, sizeof(int)*newsize);
   dmap->colors = (colorV_T**)myrealloc(dmap->colors, newsize*sizeof(colorV_T*));
+
   for (i=dmap->count; i<newsize; i++) {
     dmap->colors[i] = initColorVByName((color_T)0);
   }
+
   dmap->maxcount = newsize;
   DEBUG_CODE(1, fprintf(stderr, "Grew map\n"););
 }
@@ -182,9 +202,9 @@ void allocateColorsDiscrete (gdImagePtr img,
   
   for (i=0; i<dmap->count; i++) {
     color2rgb(dmap->colors[i], &r, &g, &b);
+    DEBUG_CODE(1, fprintf(stderr, "Discrete: Allocating %d %d %d\n", r,g,b););
     checkColor(gdImageColorAllocate(img, r, g, b));
   }
-  
 }
 
 

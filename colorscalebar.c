@@ -70,10 +70,12 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
   if (matrixInfo->discreteMap == NULL) {
     double scaleMin = matrixInfo->minval;
     double scaleMax = matrixInfo->maxval;
+
     /* figure out maximum string length */
     sprintf(leftLabel, LABELFORMAT, scaleMin);
     sprintf(rightLabel, LABELFORMAT, scaleMax);
     sprintf(middleLabel, LABELFORMAT, (scaleMax - scaleMin )/ 2);
+
     if (includeMidVal) {
       if (strlen(leftLabel) >= strlen(rightLabel) && strlen(leftLabel) >=  strlen(middleLabel)) 
 	maxlength = strlen(leftLabel);
@@ -90,6 +92,7 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
     strcpy(leftLabel, get_nth_string(0, matrixInfo->discreteMap->labels));
     strcpy(rightLabel, get_nth_string(matrixInfo->discreteMap->count - 1, matrixInfo->discreteMap->labels));
     maxlength = max_string_length(matrixInfo->discreteMap->labels);
+
     if ((int)strlen(matrixInfo->discreteMap->defaultlabel) > maxlength)
       maxlength = strlen(matrixInfo->discreteMap->defaultlabel);
   }
@@ -113,7 +116,7 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
       if (rotatelabels || matrixInfo->discreteMap != NULL) {
 	*width = barLength;
 	*height = barThickness + maxlength*CHARWIDTH + PADDING*3;
-	*widthoffset = LABELHEIGHT;
+	*widthoffset = PADDING;
 	*heightoffset = maxlength*CHARWIDTH + PADDING*2;
       } else {
 	*width = barLength + CHARWIDTH*strlen(leftLabel)/2 + CHARWIDTH*strlen(rightLabel)/2;
@@ -129,7 +132,10 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
     }
   }
 
-  DEBUG_CODE(1, fprintf(stderr, "Total scale bar dimensions will be %d wide by %d high, x offset %d, y offset %d, labels is %d, vertical is %d, rotatelabels is %d\n", *width, *height, *widthoffset, *heightoffset, (int)addLabels, (int)vertical, (int)rotatelabels););
+  DEBUG_CODE(1, fprintf(stderr, 
+			"Total scale bar dimensions will be %d wide by %d high, x offset %d, y offset %d, labels is %d, vertical is %d, rotatelabels is %d\n", 
+			*width, *height, *widthoffset, *heightoffset, (int)addLabels, (int)vertical, (int)rotatelabels););
+
 } /* getTotalScaleBarDims */
 
 
@@ -231,10 +237,10 @@ void labelScaleBar (
 		      (unsigned char*)get_nth_string(numvals - i - 1, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
     } else { // horizontal
-      gdImageStringUp(img, LABELFONT, scaleBarxStart - 1, scaleBaryStart - PADDING, 
+      gdImageStringUp(img, LABELFONT, scaleBarxStart - 1, scaleBaryStart - PADDING, // the minus one is a position tweak. Sorry!
 		      (unsigned char*)matrixInfo->discreteMap->defaultlabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       for (i=0; i<numvals; i++) {
-	gdImageStringUp(img, LABELFONT, scaleBarxStart - 1 + blocksize*(i+1), scaleBaryStart - PADDING, 
+	gdImageStringUp(img, LABELFONT, scaleBarxStart - 1 + blocksize*(i+1), scaleBaryStart - PADDING,  // the minus one is a position tweak. Sorry!
 		      (unsigned char*)get_nth_string(i, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
     }

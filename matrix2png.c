@@ -200,7 +200,7 @@ gdImagePtr rawmatrix2img (
 	if (value > matrixInfo->discreteMap->count || value < 0) {
 	  colorcode = DEFAULT_DISCRETE_COLOR_INDEX;
 	} else {
-	  colorcode = (int)value+NUMRESERVEDCOLORS;
+	  colorcode = (int)value + NUMRESERVEDCOLORS;
 	}
       } else {
  	/* clip color if necessary */
@@ -351,7 +351,7 @@ int main (int argc, char **argv) {
      	       contrast = atof(_OPTION_));
      DATA_OPTN(1, size, : pixel dimensions per value as  x:y (default = 2x2),
 	       pixsizeInput = _OPTION_);
-     DATA_OPTN(1, numcols, : number of colors (default = DEFAULTNUMCOLORS),
+     DATA_OPTN(1, numcolors, : number of colors (default = DEFAULTNUMCOLORS),
 	       numcolors = atoi(_OPTION_));
      DATA_OPTN(1, minsize, : minimum image size as x:y pixels,
 	       minsizeInput = _OPTION_);
@@ -394,7 +394,7 @@ int main (int argc, char **argv) {
 
 
   if (numcolors < MINCOLORS || numcolors > MAXCOLORS) 
-    die("Illegal number of colors, must be between %d and %d", MINCOLORS, MAXCOLORS);
+    die("Illegal number of colors, must be a value from %d to %d", MINCOLORS, MAXCOLORS);
 
   if (minsizeInput != NULL) {
     double parseval1, parseval2;
@@ -617,8 +617,7 @@ int main (int argc, char **argv) {
   if (discreteMap != NULL) {
     freeDiscreteMap(discreteMap);
   }
-
-  return 0;
+  return(0);
 }
 #endif /* MATRIXMAIN */
 /*
