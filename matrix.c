@@ -1233,7 +1233,7 @@ int simple_compare (const void* elem1, const void* elem2)
 
 void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, double outliers, MTYPE* min, MTYPE* max) 
 {
-  int i,j;
+  int i,j,d;
   int lmaxrow, lmaxcol, lminrow, lmincol;
   MTYPE lmin = (MTYPE)(FLT_MAX);
   MTYPE lmax = -(MTYPE)(FLT_MAX);
@@ -1243,18 +1243,20 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, dou
   lminrow = 0;
   lmincol = 0;
 
-  myassert(TRUE, outliers >= 0.0 && outliers <= 100.0, "Invalid outliers value %f", outliers);
+  myassert(TRUE, outliers >= 0.0 && outliers <= 50.0, "Invalid outliers value %f", outliers);
 
+  d = 0;
   if (outliers) {
-    // do this by concatenating the rows of the matrix - is there a better way?
     int index_dist;
     MTYPE* concatenated_data = (MTYPE*)mymalloc(sizeof(MTYPE)*num_rows*num_cols);
     for (i=0; i<num_rows; i++) {
       for(j=0; j< num_cols;j++) {
-	concatenated_data[i*(j+1)] = matrix[i][j];
+	concatenated_data[d] = matrix[i][j];
+	d++;
       }
     }
     qsort(concatenated_data, num_rows * num_cols, sizeof(MTYPE), simple_compare);
+
     index_dist = (int)ceil(((double)num_rows * (double)num_cols * outliers/100.0));
     lmin = concatenated_data[index_dist];
     lmax = concatenated_data[num_rows * num_cols - index_dist - 1];

@@ -206,9 +206,9 @@ gdImagePtr rawmatrix2img (
 
       value = matrix[i][j];
 
-      if (isnan(value)) {
+      if (isnan(value)) { // missing value
 	colorcode = MISSING;
-      } else if (matrixInfo->discreteMap != NULL) {
+      } else if (matrixInfo->discreteMap != NULL) { // discrete map
 	if (0) {
 	  value = value; // the old way....
 	} else { // hash way, allows flexibility in the values. Only
@@ -230,19 +230,23 @@ gdImagePtr rawmatrix2img (
 	} else {
 	  colorcode = (int)value + NUMRESERVEDCOLORS + 1;
 	}
-      } else {
- 	/* clip color if necessary */
-	if (!useDataRange || contrast != 1.0 || matrixInfo->outliers) {
-	  if (value > max) {
- 	    value = max;
- 	  } else if (value < min) {
- 	    value = min;
- 	  }
- 	}
-	// 	colorcode = (int)( (value - min) / stepsize) + NUMRESERVEDCOLORS;
- 	colorcode = (int)(( (value - min) / stepsize) + NUMRESERVEDCOLORS);
-	if (colorcode > gdImageColorsTotal(img) - 1)
-	  colorcode = gdImageColorsTotal(img) - 1;
+      } else { // normal
+	if (matrixInfo->hilites && (int)value == matrixInfo->hiliteval) {
+	  colorcode = 5;
+	} else {
+	  /* clip color if necessary */
+	  if (!useDataRange || contrast != 1.0 || matrixInfo->outliers) {
+	    if (value > max) {
+	      value = max;
+	    } else if (value < min) {
+	      value = min;
+	    }
+	  }
+	  // 	colorcode = (int)( (value - min) / stepsize) + NUMRESERVEDCOLORS;
+	  colorcode = (int)(( (value - min) / stepsize) + NUMRESERVEDCOLORS);
+	  if (colorcode > gdImageColorsTotal(img) - 1)
+	    colorcode = gdImageColorsTotal(img) - 1;
+	}
       }
 
       /* draw rectangle and advance to the next position */
@@ -317,6 +321,7 @@ int main (int argc, char **argv) {
   BOOLEAN_T skipformatline = FALSE; /* if selected, assumes that we ARE using RDB format */
   BOOLEAN_T ellipses = FALSE; /* draw ellipses or circles instead of rectangles */
   BOOLEAN_T normalize = FALSE; /* normalize the rows N(0,1) */
+  int hiliteval = NULL;
   double contrast = DEFAULTCONTRAST;
   int numcolors = DEFAULTNUMCOLORS;
   int colorMap = DEFAULTCOLORMAP;
@@ -379,7 +384,7 @@ int main (int argc, char **argv) {
      	       contrast = atof(_OPTION_));
      DATA_OPTN(1, size, : pixel dimensions per value as  x:y (default = 2x2),
 	       pixsizeInput = _OPTION_);
-     DATA_OPTN(1, numcolors, : number of colors (default = DEFAULTNUMCOLORS),
+     DATA_OPTN(1, numcolors, : number of colors (default = 64),
 	       numcolors = atoi(_OPTION_));
      DATA_OPTN(1, minsize, : minimum image size as x:y pixels,
 	       minsizeInput = _OPTION_);
@@ -395,6 +400,8 @@ int main (int argc, char **argv) {
 	       colorMap = atoi(_OPTION_));
      SIMPLE_FLAG_OPTN(1, discrete, : Use discretized mapping of values to colors; use -dmap to assign a mapping file,
      	       discrete);
+     DATA_OPTN(1, hiliteval, <value to use as highlights> : Assign an integer numerical value which are shown in the highlight color,
+	       hiliteval = atoi(_OPTION_));
      DATA_OPTN(1, dmap, <mapping file> : Discrete color mapping file to use for discrete mapping (default = preset),
      	       discreteMappingFileName = _OPTION_);
      DATA_OPTN(1, numr, : Number of rows to process starting from the top of the matrix by default,
@@ -458,8 +465,8 @@ int main (int argc, char **argv) {
     die("Cannot specifiy outlier trimming as well as the -range option\n");
   }
 
-  if (outliers < 0.0 || outliers > 100.0) {
-    die("Please select an outlier trimming value that is a valid percentage value\n");
+  if (outliers < 0.0 || outliers > 50.0) {
+    die("Please select an outlier trimming value that is a valid percentage value between 0 and 50.\n");
   }
 
   if (outliers && discrete) {
@@ -580,6 +587,11 @@ int main (int argc, char **argv) {
   matrixInfo->usedRegion = usedRegion;
   matrixInfo->discreteMap = discreteMap;
   matrixInfo->numColors = numcolors;
+
+  if (hiliteval) {
+    matrixInfo->hiliteval = hiliteval;
+    matrixInfo->hilites = TRUE;
+  }
 
   DEBUG_CODE(1, dumpMatrixInfo(matrixInfo););
   
