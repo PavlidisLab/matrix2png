@@ -9,10 +9,10 @@
 #ifndef LOCATIONS_H
 #define LOcATIONS_H
 
-enum location {topmiddle, topleft, topright, 
-	       bottommiddle, bottomleft, bottomright, 
-	       lefttop, leftmiddle, leftbottom, 
-	       righttop, rightmiddle, rightbottom};
+typdef enum {topmiddle, topleft, topright, 
+	     bottommiddle, bottomleft, bottomright, 
+	     lefttop, leftmiddle, leftbottom, 
+	     righttop, rightmiddle, rightbottom} location_T;
 
 /* size of extra bits in pixels */
 #define SMALL 15
