@@ -44,6 +44,7 @@ typedef struct matrixinfo_t {
   double maxval;
   double outliers;
   BOOLEAN_T dividers;
+  BOOLEAN_T circles;
 } MATRIXINFO_T;
 
 /* create a new matrixinfo struct */

@@ -215,12 +215,24 @@ gdImagePtr rawmatrix2img (
       colorcode = (int)( (value - min) / stepsize) + NUMRESERVEDCOLORS;
 
       /* draw rectangle and advance to the next position */
-
-      if (includeDividers) {
-	gdImageFilledRectangle(img, x, y, x+xSize, y+ySize-1, colorcode);
-	gdImageLine(img, x+xSize-1, y-1, x+xSize-1, y+ySize-1, dividerColor);
+      if (matrixInfo->circles) {
+	int yRad = (int)ySize/2;
+	int xRad = (int)xSize/2;
+	if (includeDividers) {
+	  gdImageArc(img, x-1+xRad, y-1+yRad, xSize, ySize, 0, 360, colorcode);
+	  gdImageFill(img, x-1+xRad, y-1+yRad, colorcode);
+	  gdImageLine(img, x+xSize-1, y-1, x+xSize-1, y+ySize-1, dividerColor);
+	} else {
+	  gdImageArc(img, x+xRad, y+yRad, xSize, ySize, 0, 360, colorcode);
+	  gdImageFill(img, x+xRad, y+yRad, colorcode);
+	}
       } else {
-	gdImageFilledRectangle(img, x, y, x+xSize, y+ySize, colorcode);
+	if (includeDividers) {
+	  gdImageFilledRectangle(img, x, y, x+xSize, y+ySize-1, colorcode);
+	  gdImageLine(img, x+xSize-1, y-1, x+xSize-1, y+ySize-1, dividerColor);
+	} else {
+	  gdImageFilledRectangle(img, x, y, x+xSize, y+ySize, colorcode);
+	}
       }
       x+=xSize;
     }
@@ -269,6 +281,7 @@ int main (int argc, char **argv) {
   BOOLEAN_T useDataRange = TRUE;
   BOOLEAN_T passThroughBlack = FALSE;
   BOOLEAN_T skipformatline = FALSE; /* if selected, assumes that we ARE using RDB format */
+  BOOLEAN_T ellipses = FALSE; /* draw ellipses or circles instead of rectangles */
   double contrast = DEFAULTCONTRAST;
   int numcolors = DEFAULTNUMCOLORS;
   int colorMap = DEFAULTCOLORMAP;
@@ -343,6 +356,7 @@ int main (int argc, char **argv) {
      SIMPLE_CFLAG_OPTN(1, r, dorownames);
      SIMPLE_CFLAG_OPTN(1, c, docolnames);
      SIMPLE_CFLAG_OPTN(1, f, skipformatline);
+     SIMPLE_CFLAG_OPTN(1, e, ellipses);
      );
 
 
@@ -454,6 +468,7 @@ int main (int argc, char **argv) {
   matrixInfo->xblocksize = xpixSize; // slowly migrating to this instead of passing a million parameters
   matrixInfo->yblocksize = ypixSize;
   matrixInfo->outliers = outliers;
+  matrixInfo->circles = ellipses;
 
   DEBUG_CODE(1, fprintf(stderr, "Building image\n"););
   /* make the image as specified */
