@@ -258,7 +258,10 @@ void allocateColorsDiscrete (gdImagePtr img,
   /* allocate the missing value color, index 4 */
   checkColor(gdImageColorAllocate(img, missingRed, missingGreen, missingBlue));
 
-  /* allocate the default color, index 5 */
+  /* allocate the highlight color, index 5: green */
+  /*  checkColor(gdImageColorAllocate(img, 0, 250, 0)); */
+
+  /* allocate the default color, index 6 */
   color2rgb(dmap->default_colorcode, &r, &g, &b);
   checkColor(gdImageColorAllocate(img, r, g, b));
   

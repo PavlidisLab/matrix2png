@@ -102,9 +102,6 @@ void allocateColors (
   /* allocate the missing value color, index 4 */
   checkColor(gdImageColorAllocate(img, missingRed, missingGreen, missingBlue));
 
-  /* allocate the highlight color, index 5: green */
-  checkColor(gdImageColorAllocate(img, 0, 250, 0));
-
   /* allocate the rest of the colors */
   if (passThroughBlack) {
     /* first head to black from the start color. */

@@ -101,9 +101,6 @@ void allocateColorMap (
   /* allocate the missing value color, index 4 */
   checkColor(gdImageColorAllocate(img, missingRed, missingGreen, missingBlue));
 
-  /* allocate the highlight color, index 5: blue */
-  checkColor(gdImageColorAllocate(img, 180, 180, 255));
-
   i=0;
   while (colorMapList[i] != NULL) {
     nummapcols++;

@@ -73,10 +73,6 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
     double scaleMin = matrixInfo->minval;
     double scaleMax = matrixInfo->maxval;
 
-    if (matrixInfo->discreteMap->default_used) {
-      SKIPDEFAULT = 0;
-    }
-
     /* figure out maximum string length */
     sprintf(leftLabel, LABELFORMAT, scaleMin);
     sprintf(rightLabel, LABELFORMAT, scaleMax);
@@ -94,10 +90,16 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
       else
 	maxlength = strlen(rightLabel);
     }
+
+
   } else {
     strcpy(leftLabel, get_nth_string(0, matrixInfo->discreteMap->labels));
     strcpy(rightLabel, get_nth_string(matrixInfo->discreteMap->count - 1, matrixInfo->discreteMap->labels));
     maxlength = max_string_length(matrixInfo->discreteMap->labels);
+
+    if (matrixInfo->discreteMap->default_used) {
+      SKIPDEFAULT = 0;
+    }
 
     if (SKIPDEFAULT == 0) {
       if ((int)strlen(matrixInfo->discreteMap->defaultlabel) > maxlength)

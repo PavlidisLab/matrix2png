@@ -43,6 +43,7 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
 
   /* calclute the space needed for the color bar */
   barWidth  = DEFAULTSCALEBARLENGTH;
+
   if (matrixInfo->numColors > DEFAULTSCALEBARLENGTH) {
     barWidth  = matrixInfo->numColors; // allot one pixel per color, please.
   } else if (matrixInfo->discreteMap) { // allot one font width/height per value please.
@@ -58,6 +59,8 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
     }
   }
   barHeight = DEFAULTSCALEBARHEIGHT;
+
+
 
   /* get the total size including labels and padding */
   getTotalScaleBarDims(TRUE, includeMidVal, vertical, rotateLabels, barWidth, barHeight, 

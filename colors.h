@@ -13,8 +13,8 @@
 #include "utils.h"
 
 /* how many colors are set aside - includes the background color and
-   white and black and grey, and the missing value color, and the highlight color */
-#define NUMRESERVEDCOLORS 6
+   white and black and grey, and the missing value color. */
+#define NUMRESERVEDCOLORS 5
 #define MISSING 4 // index of the color to use for missing values
 
 /* reserve one color out of 256 for the background color, one for

@@ -206,24 +206,33 @@ static BOOLEAN_T is_comment
 /***********************************************************************
  * Read one row from a file, checking for long lines.
  ***********************************************************************/
+#define MAX_ROW 500000
 static void read_one_row
   (FILE* infile,
    int   length,
    char* one_row)
 {
   char*     fgets_result;       /* Error indicator for 'fgets' function. */
+  int len;
 
   fgets_result = fgets(one_row, length, infile);
 
-  if (one_row[strlen(one_row) - 1] != '\n') {
-    die("Empty file; or matrix lines too long.");
-  }
+  if (fgets_result == NULL) 
+    die("Error during reading from the file.");
+
+  len = strlen(one_row);
+
+  DEBUG_CODE(1, fprintf(stderr, "Length %d, ends with 0%o\n", len, one_row[len - 1] ););
+ 
+  if (one_row[len - 1] != '\n') 
+    die ("Empty file; or matrix lines too long.");
+  
 }
 
 /***********************************************************************
  * Read an RDB file into a matrix.
  ***********************************************************************/
-#define MAX_ROW 1000000
+
 RDB_MATRIX_T* read_rdb_matrix
   (BOOLEAN_T format_line,
    FILE* infile)
@@ -253,11 +262,13 @@ RDB_MATRIX_T* read_rdb_matrix
   col_names = new_string_list();
 
   /* Read the first row. */
+  DEBUG_CODE(1, fprintf(stderr, "Reading first line from file.\n"););
   read_one_row(infile, MAX_ROW, one_row);
 
   /* Keep reading till we get past the comments. */
   while (is_comment(one_row)) {
     /* fprintf(stderr, "Skipping: %s", one_row); */
+    DEBUG_CODE(1, fprintf(stderr, "Skipping comments.\n"););
     read_one_row(infile, MAX_ROW, one_row);
   }
     
@@ -297,7 +308,7 @@ RDB_MATRIX_T* read_rdb_matrix
   if (format_line) {
     read_one_row(infile, MAX_ROW, one_row);
   }
-
+  DEBUG_CODE(1, fprintf(stderr, "Reading data matrix.\n"););
   /* Read the matrix. */
   for (i_row = 0; ; i_row++) {
 
@@ -430,13 +441,13 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   row_names = new_string_list();
   col_names = new_string_list();
 
-  // get rid of comments
-
   /* Read the first row. */
+  DEBUG_CODE(1, fprintf(stderr, "Reading first line from file.\n"););
   read_one_row(infile, MAX_ROW, one_row);
 
   /* Keep reading til we get past the comments. */
   while (is_comment(one_row)) {
+    DEBUG_CODE(1, fprintf(stderr, "Skipping comments.\n"););
     read_one_row(infile, MAX_ROW, one_row);
   }
     
@@ -486,6 +497,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   }
 
   /* Read the matrix. */
+  DEBUG_CODE(1, fprintf(stderr, "Reading data matrix.\n"););
   for (i_row = 0;  ; i_row++) {
 
     /* Read the next line, stopping if it's empty. Or if we've read enough rows. */
@@ -501,7 +513,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
       one_row[strlen(one_row) - 1] = '\0';
     }
 
-    // trim dos linefeed
+    // trim stray dos linefeed
     if(one_row[strlen(one_row) - 1] == '\r') {
       one_row[strlen(one_row) - 1] = '\0';
     }

@@ -32,7 +32,7 @@ MATRIXINFO_T* newMatrixInfo(void) {
   MATRIXINFO_T* return_value;
   return_value = (MATRIXINFO_T*)mymalloc(sizeof(MATRIXINFO_T));
   return_value->discreteMap = NULL;
-  return_value->hilites = FALSE;
+  return_value->numColors = DEFAULTNUMCOLORS;
   return(return_value);
 } /* newMatrixInfo */
 
@@ -40,6 +40,7 @@ MATRIXINFO_T* newMatrixInfo(void) {
 void dumpMatrixInfo(MATRIXINFO_T* matrixInfo) {
   //  fprintf(stderr, "Acutal rows: %d   Actual columns: %d\n", matrixInfo->numactualrows,matrixInfo->numactualcols);
   fprintf(stderr, "Rows: %d   Columns: %d\n", matrixInfo->numrows,matrixInfo->numcols);
+  fprintf(stderr, "Colors: %d\n", matrixInfo->numColors);
 }
 
 /* hands raw matrix to rawmatrix2img for processing */
@@ -172,7 +173,6 @@ gdImagePtr rawmatrix2img (
   
   /* figure out the value-to-color mapping */
   if (useDataRange && matrix[0] != NULL) {
-    //    int minindx, maxindx, minindy, maxindy; /* caution: these are not used now  */
     if (matrixInfo->numrows > 0)
       find_rawmatrix_min_and_max(matrix, matrixInfo->numrows, matrixInfo->numcols, matrixInfo->outliers, &min, &max);
     min/=contrast;
@@ -217,36 +217,33 @@ gdImagePtr rawmatrix2img (
 		 // ints.
 	  sprintf(buf, "%d", (int)value);
 	  k = (int*)find(matrixInfo->discreteMap->mapping, buf);
-	  //	  fprintf(stderr, "Seeking: %s", buf);
+	  //	  DEBUG_CODE(1, fprintf(stderr, "Seeking: %s", buf););
 	  if (k==NULL) {
 	    value = (double)(-1);
-	    //	    fprintf(stderr, ": got null\n");
+	    //	    DEBUG_CODE(1, fprintf(stderr, ": got null\n"););
 	  } else {
 	    value = (double)(*k);
-	    //	    fprintf(stderr, ": got %d\n", (int)value);
+	    //	    DEBUG_CODE(1, fprintf(stderr, ": got %d\n", (int)value););
 	  }
 	}
 	if (value > matrixInfo->discreteMap->count || value < 0) {
 	  colorcode = DEFAULT_DISCRETE_COLOR_INDEX;
 	} else {
 	  colorcode = (int)value + NUMRESERVEDCOLORS + 1;
+	  DEBUG_CODE(1, fprintf(stderr, "Index %d for value %d\n", (int)colorcode, (int)value););
 	}
       } else { // normal
-	if (matrixInfo->hilites && (int)value == matrixInfo->hiliteval) {
-	  colorcode = 5;
-	} else {
-	  /* clip color if necessary */
-	  if (!useDataRange || contrast != 1.0 || matrixInfo->outliers) {
-	    if (value > max) {
-	      value = max;
-	    } else if (value < min) {
-	      value = min;
-	    }
+	/* clip color if necessary */
+	if (!useDataRange || contrast != 1.0 || matrixInfo->outliers) {
+	  if (value > max) {
+	    value = max;
+	  } else if (value < min) {
+	    value = min;
 	  }
-	  colorcode = (int)(( (value - min) / stepsize) + NUMRESERVEDCOLORS);
-	  if (colorcode > gdImageColorsTotal(img) - 1)
-	    colorcode = gdImageColorsTotal(img) - 1;
 	}
+	colorcode = (int)(( (value - min) / stepsize) + NUMRESERVEDCOLORS);
+	if (colorcode > gdImageColorsTotal(img) - 1)
+	  colorcode = gdImageColorsTotal(img) - 1;
       }
 
       /* draw rectangle and advance to the next position */
@@ -321,7 +318,7 @@ int main (int argc, char **argv) {
   BOOLEAN_T skipformatline = FALSE; /* if selected, assumes that we ARE using RDB format */
   BOOLEAN_T ellipses = FALSE; /* draw ellipses or circles instead of rectangles */
   BOOLEAN_T normalize = FALSE; /* normalize the rows N(0,1) */
-  //  int hiliteval = NULL;
+
   double contrast = DEFAULTCONTRAST;
   int numcolors = DEFAULTNUMCOLORS;
   int colorMap = DEFAULTCOLORMAP;
@@ -382,7 +379,7 @@ int main (int argc, char **argv) {
      	       rangeInput = _OPTION_);
      DATA_OPTN(1, con, : contrast (default = 1.0; applies only when not using -range option),
      	       contrast = atof(_OPTION_));
-     DATA_OPTN(1, size, : pixel dimensions per value as  x:y (default = 2x2),
+     DATA_OPTN(1, size, : pixel dimensions per value as  x:y (default = 2:2),
 	       pixsizeInput = _OPTION_);
      DATA_OPTN(1, numcolors, : number of colors (default = 64),
 	       numcolors = atoi(_OPTION_));
@@ -400,8 +397,6 @@ int main (int argc, char **argv) {
 	       colorMap = atoi(_OPTION_));
      SIMPLE_FLAG_OPTN(1, discrete, : Use discretized mapping of values to colors; use -dmap to assign a mapping file,
      	       discrete);
-     //     DATA_OPTN(1, hiliteval, <value to use as highlights> : Assign an integer numerical value which are shown in the highlight color,
-	       //     	       hiliteval = atoi(_OPTION_));
      DATA_OPTN(1, dmap, <mapping file> : Discrete color mapping file to use for discrete mapping (default = preset),
      	       discreteMappingFileName = _OPTION_);
      DATA_OPTN(1, numr, : Number of rows to process starting from the top of the matrix by default,
@@ -588,11 +583,6 @@ int main (int argc, char **argv) {
   matrixInfo->discreteMap = discreteMap;
   matrixInfo->numColors = numcolors;
 
-  //  if (hiliteval) {
-  //    matrixInfo->hiliteval = hiliteval;
-  //    matrixInfo->hilites = TRUE;
-  //  }
-
   DEBUG_CODE(1, dumpMatrixInfo(matrixInfo););
   
   DEBUG_CODE(1, fprintf(stderr, "Building image\n"););
@@ -622,22 +612,6 @@ int main (int argc, char **argv) {
     int newyplace = matrixInfo->yminSize > gdImageSY(img) ? floor((matrixInfo->yminSize -  gdImageSY(img))/2) :  0;
     enlargeCanvas(img, newxsize, newysize, newxplace, newyplace);
   }
-
-  /* test: add highlight to some of the image */
-  DEBUG_CODE(0, 
-  {
-    int r = matrixInfo->numrows;
-    int c = matrixInfo->numcols;
-    gdImagePtr replacedRegion;
-    REGION_T* region = newRegion();
-    replacedRegion = addHighlight(img, matrixInfo, c/2, c/2+20, r/2, r/2+30, region);
-    
-    /* replace the highlighted region */
-    //    restoreRegion(img, replacedRegion, region);
-    gdImageDestroy(replacedRegion);
-    free(region);
-  }
-	     );
 
   /* output */
   gdImagePng(img, stdout);

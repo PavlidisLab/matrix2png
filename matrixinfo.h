@@ -53,8 +53,6 @@ typedef struct matrixinfo_t  {
   USED_T* usedRegion;
   BOOLEAN_T dividers;
   BOOLEAN_T circles;
-  BOOLEAN_T hilites;
-  int hiliteval;
   MATRIX_T* matrix; /* pointer to the matrix itself */
 } MATRIXINFO_T;
 

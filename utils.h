@@ -11,9 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#ifndef linux
-#include <ieeefp.h>
-#endif
+//#ifndef linux
+//#include <ieeefp.h>
+//#endif
 
 #define FALSE 0
 #define TRUE 1

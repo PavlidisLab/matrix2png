@@ -89,7 +89,7 @@ int hash (char* key, int keylength, HASHTABLE_T* hashtable) {
   if (hashVal < 0) { 
     hashVal+= hashtable->table_size; 
   } 
-  DEBUG_CODE(1, fprintf(stderr, "%s hashes to %d\n", key, hashVal););
+  /*  DEBUG_CODE(1, fprintf(stderr, "%s hashes to %d\n", key, hashVal);); */
   return hashVal; 
 } /* hash */
 
@@ -108,9 +108,9 @@ int findPos(char* key, int keylength, HASHTABLE_T* hashtable) {
       current -= hashtable->table_size;
     }
   }
-  DEBUG_CODE(1,
+  //  DEBUG_CODE(1,
 	     //	     fprintf(stderr, "Findpos: %s -> %d\n", key, current);
-	     );
+  //	     );
 
   return current; 
 } /* findpos */
@@ -158,9 +158,7 @@ BOOLEAN_T insert (HASHTABLE_T* hashtable, char* key, void *value) {
   hashtable->usage[current] = TRUE;
   set_nth_string(key, current, hashtable->keys);
 
-  DEBUG_CODE(1,
-	     fprintf(stderr, "Insert: key %s\n", key);
-	     );
+  /*  DEBUG_CODE(1,	     fprintf(stderr, "Insert: key %s\n", key);	     ); */
 
   /* rehash if the table is more than half full */
   if (++numStored > hashtable->table_size / 2) { 

@@ -23,7 +23,12 @@ void parseValuePair (char* command, char* divider, double* firstVal, double* sec
 
   *firstVal = atof(token);
   token = strtok (NULL, divider);
+  if(token == NULL) {
+    die("Command line parser: Failed to read a second value from %s.", command);
+  } 
+
   *secondVal = atof(token);
+
 } /* parseValuePair */
 
 /*****************************************************************************
@@ -43,7 +48,7 @@ void parseValueSeries (char* command, char* divider, int* values, int maxToRead)
     for (++i; i<maxToRead; i++) {
       token = strtok(NULL, divider);
       if(token == NULL) {
-	die("Command line parser: Failed to read a value from %s\n", command);
+	die("Command line parser: Failed to read a value from %s.", command);
       }
       values[i] = atoi(token);
     }
