@@ -503,7 +503,7 @@ int main (int argc, char **argv) {
     } else {
        discreteMap = readDiscreteMap(NULL);
     }
-    numcolors = discreteMap->count+1;
+    numcolors = discreteMap->count;
     DEBUG_CODE(1, fprintf(stderr, "There are %d colors including the default\n", numcolors););
   } else {
     if (minColorInput != NULL) {

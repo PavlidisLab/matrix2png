@@ -90,7 +90,6 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
       string2color(colorbuf, return_value->colors[return_value->count]);
       return_value->count++;
     }
-    return_value->count--;
     if (return_value->count > MAXCOLORS) {
       // because one color may correspond to the same color, this isn't really accurate, but it is simple.
       die("Too many colors chosen in discrete map"); // this isn't really possible since the number of colors in the palette is small.

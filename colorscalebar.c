@@ -231,10 +231,10 @@ void labelScaleBar (
 		      (unsigned char*)get_nth_string(numvals - i - 1, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
     } else { // horizontal
-      gdImageStringUp(img, LABELFONT, scaleBarxStart, scaleBaryStart - PADDING, 
+      gdImageStringUp(img, LABELFONT, scaleBarxStart - 1, scaleBaryStart - PADDING, 
 		      (unsigned char*)matrixInfo->discreteMap->defaultlabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       for (i=0; i<numvals; i++) {
-	gdImageStringUp(img, LABELFONT, scaleBarxStart + blocksize*(i+1), scaleBaryStart - PADDING, 
+	gdImageStringUp(img, LABELFONT, scaleBarxStart - 1 + blocksize*(i+1), scaleBaryStart - PADDING, 
 		      (unsigned char*)get_nth_string(i, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
     }
