@@ -223,20 +223,20 @@ gdImagePtr rawmatrix2img (
 		 // ints.
 	  sprintf(buf, "%d", (int)value);
 	  k = (int*)find(matrixInfo->discreteMap->mapping, buf);
-	  //	  DEBUG_CODE(1, fprintf(stderr, "Seeking: %s", buf););
+	  DEBUG_CODE(1, fprintf(stderr, "Seeking discrete map value for: %s", buf););
 	  if (k==NULL) {
 	    value = (double)(-1);
-	    //	    DEBUG_CODE(1, fprintf(stderr, ": got null\n"););
+	    DEBUG_CODE(1, fprintf(stderr, ": got null\n"););
 	  } else {
 	    value = (double)(*k);
-	    //	    DEBUG_CODE(1, fprintf(stderr, ": got %d\n", (int)value););
+	    DEBUG_CODE(1, fprintf(stderr, ": got %d\n", (int)value););
 	  }
 	}
 	if (value > matrixInfo->discreteMap->count || value < 0) {
 	  colorcode = DEFAULT_DISCRETE_COLOR_INDEX;
 	} else {
 	  colorcode = (int)value + NUMRESERVEDCOLORS + 1;
-	  DEBUG_CODE(1, fprintf(stderr, "Index %d for value %d\n", (int)colorcode, (int)value););
+	  DEBUG_CODE(1, fprintf(stderr, "Colorcode %d for value %d\n", (int)colorcode, (int)value););
 	}
       } else { // normal
 	/* clip color if necessary */

@@ -14,7 +14,7 @@
 #include "utils.h"
 #include "colors.h"
 
-#define DMAP_INITIAL_COUNT 15
+#define DMAP_INITIAL_COUNT 200
 #define DEFAULT_DISCRETE_STRING "default"
 #define DEFAULT_DISCRETE_LABEL "Other"
 #define DEFAULT_DISCRETE_COLOR_INDEX 5

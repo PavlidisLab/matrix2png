@@ -100,16 +100,16 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 
 	if (string_ptr != NULL) {
 	  add_string(string_ptr, return_value->labels); // use the label
-	  DEBUG_CODE(1, fprintf(stderr, "got %s\n", string_ptr););
+	  DEBUG_CODE(1, fprintf(stderr, "Label: %s\n", string_ptr););
 	} else { // make up a label.
 	  sprintf(buf, "%d", one_value);
 	  DEBUG_CODE(1, fprintf(stderr, "No label so got %s\n", buf););
 	  add_string(buf, return_value->labels); // use the integer value
 	}
 	return_value->values[return_value->count] = one_value; 
-	return_value->consecints[return_value->count] = return_value->count; // we need this...
+	return_value->consecints[return_value->count] = return_value->count; // we need this.. consecutive integers.
 	string2color(colorbuf, return_value->colors[return_value->count]);
-	sprintf(buf, "%d", return_value->values[return_value->count]);
+	sprintf(buf, "%d", return_value->values[return_value->count]); // convert int into a string.
 	insert(return_value->mapping, buf, &(return_value->consecints[return_value->count]));
 	return_value->count++;
       }
@@ -179,6 +179,9 @@ void freeDiscreteMap(DISCRETEMAP_T* dmap) {
  * Make more room in a discrete map.
  *****************************************************************************/
 void growDiscreteMap(DISCRETEMAP_T* dmap) {
+
+  die("Cannot exceed %d items in discrete map", DMAP_INITIAL_COUNT);
+
   int newsize = dmap->count + DMAP_INITIAL_COUNT;
   int i;
   DEBUG_CODE(1, fprintf(stderr, "Growing map\n"););
@@ -188,6 +191,7 @@ void growDiscreteMap(DISCRETEMAP_T* dmap) {
 
   for (i=dmap->count; i<newsize; i++) {
     dmap->colors[i] = initColorVByName((color_T)0);
+
   }
 
   dmap->maxcount = newsize;

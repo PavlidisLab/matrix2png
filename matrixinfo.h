@@ -21,7 +21,7 @@ typedef struct discretemap_t
 			  // "values" to "consecints". Could be
 			  // better!
   int*           values; // the Values that are expected to be present
-			 // in the ata.
+			 // in the data.
   int*           consecints; // We need this as data for the hashes.
   HASHTABLE_T*   usedValues; // Which values are actually used -
 			     // needed to make the scale bar

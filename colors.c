@@ -194,7 +194,7 @@ void string2color(char* string, colorV_T* colorVal)
     colorVal->namedcolor = 0;
     colorError(invalid, "(\"%s\" is not a valid choice)", string);
   }
-  DEBUG_CODE(1, fprintf(stderr, "String \"%s\" to color: Got %d %d %d name: %d\n", string, colorVal->rgb[0],  colorVal->rgb[1],  colorVal->rgb[2], (int)(colorVal->namedcolor)););
+  DEBUG_CODE(1, fprintf(stderr, "String \"%s\" to color: Got %d %d %d named color: %d\n", string, colorVal->rgb[0],  colorVal->rgb[1],  colorVal->rgb[2], (int)(colorVal->namedcolor)););
 
 } /* string2color */
 
@@ -381,7 +381,7 @@ colorV_T* initColorVByName (color_T named) {
   return_value->rgb[0] = -1;
   return_value->rgb[1] = -1;
   return_value->rgb[2] = -1;
-  DEBUG_CODE(1, fprintf(stderr, "Initialized colorv_t %d\n", (int)(return_value->namedcolor)););
+  //  DEBUG_CODE(1, fprintf(stderr, "Initialized empty colorv_t %d\n", (int)(return_value->namedcolor)););
   return(return_value);
 }
 
