@@ -328,7 +328,7 @@ int main (int argc, char **argv) {
 
 
   if (numcolors < MINCOLORS || numcolors > MAXCOLORS) 
-    die("Illegal number of colors, must be between %s and %s", MINCOLORS, MAXCOLORS);
+    die("Illegal number of colors, must be between %d and %d", MINCOLORS, MAXCOLORS);
 
 
   if (minsizeInput != NULL) {

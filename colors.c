@@ -322,7 +322,7 @@ void colorError(colorerrorcode_T colorerrorcode)
     die("Illegal color range: min and max colors must not be the same\n");
     break;
   case toomany:
-    die("Illegal number of colors: Value must be <= %d (one color is reserved for background)\n", MAXCOLORS);
+    die("Illegal number of colors: Value must be <= %d \n", MAXCOLORS);
     break;
   case toofew:
     die("Illegal number of colors: too few\n");
