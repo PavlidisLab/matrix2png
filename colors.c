@@ -173,6 +173,8 @@ void string2color(char* string, color_T* colorVal)
     *colorVal = violet;
   } else if (!strcmp(string, "darkred")) {
     *colorVal = darkred;
+  } else if (!strcmp(string, "darkgreen")) {
+    *colorVal = darkgreen;
   } else {
     *colorVal = 0;
   }
@@ -222,6 +224,9 @@ void color2rgb(color_T colorVal, int* r, int* g, int* b) {
   case darkred:
     *r = 128; *g = 0; *b = 0;
     break;
+  case darkgreen:
+    *r = 0; *g = 128; *b = 0;
+    break;
   default:
     colorError(invalid);
     break;
@@ -250,13 +255,20 @@ void makeColors (gdImagePtr img,
     /* clip */
     if (r > 255) {
       r = 255;
+    } else if (r < 0) {
+      r = 0;
     }
     if (g > 255) {
       g = 255;
+    } else if (g < 0) {
+      g = 0;
     }
     if (b > 255) {
       b = 255;
+    } else if (b < 0) {
+      b = 0;
     }
+
     colorReturn = gdImageColorAllocate(img, r, g, b);
     checkColor(colorReturn);
     DEBUG_CODE( 1, fprintf(stderr, "Allocated %f %f %f\n", r, g, b); );

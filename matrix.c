@@ -1232,7 +1232,6 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, MTY
   lminrow = 0;
   lmincol = 0;
 
-
   for (i=0; i<num_rows; i++) {
     for(j=0; j<num_cols; j++) {
       value = matrix[i][j];

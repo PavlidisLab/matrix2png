@@ -16,7 +16,7 @@
 /* spectrum (red, orange, yellow, green, blue, violet) */
 //#define blackbody {"black", "darkred", "orange", "yellow", "white"}
 //#define spectrum {"black", "red", "orange", "yellow", "violet"};
-#define NUMMAPCOLS 5
+//#define NUMMAPCOLS 5
 
 /*****************************************************************************
  * 

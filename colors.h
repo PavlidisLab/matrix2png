@@ -38,7 +38,8 @@ typedef enum {white=1,
 	      grey, 
 	      orange,
 	      violet,
-	      darkred
+	      darkred,
+	      darkgreen,
 } color_T;
 
 /* error codes for color allocation */

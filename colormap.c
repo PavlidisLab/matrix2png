@@ -14,6 +14,9 @@
 /* globals */
 char *blackbody[] = {"black", "darkred", "orange", "yellow", "white", NULL};
 char *spectrum[] = {"black", "red", "orange", "yellow", "violet", NULL};
+char *redgreen[] = {"red", "darkred", "black", "darkgreen", "green", NULL};
+char *greenred[] = {"green", "darkgreen", "black", "darkred", "red", NULL};
+
 
 /*****************************************************************************
  * 
@@ -43,6 +46,7 @@ void allocateColorMap (
   char* minColorString;
   
   int i; /* counter */
+  int nummapcols = 0;
 
   /* step sizes for moving from low to high values in the scale */
   double redStepSize = 0.0;
@@ -72,7 +76,13 @@ void allocateColorMap (
   /* Allocate grey, index 3 */
   checkColor(gdImageColorAllocate(img, 128, 128, 128));
   
-  numcolorsPerStep = (int)(numColors / (NUMMAPCOLS  - 1));
+  i=0;
+  while (colorMapList[i] != NULL) {
+    nummapcols++;
+    i++;
+  }
+
+  numcolorsPerStep = (int)(numColors / (nummapcols - 1));
   DEBUG_CODE(1, fprintf(stderr, "Gonna allocate %d per step\n", numcolorsPerStep););
   for (i=0; colorMapList[i+1] != NULL; i++) {
     minColorString = colorMapList[i];
@@ -109,6 +119,10 @@ char** getColorMap (int colorMap) {
     return blackbody;
   case 2 :
     return spectrum;
+  case 3 :
+    return redgreen;
+  case 4 :
+    return greenred;
   default:
     colorError(invalid);
     break;

@@ -189,7 +189,6 @@ gdImagePtr rawmatrix2img (
   stepsize = range / numColors;
   DEBUG_CODE(1, fprintf(stderr, "Min is %f, max is %f, Step size is %f\n", min, max, stepsize););
 
-
   /* draw the image */
   y = initY;
   for (i=0; i<numrows; i++) {
@@ -375,8 +374,8 @@ int main (int argc, char **argv) {
   }
 
   /* convert user-defined colors into corresponding color_T */
-  if (colorMap > 0) {
-    DEBUG_CODE(1, fprintf(stderr, "Using color map\n"););
+  if (colorMap > 0) { 
+    DEBUG_CODE(1, fprintf(stderr, "Using color map %d\n", colorMap););
   } else {
     if (bkgColorInput != NULL) {
       string2color(bkgColorInput, &bkgColor);
