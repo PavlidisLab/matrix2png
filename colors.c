@@ -9,6 +9,7 @@
 #include "gd.h"
 #include "utils.h"
 #include "colors.h"
+#include "cmdparse.h"
 
 /**********************************************************
  * Allocate a color table for an image. The start and end colors can
@@ -18,10 +19,10 @@
  **********************************************************/
 void allocateColors (
 		     gdImagePtr img,
-		     color_T backgroundColor,
-		     color_T minColor,
-		     color_T maxColor,
-		     color_T missingColor,
+		     colorV_T* backgroundColor,
+		     colorV_T* minColor,
+		     colorV_T* maxColor,
+		     colorV_T* missingColor,
 		     BOOLEAN_T passThroughBlack,
 		     int numColors
 		     )
@@ -143,49 +144,53 @@ void allocateColors (
  * colors.h) Assume min and max colors are different!
  **********************************************************/
 double getStepSize(int minColor, 
-		int maxColor, 
-		int numColors) 
+		   int maxColor, 
+		   int numColors) 
 {
   return ((double)(maxColor - minColor)/numColors);
 } /* getStepSize */
 
 
-
 /**********************************************************
  * convert a string description of a color to a color_T 
  **********************************************************/
-void string2color(char* string, color_T* colorVal)
+void string2color(char* string, colorV_T* colorVal)
 {
-  if (!strcmp(string, "white")) {
-    *colorVal = white;
+  if (strstr(string, DIVIDER)) {
+    parseValueSeries(string, DIVIDER, colorVal->rgb, 3);
+    checkValidRGB(colorVal);
+    colorVal->namedcolor = 0;
+  } else if (!strcmp(string, "white")) {
+    colorVal->namedcolor = white;
   } else if (!strcmp(string, "black")) {
-    *colorVal = black;
+    colorVal->namedcolor = black;
   } else if (!strcmp(string, "red")) {
-    *colorVal = red;
+    colorVal->namedcolor = red;
   } else if (!strcmp(string, "green")) {
-    *colorVal = green;
+    colorVal->namedcolor = green;
   } else if (!strcmp(string, "blue")) {
-    *colorVal = blue;
+    colorVal->namedcolor = blue;
   } else if (!strcmp(string, "cyan")) {
-    *colorVal = cyan;
+    colorVal->namedcolor = cyan;
   } else if (!strcmp(string, "magenta")) {
-    *colorVal = magenta;
+    colorVal->namedcolor = magenta;
   } else if (!strcmp(string, "yellow")) {
-    *colorVal = yellow;
+    colorVal->namedcolor = yellow;
   } else if (!strcmp(string, "grey")) {
-    *colorVal = grey;
+    colorVal->namedcolor = grey;
   } else if (!strcmp(string, "orange")) {
-    *colorVal = orange;
+    colorVal->namedcolor = orange;
   } else if (!strcmp(string, "violet")) {
-    *colorVal = violet;
+    colorVal->namedcolor = violet;
   } else if (!strcmp(string, "darkred")) {
-    *colorVal = darkred;
+    colorVal->namedcolor = darkred;
   } else if (!strcmp(string, "darkgreen")) {
-    *colorVal = darkgreen;
+    colorVal->namedcolor = darkgreen;
   } else {
-    *colorVal = 0;
+    colorVal->namedcolor = 0;
     colorError(invalid);
   }
+  DEBUG_CODE(1, fprintf(stderr, "String \"%s\" to color: Got %d %d %d name: %d\n", string, colorVal->rgb[0],  colorVal->rgb[1],  colorVal->rgb[2], (int)(colorVal->namedcolor)););
 
 } /* string2color */
 
@@ -194,56 +199,71 @@ void string2color(char* string, color_T* colorVal)
 /**********************************************************
  * Return the rgb components of a color_T.
  **********************************************************/
-void color2rgb(color_T colorVal, int* r, int* g, int* b) {
-  switch ( colorVal ) {
-  case white:
-    *r = 255;    *g = 255;    *b = 255;
-    break;
-  case red:
-    *r = 255;    *g = 0;    *b = 0;
-    break;
-  case yellow:
-    *r = 255;    *g = 255;    *b = 128;
-    break;
-  case green:
-    *r = 0;    *g = 255;    *b = 0;
-    break;
-  case cyan:
-    *r = 0;    *g = 255;    *b = 255;
-    break;
-  case blue:
-    *r = 0;    *g = 0;    *b = 255;
-    break;
-  case magenta:
-    *r = 255;    *g = 0;    *b = 255;
-    break;
-  case black:
-    *r = 0;    *g = 0;    *b = 0;
-    break;
-  case grey:
-    *r = 128;   *g = 128;   *b = 128;
-    break;
-  case gray:
-    *r = 128;   *g = 128;   *b = 128;
-    break;
-  case orange:
-    *r = 255;   *g = 128;   *b = 0;
-    break;
-  case violet:
-    *r = 128;   *g = 0;   *b = 255;
-    break;
-  case darkred:
-    *r = 128; *g = 0; *b = 0;
-    break;
-  case darkgreen:
-    *r = 0; *g = 128; *b = 0;
-    break;
-  default:
-    colorError(invalid);
-    break;
+void color2rgb(colorV_T* colorVal, int* r, int* g, int* b) {
+  if (colorVal->namedcolor != (color_T)0) {
+    switch ( colorVal->namedcolor ) {
+    case white:
+      *r = 255;    *g = 255;    *b = 255;
+      break;
+    case red:
+      *r = 255;    *g = 0;    *b = 0;
+      break;
+    case yellow:
+      *r = 255;    *g = 255;    *b = 128;
+      break;
+    case green:
+      *r = 0;    *g = 255;    *b = 0;
+      break;
+    case cyan:
+      *r = 0;    *g = 255;    *b = 255;
+      break;
+    case blue:
+      *r = 0;    *g = 0;    *b = 255;
+      break;
+    case magenta:
+      *r = 255;    *g = 0;    *b = 255;
+      break;
+    case black:
+      *r = 0;    *g = 0;    *b = 0;
+      break;
+    case grey:
+      *r = 128;   *g = 128;   *b = 128;
+      break;
+    case gray:
+      *r = 128;   *g = 128;   *b = 128;
+      break;
+    case orange:
+      *r = 255;   *g = 128;   *b = 0;
+      break;
+    case violet:
+      *r = 128;   *g = 0;   *b = 255;
+      break;
+    case darkred:
+      *r = 128; *g = 0; *b = 0;
+      break;
+    case darkgreen:
+      *r = 0; *g = 128; *b = 0;
+      break;
+    default:
+      colorError(invalid);
+      break;
+    }
+  } else {
+    *r = colorVal->rgb[0];
+    *g = colorVal->rgb[1];
+    *b = colorVal->rgb[2];
   }
+  DEBUG_CODE(1, fprintf(stderr, "Translated %d into %d %d %d\n", (int)(colorVal->namedcolor), *r, *g, *b););
 } /* color2rgb */
 
+void checkValidRGB(colorV_T* color) {
+  int i;
+  for (i=0; i<2; i++) {
+    if (color->rgb[i] < MINRGB || color->rgb[i] > MAXRGB) {
+      colorError(badrgb);
+    }
+  }
+}
 
 /*********************************************************************
  * makeColors: do actual allocations across a range. Does _not_ clear
@@ -341,6 +361,23 @@ void copyPaletteToNew(gdImagePtr dst, gdImagePtr src)
   DEBUG_CODE(1, fprintf(stderr, "Target image has %d colors allocated\n", dst->colorsTotal););
 } /* copyPaletteToNew */
 
+
+/* initialize a colorV_T struct */
+colorV_T* initColorVByName (color_T named) {
+  colorV_T* return_value;
+  return_value = (colorV_T*)mymalloc(sizeof(colorV_T));
+  if (named != NULL) { 
+    return_value->namedcolor = named;
+  } else {
+    return_value->namedcolor = 0;
+  }
+  return_value->rgb[0] = -1;
+  return_value->rgb[1] = -1;
+  return_value->rgb[2] = -1;
+  DEBUG_CODE(1, fprintf(stderr, "Initialized colorv_t %d\n", (int)(return_value->namedcolor)););
+  return(return_value);
+}
+
 /* error codes */
 void colorError(colorerrorcode_T colorerrorcode)
 {
@@ -360,6 +397,8 @@ void colorError(colorerrorcode_T colorerrorcode)
   case toofew:
     die("Illegal number of colors: too few\n");
     break;
+  case badrgb:
+    die("Invalid RGB value\n");
   default:
     break;
   }

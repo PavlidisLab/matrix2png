@@ -207,7 +207,7 @@ void * myrealloc
   (void * ptr,
    size_t  size)
 {
-  void * temp_ptr;
+  void * temp_ptr = NULL;
 
   /* Make sure we allocate something. */
   if (size == 0)

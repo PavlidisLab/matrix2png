@@ -26,6 +26,8 @@
 #define NOPASSTHROUGHBLACKMINCOLORS 2
 
 #define DEFAULTNUMCOLORS 16
+#define MINRGB 0
+#define MAXRGB 255
 
 /* color names - each corresponds to a case in color2rgb */
 typedef enum {white=1, 
@@ -44,17 +46,26 @@ typedef enum {white=1,
 	      darkgreen,
 } color_T;
 
+
+/* this struct can hold either or both a named color and a rgb color vector */
+typedef struct colorv_t {
+  color_T namedcolor;
+  int rgb[3];
+} colorV_T;
+
+colorV_T* initColorVByName (color_T named);
+
 /* error codes for color allocation */
-typedef enum {invalid, nocolor, norange, toofew, toomany} colorerrorcode_T;
+typedef enum {invalid, nocolor, norange, toofew, toomany, badrgb} colorerrorcode_T;
 
 
 /* define all the colors for our image */		     
 void allocateColors (
 		     gdImage* img,
-		     color_T backgroundColor,
-		     color_T  minColor,
-		     color_T maxColor,
-		     color_T missingColor,
+		     colorV_T* backgroundColor,
+		     colorV_T*  minColor,
+		     colorV_T* maxColor,
+		     colorV_T* missingColor,
 		     BOOLEAN_T passThroughBlack,
 		     int numColors
 		     );
@@ -65,11 +76,14 @@ void colorError(colorerrorcode_T colorerrorcode);
 /* check that a valid color was allocated */
 void checkColor(int color);
 
+/* check that a valid rgb values are selected*/
+void checkValidRGB(colorV_T* color);
+
 /* convert a string description of a color to a color_T */
-void string2color(char* string, color_T* colorVal);
+void string2color(char* string, colorV_T* colorVal);
 
 /* return the rgb components for a chosen color */
-void color2rgb(color_T colorVal, int* red, int* green, int* blue);
+void color2rgb(colorV_T* colorVal, int* red, int* green, int* blue);
 
 /* copy a palette between two gd images - this does not do the
    remapping and should be used only on blank images - this

@@ -24,8 +24,8 @@ char *twocolorarray[] = {"green", "yellow", "red", NULL};
  *****************************************************************************/
 void allocateColorMap (
 		       gdImagePtr img,
-		       color_T backgroundColor,
-		       color_T missingColor,
+		       colorV_T* backgroundColor,
+		       colorV_T* missingColor,
 		       int colorMap,
 		       int numColors
 		       )
@@ -45,8 +45,8 @@ void allocateColorMap (
   int endBlue = 0;
   int numcolorsPerStep = 0;
   char** colorMapList = NULL;
-  color_T minColor = 0;
-  color_T maxColor = 0;
+  colorV_T* minColor = initColorVByName((color_T)0);
+  colorV_T* maxColor = initColorVByName((color_T)0);
   char* maxColorString;
   char* minColorString;
   
@@ -97,8 +97,8 @@ void allocateColorMap (
     minColorString = colorMapList[i];
     maxColorString = colorMapList[i+1];
     DEBUG_CODE(1, fprintf(stderr, "Gonna allocate %s and %s\n", minColorString, maxColorString););
-    string2color(minColorString, &minColor);
-    string2color(maxColorString, &maxColor);
+    string2color(minColorString, minColor);
+    string2color(maxColorString, maxColor);
     color2rgb(minColor, &startRed, &startGreen, &startBlue);
     color2rgb(maxColor, &endRed, &endGreen, &endBlue);
     r = startRed;

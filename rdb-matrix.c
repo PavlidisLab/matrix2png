@@ -444,7 +444,6 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   string_ptr = strtok(one_row, "\t");
   copy_string(&corner_string, string_ptr);
 
-
   /* Store the names of the columns. */
   for (string_ptr = strtok(NULL, "\t"); string_ptr != NULL;
        string_ptr = strtok(NULL, "\t")) {
@@ -473,7 +472,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   }
 
   num_cols = get_num_strings(col_names);
-
+  
   /* Allocate the matrix. */
   matrix = allocate_matrix(0, num_cols);
 
@@ -532,14 +531,12 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 	  }
 	else // not a missing dataum, just do the ususal thing
 	  {
-
 	    if (!(startcol >= 0 && i_column < startcol)) { // only if we've reached the required column.
 	      string[this_char] = '\0';
 	      num_scanned = sscanf(string, MSCAN, &one_value);
 	      set_array_item(i_read, one_value, this_row);
 	      i_read++;
 	    }
-
 	  }
 	this_char = 0;
 	i_column++;

@@ -22,6 +22,26 @@ void parseValuePair (char* command, char* divider, double* firstVal, double* sec
   *secondVal = atof(token);
 } /* parseValuePair */
 
+/*****************************************************************************
+ * Deal with commands given in the r:g:b format etc (where : is defined in DIVIDER)
+ *****************************************************************************/
+void parseValueSeries (char* command, char* divider, int* values, int maxToRead)
+{
+  char *token;
+  int i = 0;
+  token = strtok (command, divider);
+  values[i] = atoi(token);
+  if (maxToRead > 1) {
+    for (++i; i<maxToRead; i++) {
+      token = strtok (NULL, divider);
+      if(token == NULL) {
+	die("Command line parser: Failed to read a value from %s\n", command);
+      }
+      values[i] = atoi(token);
+    }
+  }
+} /* parseValuePair */
+
 
 /*
  * cmdparse.c

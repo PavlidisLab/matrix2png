@@ -45,10 +45,10 @@ gdImagePtr matrix2img (
 		     BOOLEAN_T passThroughBlack, /* use black as the middle value in the map? */
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped Only used if useDataRange is false */
-		     color_T minColor,
-		     color_T maxColor,
-		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
-		     color_T missingColor, /* used for extra parts of the image - try white or black */
+		     colorV_T* minColor,
+		     colorV_T* maxColor,
+		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
+		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap,
 		     DISCRETEMAP_T* discreteMap,
 		     int numcolors,
@@ -90,10 +90,10 @@ gdImagePtr rawmatrix2img (
 		     BOOLEAN_T passThroughBlack, /* use black as the middle value in the map? */
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped  Only used if useDataRange is false*/
-		     color_T minColor,
-		     color_T maxColor,
-		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
-		     color_T missingColor, /* used for extra parts of the image - try white or black */
+		     colorV_T* minColor,
+		     colorV_T* maxColor,
+		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
+		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap,
 		     DISCRETEMAP_T* discreteMap,
 		     int numColors,
@@ -144,7 +144,7 @@ gdImagePtr rawmatrix2img (
 
   if (includeDividers) {
     int r,g,b;
-    color2rgb(DEFAULTDIVIDERCOLOR, &r, &g, &b);
+    color2rgb((colorV_T*)DEFAULTDIVIDERCOLOR, &r, &g, &b);
     dividerColor = gdImageColorClosest(img, r, g, b);
     DEBUG_CODE(1, fprintf(stderr, "Including dividers %d %d %d %d\n", r, g, b, dividerColor););
   }
@@ -200,10 +200,8 @@ gdImagePtr rawmatrix2img (
       } else if (discreteMap != NULL) {
 	if (value > discreteMap->count || value < 0) {
 	  colorcode = DEFAULT_DISCRETE_COLOR_INDEX;
-	  fprintf(stderr, "default: %d %f\n", colorcode, value);
 	} else {
 	  colorcode = (int)value+NUMRESERVEDCOLORS;
-	  fprintf(stderr, "%d %d\n", colorcode, (int)value);
 	}
       } else {
  	/* clip color if necessary */
@@ -312,10 +310,10 @@ int main (int argc, char **argv) {
   char* maxColorInput = NULL;
   char* bkgColorInput = NULL;
   char* missingColorInput = NULL;
-  color_T minColor = blue;
-  color_T maxColor = red;
-  color_T bkgColor = white;
-  color_T missingColor = grey;
+  colorV_T* minColor = initColorVByName(blue);
+  colorV_T* maxColor = initColorVByName(red);
+  colorV_T* bkgColor = initColorVByName(white);
+  colorV_T* missingColor = initColorVByName(grey);
   DISCRETEMAP_T* discreteMap = NULL;
 
   /* how big each square in the image is */
@@ -336,6 +334,8 @@ int main (int argc, char **argv) {
 
   verbosity = NORMAL_VERBOSE;
 
+  DEBUG_CODE(1, fprintf(stderr, "Done initializing\n"););
+  
   /* process command line */
   DO_STANDARD_COMMAND_LINE
     (1,
@@ -353,13 +353,13 @@ int main (int argc, char **argv) {
 	       numcolors = atoi(_OPTION_));
      DATA_OPTN(1, minsize, : minimum image size as x:y pixels,
 	       minsizeInput = _OPTION_);
-     DATA_OPTN(1, mincolor, : color used at low values (default = blue),
+     DATA_OPTN(1, mincolor, : color used at low values (name or r:g:b triplet) (default = blue),
 	       minColorInput = _OPTION_);
-     DATA_OPTN(1, maxcolor, : color used at high values (default = red),
+     DATA_OPTN(1, maxcolor, : color used at high values (name or r:g:b triplet) (default = red),
 	       maxColorInput = _OPTION_);
-     DATA_OPTN(1, bkgcolor, : color used as background (default = white),
+     DATA_OPTN(1, bkgcolor, : color used as background (name or r:g:b triplet) (default = white),
 	       bkgColorInput = _OPTION_);
-     DATA_OPTN(1, missingcolor, : color used for missing values (default = grey),
+     DATA_OPTN(1, missingcolor, : color used for missing values (name or r:g:b triplet) (default = grey),
 	       missingColorInput = _OPTION_);
      DATA_OPTN(1, map, : color map choice: overrides min/max colors (default = 0 (none) ),
 	       colorMap = atoi(_OPTION_));
@@ -429,7 +429,7 @@ int main (int argc, char **argv) {
     die("Please select an outlier trimming value that is a valid percentage\n");
   }
 
-  /* convert user-defined colors into corresponding color_T */
+  /* convert user-defined colors into corresponding colorV_T */
   if (colorMap > 0) { 
     DEBUG_CODE(1, fprintf(stderr, "Using color map %d\n", colorMap););
   } else if (discreteMappingFileName != NULL) {
@@ -438,22 +438,21 @@ int main (int argc, char **argv) {
     discreteMap = readDiscreteMap(discreteMappingFile);
   } else {
     if (minColorInput != NULL) {
-      string2color(minColorInput, &minColor);
+      string2color(minColorInput, minColor);
       if (minColor == 0) die("Illegal mincolor chosen");
     }
     if (maxColorInput != NULL) {
-      string2color(maxColorInput, &maxColor);
+      string2color(maxColorInput, maxColor);
       if (maxColor == 0) die("Illegal maxcolor chosen");
     }
   }
 
-
   if (bkgColorInput != NULL) {
-    string2color(bkgColorInput, &bkgColor);
+    string2color(bkgColorInput, bkgColor);
     if (bkgColor == 0) die("Illegal background color chosen");
   }
   if (missingColorInput != NULL) {
-    string2color(missingColorInput, &missingColor);
+    string2color(missingColorInput, missingColor);
     if (missingColor == 0) die("Illegal missing color chosen");
   }
 
@@ -587,8 +586,16 @@ int main (int argc, char **argv) {
   free(matrixInfo);
   free(rawmatrix);
 
-  return 0;
+  // clean up color structs.
+  free(minColor);
+  free(maxColor);
+  free(bkgColor); 
+  free(missingColor);
+  if (discreteMap != NULL) {
+    freeDiscreteMap(discreteMap);
+  }
 
+  return 0;
 }
 #endif /* MATRIXMAIN */
 /*

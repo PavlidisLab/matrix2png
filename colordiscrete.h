@@ -16,15 +16,15 @@
 /* struct defining a discrete value to color mapping */
 typedef struct discretemap_t 
 {
-  color_T*   colors;
+  colorV_T**   colors;
   //  int*       values; // not needed in current implementation (integers 1,2,...)
-  color_T    default_colorcode;
+  colorV_T*    default_colorcode;
   int        count;
   int        maxcount;
 } DISCRETEMAP_T;
 
 
-#define DMAP_INITIAL_COUNT 10
+#define DMAP_INITIAL_COUNT 4
 #define DEFAULT_DISCRETE_STRING "default"
 #define DEFAULT_DISCRETE_COLOR_INDEX 5
 #define DEFAULT_DISCRETE_COLOR "grey"
@@ -36,7 +36,7 @@ void freeDiscreteMap(DISCRETEMAP_T* dmap);
 void growDiscreteMap(DISCRETEMAP_T* dmap);
 void allocateColorsDiscrete (gdImagePtr img, 
 			     DISCRETEMAP_T* dmap, 
-			     color_T backgroundColor, 
-			     color_T missingColor);
+			     colorV_T* backgroundColor, 
+			     colorV_T* missingColor);
 
 #endif /* COLORDISCRETE_H */

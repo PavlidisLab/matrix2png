@@ -17,12 +17,13 @@
 #include "utils.h"
 #include "matrix.h"
 #include "colordiscrete.h"
+#include "colors.h"
 
 #define DEFAULTCONTRAST 1.0
-#define DEFAULTBKGCOLOR white
-#define DEFAULTMINCOLOR blue
-#define DEFAULTMAXCOLOR red
-#define DEFAULTDIVIDERCOLOR grey
+#define DEFAULTBKGCOLOR (initColorVByName(white))
+#define DEFAULTMINCOLOR (initColorVByName(blue))
+#define DEFAULTMAXCOLOR (initColorVByName(red))
+#define DEFAULTDIVIDERCOLOR (initColorVByName(grey))
 #define DEFAULTCOLORMAP 0
 #define DEFAULTSCALEBARLOC (defineLocation("topleft", topleft, 0.0, 0.0))
 #define DEFAULTROWNAMESLOC (defineLocation("rightmiddle", rightmiddle, 1.0, 0.5))
@@ -64,10 +65,10 @@ gdImagePtr matrix2img (
 		     BOOLEAN_T passThroughBlack, /* use black as the middle value in the map? */
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped Only used if useDataRange is false */
-		     color_T minColor,
-		     color_T maxColor,
-		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
-		     color_T missingColor, /* used for extra parts of the image - try white or black */
+		     colorV_T* minColor,
+		     colorV_T* maxColor,
+		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
+		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap, /* optional color mapping */
 		     DISCRETEMAP_T* discreteMap,
 		     int numcolors,
@@ -90,10 +91,10 @@ gdImagePtr rawmatrix2img (
 		     //		     int ySize, /* y dimension of each block */
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped  Only used if useDataRange is false*/
-		     color_T minColor,
-		     color_T maxColor,
-		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
-		     color_T missingColor, /* used for extra parts of the image - try white or black */
+		     colorV_T* minColor,
+		     colorV_T* maxColor,
+		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
+		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap, /* optional color mapping */
 		     DISCRETEMAP_T* discreteMap,
 		     int numcolors,

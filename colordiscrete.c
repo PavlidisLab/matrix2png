@@ -19,9 +19,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
   char* string_ptr;
   int num_scanned;
   int one_value;
-  color_T color;
   DISCRETEMAP_T* return_value;
-
   return_value = allocateDiscreteMap();
 
   while(1) {
@@ -34,12 +32,10 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
     }
 
     string_ptr = strtok(one_row, "\t");
-
     if (strcmp(string_ptr, DEFAULT_DISCRETE_STRING) == 0) {
       string_ptr = strtok(NULL, "\t\n\r");
       if (string_ptr == NULL)	die("No color read for discrete map \n");
-      string2color(string_ptr, &color);
-      return_value->default_colorcode = color; 
+      string2color(string_ptr, return_value->default_colorcode);
     } else {
       num_scanned = sscanf(string_ptr, "%d", &one_value);
       if (num_scanned == 0) {
@@ -48,8 +44,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
       //      return_value->values[return_value->count] = one_value; // not needed yet.
       string_ptr = strtok(NULL, "\t\n\r");
       if (string_ptr == NULL)	die("No color read for discrete map\n");
-      string2color(string_ptr, &color);
-      return_value->colors[return_value->count] = color;
+      string2color(string_ptr, return_value->colors[return_value->count]);
       return_value->count++;
     }
   }
@@ -63,11 +58,15 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 
 DISCRETEMAP_T* allocateDiscreteMap(void)
 {
+  int i;
   DISCRETEMAP_T* return_value = NULL;
   return_value = (DISCRETEMAP_T*)mymalloc(sizeof(DISCRETEMAP_T));
-  //  return_value->values = (int*)mymalloc(sizeof(int)*DMAP_INITIAL_COUNT);
-  return_value->colors = (color_T*)mymalloc(sizeof(color_T)*DMAP_INITIAL_COUNT);
-  string2color(DEFAULT_DISCRETE_COLOR, &(return_value->default_colorcode));
+  return_value->colors = (colorV_T**)mymalloc(sizeof(colorV_T*)*DMAP_INITIAL_COUNT);
+  for (i=0; i<DMAP_INITIAL_COUNT; i++) {
+    return_value->colors[i] = initColorVByName((color_T)0);
+  }
+  return_value->default_colorcode = initColorVByName((color_T)0);
+  string2color(DEFAULT_DISCRETE_COLOR, return_value->default_colorcode);
   return_value->count = 0;
   return_value->maxcount = DMAP_INITIAL_COUNT;
   return(return_value);
@@ -75,22 +74,32 @@ DISCRETEMAP_T* allocateDiscreteMap(void)
 
 void freeDiscreteMap(DISCRETEMAP_T* dmap) {
   //  free(dmap->values);
+  int i;
+  for (i=0; i<dmap->count; i++) {
+    free(dmap->colors[i]);
+  }
+  free(dmap->default_colorcode);
   free(dmap->colors);
   free(dmap);
 }
 
 void growDiscreteMap(DISCRETEMAP_T* dmap) {
   int newsize = dmap->count + DMAP_INITIAL_COUNT;
+  int i;
+  DEBUG_CODE(1, fprintf(stderr, "Growing map\n"););
   //  dmap->values = (int*)myrealloc(dmap->values, sizeof(int)*newsize);
-  dmap->colors = (color_T*)myrealloc(dmap->colors, sizeof(color_T)*newsize);
+  dmap->colors = (colorV_T**)myrealloc(dmap->colors, newsize*sizeof(colorV_T*));
+  for (i=dmap->count; i<newsize; i++) {
+    dmap->colors[i] = initColorVByName((color_T)0);
+  }
   dmap->maxcount = newsize;
   DEBUG_CODE(1, fprintf(stderr, "Grew map\n"););
 }
 
 void allocateColorsDiscrete (gdImagePtr img, 
 			     DISCRETEMAP_T* dmap,
-			     color_T backgroundColor, 	
-			     color_T missingColor
+			     colorV_T* backgroundColor, 	
+			     colorV_T* missingColor
 			     )
 {
   int backgroundRed = 0;
