@@ -144,4 +144,12 @@ void write_string_list
 void free_string_list
   (STRING_LIST_T* a_list);
 
+
+/*************************************************************************
+ * Right justify a string list by adding white space to the beginning of short strings. (Paul)
+ *************************************************************************/
+void right_justify_string_list
+  (STRING_LIST_T* a_list);
+
+
 #endif

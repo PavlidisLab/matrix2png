@@ -3,6 +3,7 @@
 #include "colors.h"
 #include <math.h>
 #include "colorscalebar.h"
+#include "locations.h"
 
 int main() {
   gdImagePtr im;
@@ -25,7 +26,7 @@ int main() {
 
   im = gdImageCreate(imagesize, imagesize);
   allocateColors(im, cyan, red, green, 0, numcolors);
-  
+
   drawScaleBar(im, 0, 100, 40, sbheight, sbwidth);
   labelScaleBar(im, 1, 0, 100, 40, sbheight, sbwidth, 0.0, 10.0);
 
@@ -35,4 +36,6 @@ int main() {
   gdImageDestroy(im);
   return 1; 
 }
+
+
 

@@ -522,8 +522,6 @@ char * copy_string
 }
 
 #ifdef MAIN
-
-
 int main (int argc, char *argv[])
 {
   FILE *infile;
@@ -556,7 +554,7 @@ int main (int argc, char *argv[])
   return(0);
 }
 
-#endif
+#endif /* main */
 
 /*
  * Local Variables:

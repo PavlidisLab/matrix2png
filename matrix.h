@@ -381,6 +381,11 @@ MTYPE find_matrix_max (MATRIX_T* matrix);
 void find_matrix_min_and_max (MATRIX_T* matrix, MTYPE* min, MTYPE* max, 
 			      int* maxrow, int* maxcol, int* minrow, int* mincol);
 
+
+void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, MTYPE* min, MTYPE* max, 
+			      int* maxrow, int* maxcol, int* minrow, int* mincol);
+
+
 #endif
 
 /*

@@ -1213,6 +1213,40 @@ void find_matrix_min_and_max (MATRIX_T* matrix, MTYPE* min, MTYPE* max,
 }
 
 
+/* find both the max and min of a matrix, and their locations in the
+   matrix. (ties are not given special treatment) */
+void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, MTYPE* min, MTYPE* max, 
+			      int* maxrow, int* maxcol, int* minrow, int* mincol) 
+{
+  int i,j;
+  int lmaxrow, lmaxcol, lminrow, lmincol;
+  MTYPE lmin = (MTYPE)(FLT_MAX);
+  MTYPE lmax = (MTYPE)(FLT_MIN);
+  MTYPE value = 0.0;
+
+  for (i=0; i<num_rows; i++) {
+    for(j=0; j<num_cols; j++) {
+      value = matrix[i][j];
+      if (value < lmin) {
+	lmin = value;
+	lminrow = i;
+	lmincol = j;
+      } else if (value > lmax) {
+	lmax = value;
+	lmaxrow = i;
+	lmaxcol = j;
+      }
+    }
+  }
+
+  *min = lmin;
+  *max = lmax;
+  *maxrow = lmaxrow;
+  *maxcol = lmaxcol;
+  *minrow = lminrow;
+  *mincol = lmincol;
+}
+
 
 /*
  * Local Variables:

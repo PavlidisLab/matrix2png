@@ -312,11 +312,11 @@ RDB_MATRIX_T* read_rdb_matrix
 
       /* Make sure we read the number properly. */
       if (string_ptr == NULL) {
-	die("Error reading matrix at position (%d,%d). ", i_row, i_column);
+	die("Error reading rdb matrix at position (%d,%d). ", i_row, i_column);
       }
       num_scanned = sscanf(string_ptr, MSCAN, &one_value);
       if ((num_scanned == 0) || (num_scanned == EOF)) {
-	die("Error reading matrix at position (%d,%d).", i_row, i_column);
+	die("Error reading rdb matrix at position (%d,%d).", i_row, i_column);
       }
 
       /* Store the value. */

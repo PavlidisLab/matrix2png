@@ -1,7 +1,7 @@
 /**************************************************************************
  * FILE: string-list.c
- * AUTHOR: William Grundy
- * CREATE DATE: 12-22-98
+ * AUTHOR: William Grundy, Paul Pavlidis
+ * CREATE DATE: 12-22-98, 2/2001
  * PROJECT: PHYLO
  * DESCRIPTION: Data structure for manipulating a list of strings. 
  **************************************************************************/
@@ -23,8 +23,8 @@ struct string_list_t {
 /*************************************************************************
  * Allocate dynamic memory for a string list.
  *************************************************************************/
-#define DEFAULT_MAX_STRINGS 1000
-#define DEFAULT_STRING_LENGTH  10
+#define DEFAULT_MAX_STRINGS 100
+#define DEFAULT_STRING_LENGTH  5
 STRING_LIST_T* new_string_list
   ()
 {
@@ -404,20 +404,21 @@ char* combine_string_list
 
 
 /*****************************************************************************
- * Read a list of strings from a given file.
+ * Read a list of strings from a given file. Paul fixed this to work with longer lines of text.
  *****************************************************************************/
 STRING_LIST_T* read_string_list
   (FILE* infile)
 {
-  char           this_line[DEFAULT_STRING_LENGTH];
+  int defaultstringlength = 500; /* assume files have longer lines */
+  char           this_line[defaultstringlength];
   char*          fgets_result;
   STRING_LIST_T* return_value;
-
+  
   /* Allocate dynamic memory for a maximal list of names. */
   return_value = new_string_list();
 
   /* Read the first name. */
-  fgets_result = fgets(this_line, DEFAULT_STRING_LENGTH, infile);
+  fgets_result = fgets(this_line, defaultstringlength, infile);
   this_line[strlen(this_line)-1] = 0; // chop
 
   /* Make sure we got at least one name. */
@@ -431,7 +432,7 @@ STRING_LIST_T* read_string_list
     add_string(this_line, return_value);
 
      /* Read the next name. */
-     fgets_result = fgets(this_line, DEFAULT_STRING_LENGTH, infile);
+     fgets_result = fgets(this_line, defaultstringlength, infile);
      this_line[strlen(this_line)-1] = 0; // chop
   }
 
@@ -460,7 +461,7 @@ void write_string_list
 
   check_null_list(a_list);
 
-  /* Don't do anything if we go no strings. */
+  /* Don't do anything if we got no strings. */
   if (get_num_strings(a_list) == 0) {
       return;
   }
@@ -491,6 +492,51 @@ void free_string_list
   myfree(a_list);
 }
 
+
+
+/*************************************************************************
+ * Right justify a string list by adding white space to the beginning
+ * of short strings. We don't have to worry about making more space,
+ * since the list building makes sure all strings are at least as long
+ * as the longest string (Paul)
+ *************************************************************************/
+void right_justify_string_list
+  (STRING_LIST_T* a_list)
+{
+  int numstrings, maxstring;
+  int i,j;
+  char* thisString;
+  char* addedSpaces;
+
+  int numSpacesToAdd;
+  int lastaddedSpaces;
+
+  numstrings = get_num_strings(a_list);
+  maxstring = max_string_length(a_list);
+  thisString = (char*)mymalloc(maxstring *sizeof(char)+1);
+  addedSpaces = (char*)mymalloc(maxstring*sizeof(char)+1);
+  
+  for (i=0; i<numstrings;i++) {
+    thisString = get_nth_string(i, a_list);
+    numSpacesToAdd = maxstring - strlen(thisString);
+    if (numSpacesToAdd > 0) {
+      if (numSpacesToAdd != lastaddedSpaces) {
+	for(j=0; j<maxstring;j++) {
+	  if (j<numSpacesToAdd) {
+	    strcpy(addedSpaces+j, " ") ;
+	  } else {
+	    addedSpaces[j] = 0;
+	  }
+	}
+      }
+      thisString = strcat(addedSpaces, thisString);
+      set_nth_string(thisString, i, a_list); /* makes a copy */
+      lastaddedSpaces = numSpacesToAdd;
+    }
+  }
+  free(addedSpaces);
+  free(thisString);
+}
 
 /*
  * Local Variables:

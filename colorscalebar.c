@@ -49,6 +49,74 @@ void checkScaleBarDims (
 
 
 /*****************************************************************************
+ *  Calculate the total dimensions of a finished scale bar
+ *****************************************************************************/
+void getTotalScaleBarDims(BOOLEAN_T addLabels,
+			  BOOLEAN_T includeMidVal,
+			  BOOLEAN_T vertical,
+			  int barLength,
+			  int barThickness,
+			  double scaleMin,
+			  double scaleMax,
+			  int *width,
+			  int *height,
+			  int *widthoffset,
+			  int *heightoffset)
+{
+  char leftLabel [MAXLABELLENGTH];
+  char rightLabel [MAXLABELLENGTH];
+  char middleLabel [MAXLABELLENGTH];
+
+  sprintf(leftLabel, LABELFORMAT, scaleMin);
+  sprintf(rightLabel, LABELFORMAT, scaleMax);
+  sprintf(middleLabel, LABELFORMAT, (scaleMax - scaleMin )/ 2);
+
+  if (vertical) {
+    if (addLabels) {
+      int maxlength;
+      /* figure out maximum string length */
+      if (includeMidVal) {
+	if (strlen(leftLabel) >= strlen(rightLabel) && strlen(leftLabel) >=  strlen(middleLabel)) 
+	  maxlength = strlen(leftLabel);
+	else if (strlen(rightLabel) >= strlen(leftLabel) && strlen(rightLabel) >=  strlen(middleLabel)) 
+	  maxlength = strlen(rightLabel);
+	else maxlength = strlen(middleLabel);
+      } else {
+	if (strlen(leftLabel) >= strlen(rightLabel))
+	  maxlength = strlen(leftLabel);
+	else
+	  maxlength = strlen(rightLabel);
+      }
+      *width = barThickness + maxlength + PADDING*2;
+      *height = barLength + PADDING*2;
+      *widthoffset = maxlength + PADDING;
+      *heightoffset = PADDING;
+    } else {
+      *width = barThickness + PADDING*2;
+      *height = barLength + PADDING*2;
+      *widthoffset = PADDING;
+      *heightoffset = PADDING;
+    }
+  } else { /* horizontal */
+    if (addLabels) {
+      *width = barLength + CHARWIDTH*strlen(leftLabel)/2 + CHARWIDTH*strlen(rightLabel)/2;
+      *height = barThickness + LABELHEIGHT + PADDING*2;
+      *widthoffset = CHARWIDTH*strlen(leftLabel)/2;
+      *heightoffset = LABELHEIGHT + PADDING;
+    } else {
+      *width = barLength + PADDING*2;
+      *height = barThickness + PADDING*2;
+      *widthoffset = PADDING;
+      *heightoffset = PADDING;
+    }
+  }
+
+  DEBUG_CODE(1, fprintf(stderr, "Total scale bar dimensions will be %d by %d, labels is %d, vertical is %d\n", *width, *height, (int)addLabels, (int)vertical););
+} /* getTotalScaleBarDims */
+
+
+
+/*****************************************************************************
  *  drawScaleBar: create just the image part of a scale bar.							      
  *****************************************************************************/
 void drawScaleBar (
@@ -111,37 +179,27 @@ void labelScaleBar (
 		    double scaleMax
 		    )
 {
-  char leftLabel [25];
-  char rightLabel [25];
-  char middleLabel [25];
+  char leftLabel [MAXLABELLENGTH];
+  char rightLabel [MAXLABELLENGTH];
+  char middleLabel [MAXLABELLENGTH];
   int r,g,b;
   int textIntensity;
 
   checkScaleBarDims(img, vertical, scaleBarxStart, scaleBaryStart, scaleBarthickness, scaleBarlength);
 
   /* make sure there is space next to the scale bar for the labels */
-  if (scaleBarxStart < MINLABELWIDTH) die ("Insufficient room for left hand scale bar label\n");
-  if (scaleBarxStart + scaleBarlength + MINLABELWIDTH > gdImageSX(img)) die("Insufficient room for right hand scale bar label\n");
+  //  if (scaleBarxStart < MINLABELWIDTH) die ("Insufficient room for left hand scale bar label\n");
+  //  if (scaleBarxStart + scaleBarlength + MINLABELWIDTH > gdImageSX(img)) die("Insufficient room for right hand scale bar label\n");
   if (includemiddleval) {
-    if (scaleBaryStart < LABELHEIGHT) die ("Insufficient room for middle scale bar label\n");
+    //    if (scaleBaryStart < LABELHEIGHT) die ("Insufficient room for middle scale bar label\n");
   }
 
   /* convert values to strings */
-  sprintf(leftLabel,"%.2f", scaleMin);
-  sprintf(rightLabel,"%.2f", scaleMax);
-  sprintf(middleLabel,"%.2f", (scaleMax - scaleMin )/ 2);
-  
-  /* figure out if black or white text should be used, depending on
-     the background color */
-  r = gdImageRed(img, 0); /* Note that these are documented as gdImageColorRed etc - maybe it is so in the latest version of gd? */
-  g = gdImageGreen(img, 0);
-  b = gdImageBlue(img, 0);
-  if (r < 128 && g < 128 && b < 128) {
-    textIntensity = 255; /* use white */
-  } else {
-    textIntensity = 0; /* use black */
-  }
+  sprintf(leftLabel, LABELFORMAT, scaleMin);
+  sprintf(rightLabel, LABELFORMAT, scaleMax);
+  sprintf(middleLabel, LABELFORMAT, (scaleMax - scaleMin )/ 2);
 
+  textIntensity = chooseContrastingColor(img);
 
   if (vertical) {
     /* bottom label */
@@ -159,6 +217,7 @@ void labelScaleBar (
     }
   } else {
     /* left label */
+    DEBUG_CODE(1, fprintf(stderr, "Adding left label to %d, %d\n",  (int)(scaleBarxStart -  CHARWIDTH*strlen(leftLabel)/2), (int)(scaleBaryStart - LABELHEIGHT) ););
     gdImageString(img, LABELFONT, scaleBarxStart -  CHARWIDTH*strlen(leftLabel)/2, scaleBaryStart - LABELHEIGHT, 
 		  leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
     /* right label */

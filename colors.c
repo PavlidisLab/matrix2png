@@ -17,7 +17,7 @@
  * the scale.
  **********************************************************/
 void allocateColors (
-		     gdImage* img,
+		     gdImagePtr img,
 		     color_T backgroundColor,
 		     color_T minColor,
 		     color_T maxColor,
@@ -25,7 +25,6 @@ void allocateColors (
 		     int numColors
 		     )
 {
-
   /* the lowest values will be mapped to start*, the highest to end* */
   int startRed = 0;
   int startGreen = 0;
@@ -93,7 +92,8 @@ void allocateColors (
   /* Allocate black, index 2 */
   checkColor(gdImageColorAllocate(img, 0, 0 ,0));
 
-
+  /* Allocate grey, index 3 */
+  checkColor(gdImageColorAllocate(img, 128, 128, 128));
 
   /* allocate the rest of the colors */
   if (passThroughBlack) {
@@ -145,6 +145,38 @@ double getStepSize(int minColor,
 } /* getStepSize */
 
 
+
+/**********************************************************
+ * convert a string description of a color to a color_T 
+ **********************************************************/
+void string2color(char* string, color_T* colorVal)
+{
+  if (!strcmp(string, "white")) {
+    *colorVal = white;
+  } else if (!strcmp(string, "black")) {
+    *colorVal = black;
+  } else if (!strcmp(string, "red")) {
+    *colorVal = red;
+  } else if (!strcmp(string, "green")) {
+    *colorVal = green;
+  } else if (!strcmp(string, "blue")) {
+    *colorVal = blue;
+  } else if (!strcmp(string, "cyan")) {
+    *colorVal = cyan;
+  } else if (!strcmp(string, "magenta")) {
+    *colorVal = magenta;
+  } else if (!strcmp(string, "yellow")) {
+    *colorVal = yellow;
+  } else if (!strcmp(string, "grey")) {
+    *colorVal = grey;
+  } else {
+    *colorVal = NULL;
+  }
+
+} /* string2color */
+
+
+
 /**********************************************************
  * Return the rgb components of a color_T.
  **********************************************************/
@@ -174,6 +206,9 @@ void color2rgb(color_T colorVal, int* r, int* g, int* b) {
     break;
   case black:
     *r = 0;    *g = 0;    *b = 0;
+    break;
+  case grey:
+    *r = 128;   *g = 128;   *b = 128;
     break;
   default:
     colorError(invalid);
@@ -211,6 +246,25 @@ void makeColors (gdImagePtr img,
 } /* makeColors */
 
 
+
+/*****************************************************************************
+ * figure out if black or white text should be used, depending on the
+ * background color
+ *****************************************************************************/
+int chooseContrastingColor(gdImagePtr img)
+{
+  int r, g, b;
+  r = gdImageRed(img, 0); /* Note that these are documented as gdImageColorRed etc - maybe it is so in the latest version of gd? */
+  g = gdImageGreen(img, 0);
+  b = gdImageBlue(img, 0);
+  if (r < 128 && g < 128 && b < 128) {
+    return  255; /* use white */
+  } else {
+    return 0; /* use black */
+  }
+} /* choosecontrastingColor */
+
+
 /**********************************************************
  * Error checking
  **********************************************************/
@@ -223,6 +277,25 @@ void checkColor(int colorReturn)
   }
 } /* checkColor */
 
+
+/* copy a palette between two gd images - this does not do the
+   remapping and can be used only on blank target images with no
+   colors allocated */
+void copyPaletteToNew(gdImagePtr dst, gdImagePtr src)
+{
+  int i;
+  if (dst->colorsTotal != 0) die("Can't call copyPaletteToNew on image with allocated colors\n");
+  dst->colorsTotal = src->colorsTotal;
+  for (i=0; i < src->colorsTotal; i++) {
+    if (src->open[i] == 0) {
+      dst->open[i] = 0;
+      dst->red[i] = src->red[i];
+      dst->green[i] = src->green[i];
+      dst->blue[i] = src->blue[i];
+    }
+  }
+  DEBUG_CODE(1, fprintf(stderr, "Target image has %d colors allocated\n", dst->colorsTotal););
+} /* copyPaletteToNew */
 
 /* error codes */
 void colorError(colorerrorcode_T colorerrorcode)
