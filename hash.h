@@ -14,10 +14,8 @@
 
 #ifdef STRINGHASH
 #define HTYPE char*
-#define HSCAN "%s"
 #else
 #define HTYPE double
-#define HSCAN "%.3f"
 #endif
 
 #ifndef KEYLENGTH
@@ -40,8 +38,13 @@ struct hashtable_t {
   int num_items;
 };
 
+HASHTABLE_T* createHashTable(STRING_LIST_T* keys, 
+			     void* data, 
+			     void(*al)(HASHTABLE_T* hashtable, int index, HTYPE value));
+
+
 /* intialize a table */
-HASHTABLE_T* buildtable(int size, void(*al)(HASHTABLE_T* hashtable, int index, HTYPE value) );
+HASHTABLE_T* inittable(int size, void(*al)(HASHTABLE_T* hashtable, int index, HTYPE value) );
 
 /* return an array location in which to store a value */
 int hash (char* key, int keylength, HASHTABLE_T* hashtable);

@@ -3,7 +3,7 @@
  * AUTHOR: Paul Pavlidis
  * CREATE DATE: 3/2001
  * PROJECT: PLOTKIT
- * DESCRIPTION: Make a hash table of string information. Keys are string ids (strings), data  are strings.
+ * DESCRIPTION: Make a hash table of string information from a file. Keys are string ids (strings), data  are strings.
  * Takes a file that has 1 header line (optional), one column of string names, and one column of description (or whatever it is)
  * Some snips of code borrowed from WNG's string-list.c
  *****************************************************************************/
@@ -26,7 +26,7 @@ HASHTABLE_T* buildStringHash(FILE* infile) {
   HTYPE* tablePtr = NULL;
 
   /* set up the initial table */
-  return_value = (HASHTABLE_T*)buildtable(DEFAULT_TABLE_SIZE, &ALLOCATIONFUNC);
+  return_value = (HASHTABLE_T*)inittable(DEFAULT_TABLE_SIZE, &ALLOCATIONFUNC);
 
   /* Read the first name. */
   fgets_result = fgets(this_line,  DEFAULT_LINE_LENGTH, infile);

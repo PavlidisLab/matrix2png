@@ -12,6 +12,7 @@
 #include "gd.h"
 #include "locations.h"
 #include "colors.h"
+#include "colormap.h"
 #include "string-list.h"
 #include "utils.h"
 #include "matrix.h"
@@ -45,6 +46,7 @@ gdImagePtr matrix2img (
 		     color_T minColor,
 		     color_T maxColor,
 		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
+		     int colorMap,
 		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,
@@ -82,7 +84,7 @@ gdImagePtr matrix2img (
   return rawmatrix2img(rawmatrix, numrows, numcols, contrast, useDataRange, 
 		       includeDividers, passThroughBlack,
 		       xSize, ySize, minVal, maxVal,
-		       minColor, maxColor, backgroundColor, xMinSize, yMinSize, numcolors, usedRegion, matrixInfo);
+		       minColor, maxColor, backgroundColor, colorMap, xMinSize, yMinSize, numcolors, usedRegion, matrixInfo);
   
 } /* matrix2img */
 
@@ -104,6 +106,7 @@ gdImagePtr rawmatrix2img (
 		     color_T minColor,
 		     color_T maxColor,
 		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
+		     int colorMap,
 		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numColors,
@@ -143,7 +146,12 @@ gdImagePtr rawmatrix2img (
   img = gdImageCreate(width, height);
 
   /* allocate the colors */
-  allocateColors(img, backgroundColor, minColor, maxColor, passThroughBlack, numColors);
+  if (colorMap) {
+    allocateColorMap(img, backgroundColor, colorMap, numColors);
+  } else {
+    allocateColors(img, backgroundColor, minColor, maxColor, passThroughBlack, numColors);
+  }
+
   if (includeDividers) {
     int r,g,b;
     color2rgb(DEFAULTDIVIDERCOLOR, &r, &g, &b);
@@ -264,7 +272,8 @@ int main (int argc, char **argv) {
   
   double contrast = DEFAULTCONTRAST;
   int numcolors = DEFAULTNUMCOLORS;
-  
+  int colorMap = DEFAULTCOLORMAP;
+
   /* the following are given in the format xDIVIDERy */
   char* rangeInput = NULL;
   char* pixsizeInput = NULL;
@@ -321,6 +330,8 @@ int main (int argc, char **argv) {
 	       maxColorInput = _OPTION_);
      DATA_OPTN(1, bkgcolor, : color used as background (default = white),
 	       bkgColorInput = _OPTION_);
+     DATA_OPTN(1, map, : color map choice: overrides min/max colors (default = 0 (none) ),
+	       colorMap = atoi(_OPTION_));
      SIMPLE_CFLAG_OPTN(1, b, passThroughBlack);
      SIMPLE_CFLAG_OPTN(1, d, dodividers);
      SIMPLE_CFLAG_OPTN(1, s, doscalebar);
@@ -361,17 +372,21 @@ int main (int argc, char **argv) {
   }
 
   /* convert user-defined colors into corresponding color_T */
-  if (bkgColorInput != NULL) {
-    string2color(bkgColorInput, &bkgColor);
-    if (bkgColor == NULL) die("Illegal background color chosen");
-  }
-  if (minColorInput != NULL) {
-    string2color(minColorInput, &minColor);
-    if (minColor == NULL) die("Illegal mincolor chosen");
-  }
-  if (maxColorInput != NULL) {
-    string2color(maxColorInput, &maxColor);
-    if (maxColor == NULL) die("Illegal maxcolor chosen");
+  if (colorMap > 0) {
+    DEBUG_CODE(1, fprintf(stderr, "Using color map\n"););
+  } else {
+    if (bkgColorInput != NULL) {
+      string2color(bkgColorInput, &bkgColor);
+      if (bkgColor == NULL) die("Illegal background color chosen");
+    }
+    if (minColorInput != NULL) {
+      string2color(minColorInput, &minColor);
+      if (minColor == NULL) die("Illegal mincolor chosen");
+    }
+    if (maxColorInput != NULL) {
+      string2color(maxColorInput, &maxColor);
+      if (maxColor == NULL) die("Illegal maxcolor chosen");
+    }
   }
 
   /* read data */
@@ -422,6 +437,7 @@ int main (int argc, char **argv) {
 		   minColor,
 		   maxColor,
 		   bkgColor,
+		   colorMap,
 		   xminSize, yminSize,
 		   numcolors, usedRegion, matrixInfo, rawmatrix);
   

@@ -14,6 +14,36 @@
 #include "utils.h"
 #include <stdio.h>
 
+/* create a filled table. The data can be any type; the keys are a
+   string-list; the data are in an array. The caller provides the
+   insert callback, and assures us that the data and the keys have the
+   same number of items.  An exception is if the data is NULL: we
+   assume that the indices of the stringlist items are what is needed,
+   so the data is ints */
+HASHTABLE_T* createHashTable(STRING_LIST_T* keys, 
+			     void* data, 
+			     void(*al)(HASHTABLE_T* hashtable, int index, HTYPE value)) 
+{
+  HASHTABLE_T* return_val = NULL;
+  int i;
+  int num_keys;
+
+  num_keys = get_num_strings(keys);
+  if (num_keys == 0) {
+    return(NULL);
+  }
+  return_val = inittable(DEFAULT_TABLE_SIZE, al);
+
+  for (i = 0; i < num_keys; i++) {
+    if (data == NULL) {
+      insert(return_val, get_nth_string(i, keys), (HTYPE)i);
+    } else {
+      insert(return_val, get_nth_string(i, keys), (HTYPE)data[i]);
+    }
+  }
+  return(return_val);
+} /* createHashTable */
+
 
 
 /* intialize a table. Keep the pointer to the allocationFunc - we will use this to make space later.  */
@@ -154,7 +184,7 @@ void rehash(HASHTABLE_T* hashtable) {
 	     );
 
   newsize = nextPrime(2*(hashtable->table_size));
-  newtable = buildtable(newsize, hashtable->insertFunc);
+  newtable = inittable(newsize, hashtable->insertFunc);
 
   for (i = 0; i < hashtable->table_size; i++) {
     key = hashtable->keys[i];

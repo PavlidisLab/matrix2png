@@ -23,6 +23,7 @@
 #define DEFAULTMINCOLOR blue
 #define DEFAULTMAXCOLOR red
 #define DEFAULTDIVIDERCOLOR grey
+#define DEFAULTCOLORMAP 0
 #define DEFAULTSCALEBARLOC (defineLocation("topleft", topleft, 0.0, 0.0))
 #define DEFAULTROWNAMESLOC (defineLocation("rightmiddle", rightmiddle, 1.0, 0.5))
 #define DEFAULTCOLNAMESLOC (defineLocation("topmiddle", topmiddle, 0.5, 0.0))
@@ -63,6 +64,7 @@ gdImagePtr matrix2img (
 		     color_T minColor,
 		     color_T maxColor,
 		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
+		     int colorMap,
 		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,
@@ -89,6 +91,7 @@ gdImagePtr rawmatrix2img (
 		     color_T minColor,
 		     color_T maxColor,
 		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
+		     int colorMap,
 		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,
