@@ -27,6 +27,7 @@ typedef struct discretemap_t
 #define DMAP_INITIAL_COUNT 10
 #define DEFAULT_DISCRETE_STRING "default"
 #define DEFAULT_DISCRETE_COLOR_INDEX 5
+#define DEFAULT_DISCRETE_COLOR "grey"
 #define MAX_DROW 1000
 
 DISCRETEMAP_T* readDiscreteMap(FILE* file);

@@ -36,7 +36,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 
     string_ptr = strtok(one_row, "\t");
 
-    if (strcmp(string_ptr, "default") == 0) {
+    if (strcmp(string_ptr, DEFAULT_DISCRETE_STRING) == 0) {
       string_ptr = strtok(NULL, "\t\n\r");
       if (string_ptr == NULL)	die("No color read for discrete map \n");
       string2color(string_ptr, &color);
@@ -54,7 +54,6 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
       return_value->count++;
     }
   }
-
   if (return_value->count > MAXCOLORS) {
     // because one color may correspond to the same color, this isn't really accurate, but it is simple.
     die("Too many colors chosen in discrete map"); // this isn't really possible since the number of colors in the palette is small.
@@ -69,7 +68,7 @@ DISCRETEMAP_T* allocateDiscreteMap(void)
   return_value = (DISCRETEMAP_T*)mymalloc(sizeof(DISCRETEMAP_T));
   //  return_value->values = (int*)mymalloc(sizeof(int)*DMAP_INITIAL_COUNT);
   return_value->colors = (color_T*)mymalloc(sizeof(color_T)*DMAP_INITIAL_COUNT);
-  string2color("grey", &(return_value->default_colorcode));
+  string2color(DEFAULT_DISCRETE_COLOR, &(return_value->default_colorcode));
   return_value->count = 0;
   return_value->maxcount = DMAP_INITIAL_COUNT;
   return(return_value);
