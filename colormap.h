@@ -23,6 +23,12 @@
  *****************************************************************************/
 char** getColorMap (int colorMap);
 
-
+void allocateColorMap (
+		       gdImagePtr img,
+		       colorV_T* backgroundColor,
+		       colorV_T* missingColor,
+		       int colorMap,
+		       int numColors
+		       );
 
 #endif

@@ -138,4 +138,5 @@ char** getColorMap (int colorMap) {
     colorError(invalid);
     break;
   }
+  return(0);
 } /* getColorMap */

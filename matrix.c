@@ -1231,8 +1231,7 @@ int simple_compare (const void* elem1, const void* elem2)
   return(0);
 }
 
-void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, double outliers, MTYPE* min, MTYPE* max, 
-			      int* maxrow, int* maxcol, int* minrow, int* mincol) 
+void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, double outliers, MTYPE* min, MTYPE* max) 
 {
   int i,j;
   int lmaxrow, lmaxcol, lminrow, lmincol;
@@ -1284,10 +1283,6 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, dou
 
   *min = lmin;
   *max = lmax;
-  //  *maxrow = lmaxrow;
-  //*maxcol = lmaxcol;
-  //*minrow = lminrow;
-  //*mincol = lmincol;
 }
 
 

@@ -23,8 +23,7 @@ void parseValuePair (char* command, char* divider, double* firstVal, double* sec
 /*****************************************************************************
  * Deal with commands given in the r:g:b format  (where : is defined in DIVIDER)
  *****************************************************************************/
-void parseValueTriplet (char* command, char* divider, int** values, int maxToRead);
-
+void parseValueSeries (char* command, char* divider, int* values, int maxToRead);
 
 #endif /* CMDPARSE_H */
 

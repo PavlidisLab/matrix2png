@@ -168,9 +168,9 @@ gdImagePtr rawmatrix2img (
   
   /* figure out the value-to-color mapping */
   if (useDataRange && matrix[0] != NULL) {
-    int minindx, maxindx, minindy, maxindy; /* caution: these are not used now  */
+    //    int minindx, maxindx, minindy, maxindy; /* caution: these are not used now  */
     if (matrixInfo->numrows > 0)
-      find_rawmatrix_min_and_max(matrix, matrixInfo->numrows, matrixInfo->numcols, matrixInfo->outliers, &min, &max, &maxindx, &maxindy, &minindx, &minindy);
+      find_rawmatrix_min_and_max(matrix, matrixInfo->numrows, matrixInfo->numcols, matrixInfo->outliers, &min, &max);
     min/=contrast;
     max/=contrast;
   } else {
@@ -263,7 +263,6 @@ int main (int argc, char **argv) {
 
   /* Main data structures and corresponding command line inputs */
   gdImagePtr img;
-  FILE* pngout;
   char* dataFilename = NULL;
   FILE* dataFile = NULL;
   char* discreteMappingFileName = NULL;

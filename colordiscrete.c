@@ -42,7 +42,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 	die("Missing or invalid value in the discrete map file");
       }
       //      return_value->values[return_value->count] = one_value; // not needed yet.
-      string_ptr = strtok(NULL, "\t\n\r");
+      string_ptr = (char*)strtok(NULL, "\t\n\r");
       if (string_ptr == NULL)	die("No color read for discrete map\n");
       string2color(string_ptr, return_value->colors[return_value->count]);
       return_value->count++;
