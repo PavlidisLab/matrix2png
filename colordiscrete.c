@@ -53,10 +53,18 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
       string_ptr = strtok(one_row, "\t"); // the value
       if (string_ptr == NULL) die("No value read from discrete map file\n");
       
-      if (strcmp(string_ptr, DEFAULT_DISCRETE_STRING) == 0) {
+      if (strcmp(string_ptr, DEFAULT_DISCRETE_STRING) == 0) { // default value.
 	string_ptr = strtok(NULL, "\t\n\r"); // the color
 	if (string_ptr == NULL)	die("No color read for discrete map \n");
-	string2color(string_ptr, return_value->default_colorcode);
+	strcpy(colorbuf, string_ptr);
+	string_ptr = strtok(NULL, "\t\n\r"); // the label, if any
+	if (string_ptr != NULL) {
+	  DEBUG_CODE(1, fprintf(stderr, "Got %s\n", string_ptr););
+	  if (strlen(string_ptr) > DEFAULT_DISCRETE_LABEL_BUFSIZE)
+	    die("Default discrete label is too long. Need to increase defined DEFAULT_DISCRETE_LABEL_BUFSIZE");
+	  strcpy(return_value->defaultlabel, string_ptr);
+	}
+	string2color(colorbuf, return_value->default_colorcode);
       } else {
 	num_scanned = sscanf(string_ptr, "%d", &one_value);
 	if (num_scanned == 0) {
@@ -73,7 +81,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 	  add_string(string_ptr, return_value->labels); // use the label
 	  DEBUG_CODE(1, fprintf(stderr, "got %s\n", string_ptr););
 	} else {
-	  char buf[10];
+	  char buf[10]; // space for an integer value.
 	  sprintf(buf, "%d", return_value->count + 1);
 	  DEBUG_CODE(1, fprintf(stderr, "No label so got %s\n", buf););
 	  add_string(buf, return_value->labels); // use the integer value
@@ -82,6 +90,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
       string2color(colorbuf, return_value->colors[return_value->count]);
       return_value->count++;
     }
+    return_value->count--;
     if (return_value->count > MAXCOLORS) {
       // because one color may correspond to the same color, this isn't really accurate, but it is simple.
       die("Too many colors chosen in discrete map"); // this isn't really possible since the number of colors in the palette is small.
@@ -105,6 +114,9 @@ DISCRETEMAP_T* allocateDiscreteMap(void)
   string2color(DEFAULT_DISCRETE_COLOR, return_value->default_colorcode);
   return_value->count = 0;
   return_value->maxcount = DMAP_INITIAL_COUNT;
+  if (strlen(DEFAULT_DISCRETE_LABEL) > DEFAULT_DISCRETE_LABEL_BUFSIZE)
+    die("Default discrete label is too long. Need to increase defined DEFAULT_DISCRETE_LABEL_BUFSIZE");
+  strcpy(return_value->defaultlabel, DEFAULT_DISCRETE_LABEL);
   return(return_value);
 }
 

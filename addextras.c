@@ -29,12 +29,14 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo, int numcolors)
   int featureWidth, featureHeight;
   int barWidth, barHeight;
   int xtotaloffset, ytotaloffset;
+  double blocksize;
+  
+  // The following are 'reasonable' settings. For discrete mappings, the text is always vertical for horizontal scale bars.
+  BOOLEAN_T vertical = FALSE; // todo: make this user-settable
+  BOOLEAN_T includeMidVal = FALSE; // todo: make this user-settable.
+  BOOLEAN_T rotateLabels = FALSE; // only applies if we aren't putting the scale bar vertically : todo: make this user-settable.
 
-  //BOOLEAN_T vertical = FALSE;
-  BOOLEAN_T vertical = TRUE;
-  BOOLEAN_T includeMidVal = FALSE;
-  //  BOOLEAN_T includeMidVal = TRUE;
-  BOOLEAN_T rotateLabels = TRUE; // only applies if we aren't putting the scale bar vertically
+  DEBUG_CODE(1, fprintf(stderr, "--Adding scale bar\n"););
 
   if (numcolors > DEFAULTSCALEBARLENGTH) {
     barWidth  = numcolors;
@@ -43,19 +45,19 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo, int numcolors)
   }
   barHeight = DEFAULTSCALEBARHEIGHT;
 
-  /* should check to see that the default width is enough. */
+  /* todo: should check to see that the default width is enough. */
   //
 
-
   getTotalScaleBarDims(TRUE, includeMidVal, vertical, rotateLabels, barWidth, barHeight, 
-		       matrixInfo->minval, matrixInfo->maxval, &featureWidth, &featureHeight, &xoffset, &yoffset);
+			 matrixInfo, &featureWidth, &featureHeight, &xoffset, &yoffset);
 
   placeFeature(img,
-	       "topleft", TRUE,
+	       "topleft", // todo: make this user-settable.
+	       TRUE,  // align.
 	       &x, &y, /* these will contain the positions for the _entire_ scale bar, including labels */
 	       matrixInfo->usedRegion,
 	       featureWidth, featureHeight,
-	       &xtotaloffset, &ytotaloffset
+	       &xtotaloffset, &ytotaloffset // this is how much we had to move everything
 	       );
 
   matrixInfo->ulx += xtotaloffset;
@@ -63,9 +65,9 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo, int numcolors)
   matrixInfo->lrx += xtotaloffset;
   matrixInfo->lry += ytotaloffset;
 
-  DEBUG_CODE(1, fprintf(stderr, "Adding scale bar at %d %d, %d by %d\n", x, y, barWidth, barHeight););
-  drawScaleBar(img, vertical, x+xoffset, y+yoffset, barHeight, barWidth );
-  labelScaleBar(img, includeMidVal, vertical, rotateLabels, x+xoffset, y+yoffset,  barHeight, barWidth, matrixInfo->minval, matrixInfo->maxval);
+  DEBUG_CODE(1, fprintf(stderr, "Adding scale bar at %d %d, %d by %d, offset %d %d\n", x, y, featureWidth, featureHeight, xoffset, yoffset););
+  drawScaleBar(img, vertical, x+xoffset, y+yoffset, barHeight, barWidth, &blocksize );
+  labelScaleBar(img, includeMidVal, vertical, rotateLabels, x+xoffset, y+yoffset, barHeight, barWidth, blocksize, matrixInfo);
 
 } /* addScaleBar */
 

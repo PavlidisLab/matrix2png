@@ -24,7 +24,7 @@ struct string_list_t {
  * Allocate dynamic memory for a string list.
  *************************************************************************/
 #define DEFAULT_MAX_STRINGS 10
-#define DEFAULT_STRING_LENGTH  10
+#define DEFAULT_STRING_LENGTH 1
 #define DEFAULT_LINE_LENGTH 5000 /* max length of a line read from a file */
 STRING_LIST_T* new_string_list
   ()

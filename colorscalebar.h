@@ -10,6 +10,7 @@
 
 #include "gd.h"
 #include "utils.h"
+#include "matrix2png.h"
 
 #ifdef TINYTEXT
 #define LABELFONT gdFontTiny
@@ -38,7 +39,8 @@
 #define MINLABELWIDTH (CHARWIDTH*5)
 #define DEFAULTSCALEBARLENGTH 150
 #define DEFAULTSCALEBARHEIGHT 8
-#define PADDING 3 /* pixel padding for some text features */
+#define DEFAULTSCALEBARBLOCKSIZE 10
+#define PADDING 5 /* pixel padding for some text features */
 
 /* add a scale bar to an image. Must designate where to put it. If
  * space was not allotted in the image for the scale bar. It uses the
@@ -50,7 +52,8 @@ void drawScaleBar (
 	       int xStart, /* all meas in pixels*/
 	       int yStart,
 	       int thickness,
-	       int length
+	       int length,
+	       double* blocksize
 	       );
 
 void checkScaleBarDims (
@@ -68,8 +71,7 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
 			  BOOLEAN_T rotatelabels,
 			  int barLength,
 			  int barThickness,
-			  double scaleMin,
-			  double scaleMax,
+			  MATRIXINFO_T* matrixInfo,
 			  int *width,
 			  int *height,
 			  int *widthoffset,
@@ -85,8 +87,8 @@ void labelScaleBar (
 		    int scaleBaryStart,
 		    int scaleBarthickness,
 		    int scaleBarlength,
-		    double scaleMin,
-		    double scaleMax
+		    double blocksize,
+		    MATRIXINFO_T* matrixInfo
 		    );
 
 #endif

@@ -47,6 +47,7 @@ typedef struct matrixinfo_t {
   double outliers;
   int xminSize; // todo: not needed
   int yminSize; // todo: not needed
+  DISCRETEMAP_T* discreteMap;
   USED_T* usedRegion;
   BOOLEAN_T dividers;
   BOOLEAN_T circles;
@@ -70,7 +71,6 @@ gdImagePtr matrix2img (
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap, /* optional color mapping */
-		     DISCRETEMAP_T* discreteMap,
 		     int numcolors,
 		     MATRIXINFO_T* matrixInfo,
 		     MTYPE** rawmatrix
@@ -96,7 +96,6 @@ gdImagePtr rawmatrix2img (
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap, /* optional color mapping */
-		     DISCRETEMAP_T* discreteMap,
 		     int numcolors,
 		     MATRIXINFO_T* matrixInfo
 		     );

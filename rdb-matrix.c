@@ -417,7 +417,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   RDB_MATRIX_T* return_value;   /* The RDB matrix being created. */
   int i_char;
   int this_char;
-  int num_missing;
+  int num_missing = 0;
   int length;
   int count = -1;
   int i_read = 0;

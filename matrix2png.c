@@ -27,7 +27,10 @@
 
 /* create a new matrixinfo struct */
 MATRIXINFO_T* newMatrixInfo(void) {
-  return (MATRIXINFO_T*)mymalloc(sizeof(MATRIXINFO_T));
+  MATRIXINFO_T* return_value;
+  return_value = (MATRIXINFO_T*)mymalloc(sizeof(MATRIXINFO_T));
+  return_value->discreteMap = NULL;
+  return(return_value);
 } /* newMatrixInfo */
 
 /* dump the info about a matrix */
@@ -50,7 +53,6 @@ gdImagePtr matrix2img (
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap,
-		     DISCRETEMAP_T* discreteMap,
 		     int numcolors,
 		     MATRIXINFO_T* matrixInfo,
 		     MTYPE** rawmatrix
@@ -75,7 +77,7 @@ gdImagePtr matrix2img (
   return rawmatrix2img(rawmatrix, contrast, useDataRange, 
 		       includeDividers, passThroughBlack,
 		       minVal, maxVal,
-		       minColor, maxColor, backgroundColor, missingColor, colorMap, discreteMap, numcolors, matrixInfo);
+		       minColor, maxColor, backgroundColor, missingColor, colorMap, numcolors, matrixInfo);
   
 } /* matrix2img */
 
@@ -95,7 +97,6 @@ gdImagePtr rawmatrix2img (
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap,
-		     DISCRETEMAP_T* discreteMap,
 		     int numColors,
 		     MATRIXINFO_T* matrixInfo
 		     )
@@ -136,8 +137,8 @@ gdImagePtr rawmatrix2img (
   /* allocate the colors */
   if (colorMap) {
     allocateColorMap(img, backgroundColor, missingColor, colorMap, numColors);
-  } else if (discreteMap != NULL) {
-    allocateColorsDiscrete(img, discreteMap, backgroundColor, missingColor);
+  } else if (matrixInfo->discreteMap != NULL) {
+    allocateColorsDiscrete(img, matrixInfo->discreteMap, backgroundColor, missingColor);
   } else {
     allocateColors(img, backgroundColor, minColor, maxColor, missingColor, passThroughBlack, numColors);
   }
@@ -197,8 +198,8 @@ gdImagePtr rawmatrix2img (
 
       if (isnan(value)) {
 	colorcode = MISSING;
-      } else if (discreteMap != NULL) {
-	if (value > discreteMap->count || value < 0) {
+      } else if (matrixInfo->discreteMap != NULL) {
+	if (value > matrixInfo->discreteMap->count || value < 0) {
 	  colorcode = DEFAULT_DISCRETE_COLOR_INDEX;
 	} else {
 	  colorcode = (int)value+NUMRESERVEDCOLORS;
@@ -421,12 +422,19 @@ int main (int argc, char **argv) {
     DEBUG_CODE(1, fprintf(stderr, "Pixels set to %d by %d\n", xpixSize, ypixSize););
   }
 
+  if (discreteMappingFileName != NULL)
+    discrete = TRUE;
+
   if (outliers && rangeInput) {
     die("Cannot specifiy outlier trimming as well as the -range option\n");
   }
 
   if (outliers < 0.0 || outliers > 100.0) {
-    die("Please select an outlier trimming value that is a valid percentage\n");
+    die("Please select an outlier trimming value that is a valid percentage value\n");
+  }
+
+  if (outliers && discrete) {
+    fprintf(stderr, "Warning: Specifying trimming with discrete mapping will probably yield undesirable results\n");
   }
 
   if (bkgColorInput != NULL) {
@@ -492,6 +500,8 @@ int main (int argc, char **argv) {
     } else {
       discreteMap = readDiscreteMap(NULL);
     }
+    numcolors = discreteMap->count+1;
+    DEBUG_CODE(1, fprintf(stderr, "There are %d colors including the default\n", numcolors););
   } else {
     if (minColorInput != NULL) {
       string2color(minColorInput, minColor);
@@ -504,6 +514,9 @@ int main (int argc, char **argv) {
   }
 
   if (normalize) {
+    if (discrete) {
+      fprintf(stderr, "Warning: normalizing a file for use with discrete mapping will probably yield undesirable results\n");
+    }
     zero_mean_matrix_rows(dataMatrix);
     variance_one_matrix_rows(dataMatrix);
   }
@@ -533,6 +546,7 @@ int main (int argc, char **argv) {
   matrixInfo->xminSize = xminSize;
   matrixInfo->yminSize = yminSize;
   matrixInfo->usedRegion = usedRegion;
+  matrixInfo->discreteMap = discreteMap;
 
   DEBUG_CODE(1, dumpMatrixInfo(matrixInfo););
   
@@ -545,8 +559,9 @@ int main (int argc, char **argv) {
 		   bkgColor,
 		   missingColor,
 		   colorMap,
-		   discreteMap,
-		   numcolors, matrixInfo, rawmatrix);
+		   numcolors, 
+		   matrixInfo, 
+		   rawmatrix);
   
   /* add extra goodies: (the order matters because of primitive
      feature placement routine) */

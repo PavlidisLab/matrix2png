@@ -12,6 +12,7 @@
 #include "utils.h"
 #include <string.h>
 #include <stdio.h>
+#include "matrix2png.h"
 
 /*****************************************************************************
  * checkScaleBarDims: make sure a scale bar is legal
@@ -45,7 +46,6 @@ void checkScaleBarDims (
 } /* checkScaleBarDims */
 
 
-
 /*****************************************************************************
  *  Calculate the total dimensions of a finished scale bar
  *****************************************************************************/
@@ -55,8 +55,7 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
 			  BOOLEAN_T rotatelabels,
 			  int barLength,
 			  int barThickness,
-			  double scaleMin,
-			  double scaleMax,
+			  MATRIXINFO_T* matrixInfo,
 			  int *width,
 			  int *height,
 			  int *widthoffset,
@@ -65,32 +64,43 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
   char leftLabel [MAXLABELLENGTH];
   char rightLabel [MAXLABELLENGTH];
   char middleLabel [MAXLABELLENGTH];
+  int maxlength = 0;
 
-  sprintf(leftLabel, LABELFORMAT, scaleMin);
-  sprintf(rightLabel, LABELFORMAT, scaleMax);
-  sprintf(middleLabel, LABELFORMAT, (scaleMax - scaleMin )/ 2);
+  /* get the strings we need for labeling. The edge labels get special status. */
+  if (matrixInfo->discreteMap == NULL) {
+    double scaleMin = matrixInfo->minval;
+    double scaleMax = matrixInfo->maxval;
+    /* figure out maximum string length */
+    sprintf(leftLabel, LABELFORMAT, scaleMin);
+    sprintf(rightLabel, LABELFORMAT, scaleMax);
+    sprintf(middleLabel, LABELFORMAT, (scaleMax - scaleMin )/ 2);
+    if (includeMidVal) {
+      if (strlen(leftLabel) >= strlen(rightLabel) && strlen(leftLabel) >=  strlen(middleLabel)) 
+	maxlength = strlen(leftLabel);
+      else if (strlen(rightLabel) >= strlen(leftLabel) && strlen(rightLabel) >=  strlen(middleLabel)) 
+	maxlength = strlen(rightLabel);
+      else maxlength = strlen(middleLabel);
+    } else {
+      if (strlen(leftLabel) >= strlen(rightLabel))
+	maxlength = strlen(leftLabel);
+      else
+	maxlength = strlen(rightLabel);
+    }
+  } else {
+    strcpy(leftLabel, get_nth_string(0, matrixInfo->discreteMap->labels));
+    strcpy(rightLabel, get_nth_string(matrixInfo->discreteMap->count - 1, matrixInfo->discreteMap->labels));
+    maxlength = max_string_length(matrixInfo->discreteMap->labels);
+    if ((int)strlen(matrixInfo->discreteMap->defaultlabel) > maxlength)
+      maxlength = strlen(matrixInfo->discreteMap->defaultlabel);
+  }
 
-  if(1 == rotatelabels){}
+  DEBUG_CODE(1, fprintf(stderr, "Longest string is %d, charwidth %d\n", maxlength, CHARWIDTH););
 
   if (vertical) {
     if (addLabels) {
-      int maxlength;
-      /* figure out maximum string length */
-      if (includeMidVal) {
-	if (strlen(leftLabel) >= strlen(rightLabel) && strlen(leftLabel) >=  strlen(middleLabel)) 
-	  maxlength = strlen(leftLabel);
-	else if (strlen(rightLabel) >= strlen(leftLabel) && strlen(rightLabel) >=  strlen(middleLabel)) 
-	  maxlength = strlen(rightLabel);
-	else maxlength = strlen(middleLabel);
-      } else {
-	if (strlen(leftLabel) >= strlen(rightLabel))
-	  maxlength = strlen(leftLabel);
-	else
-	  maxlength = strlen(rightLabel);
-      }
-      *width = barThickness + maxlength + PADDING*2;
+      *width = barThickness + maxlength*CHARWIDTH + PADDING*2;
       *height = barLength + PADDING*2;
-      *widthoffset = maxlength + PADDING;
+      *widthoffset = PADDING;
       *heightoffset = PADDING;
     } else {
       *width = barThickness + PADDING*2;
@@ -100,25 +110,11 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
     }
   } else { /* horizontal */
     if (addLabels) {
-      if (rotatelabels) {
-	int maxlength;
-	/* figure out maximum string length */
-	if (includeMidVal) {
-	  if (strlen(leftLabel) >= strlen(rightLabel) && strlen(leftLabel) >=  strlen(middleLabel)) 
-	    maxlength = strlen(leftLabel);
-	  else if (strlen(rightLabel) >= strlen(leftLabel) && strlen(rightLabel) >=  strlen(middleLabel)) 
-	    maxlength = strlen(rightLabel);
-	  else maxlength = strlen(middleLabel);
-	} else {
-	  if (strlen(leftLabel) >= strlen(rightLabel))
-	    maxlength = strlen(leftLabel);
-	  else
-	    maxlength = strlen(rightLabel);
-	}
+      if (rotatelabels || matrixInfo->discreteMap != NULL) {
 	*width = barLength;
-	*height = barThickness + maxlength*CHARWIDTH + PADDING*2;
+	*height = barThickness + maxlength*CHARWIDTH + PADDING*3;
 	*widthoffset = LABELHEIGHT;
-	*heightoffset = maxlength*CHARWIDTH + PADDING;
+	*heightoffset = maxlength*CHARWIDTH + PADDING*2;
       } else {
 	*width = barLength + CHARWIDTH*strlen(leftLabel)/2 + CHARWIDTH*strlen(rightLabel)/2;
 	*height = barThickness + LABELHEIGHT + PADDING*2;
@@ -147,10 +143,10 @@ void drawScaleBar (
 	       int xStart, /* all meas in pixels*/
 	       int yStart,
 	       int thickness,
-	       int length
+	       int length,
+	       double* blockLength
 	       )
 {
-  double blockLength;
   int i;
   double x, y;
   int numColors = gdImageColorsTotal(img);
@@ -166,20 +162,21 @@ void drawScaleBar (
   
   checkScaleBarDims(img, vertical, xStart, yStart, thickness, length);
  
-  blockLength = ((double)length/(numColors - NUMRESERVEDCOLORS));
-  if (blockLength < 1.0) blockLength = 1.0;
+  *blockLength = ((double)length/(numColors - NUMRESERVEDCOLORS));
+  if (*blockLength < 1.0) *blockLength = 1.0;
   
-  DEBUG_CODE(1, fprintf(stderr, "Block length is %f\n", blockLength););
+  DEBUG_CODE(1, fprintf(stderr, "Block length is %f\n", *blockLength););
   
   x = (double)xStart;
   y = (double)yStart;
+
   for (i = NUMRESERVEDCOLORS; i<numColors; i++) {
     if (vertical) { /* high values at the top */
-      gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + blockLength, numColors + NUMRESERVEDCOLORS - 1 - i);
-      y+=blockLength;
+      gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + *blockLength, numColors + NUMRESERVEDCOLORS - 1 - i);
+      y+= *blockLength;
     } else { /* high values at the right */
-      gdImageFilledRectangle(img, x, yStart, x + blockLength, yStart + thickness, i);
-      x+=blockLength;
+      gdImageFilledRectangle(img, x, yStart, x + *blockLength, yStart + thickness, i);
+      x+= *blockLength;
     }
   }
 
@@ -198,8 +195,8 @@ void labelScaleBar (
 		    int scaleBaryStart,
 		    int scaleBarthickness,
 		    int scaleBarlength,
-		    double scaleMin,
-		    double scaleMax
+		    double blocksize,
+		    MATRIXINFO_T* matrixInfo
 		    )
 {
   
@@ -208,6 +205,8 @@ void labelScaleBar (
   char middleLabel [MAXLABELLENGTH];
   /*  int r,g,b; */
   int textIntensity;
+  double scaleMin = matrixInfo->minval;
+  double scaleMax = matrixInfo->maxval;
 
   checkScaleBarDims(img, vertical, scaleBarxStart, scaleBaryStart, scaleBarthickness, scaleBarlength);
 
@@ -218,68 +217,84 @@ void labelScaleBar (
     //    if (scaleBaryStart < LABELHEIGHT) die ("Insufficient room for middle scale bar label\n");
   }
 
-  /* convert values to strings */
-  sprintf(leftLabel, LABELFORMAT, scaleMin);
-  sprintf(rightLabel, LABELFORMAT, scaleMax);
-  sprintf(middleLabel, LABELFORMAT, (scaleMax - scaleMin )/ 2);
-
   textIntensity = chooseContrastingColor(img);
-
-  /* note that the casts to unsigned char* are just to avoid compiler warnings */
-  if (vertical) {
-    /* bottom label */
-    gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength - LABELHEIGHT, 
-		  (unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
-
-    /* top label */
-    gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + LABELHEIGHT,
-		   (unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
-
-    /* middle label */
-    if (includemiddleval) {
-      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength/2 - LABELHEIGHT,
-		     (unsigned char*)middleLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+  
+  if (matrixInfo->discreteMap != NULL) {
+    int i;
+    int numvals = matrixInfo->discreteMap->count;
+    if (vertical) {
+      // add the bottom label for default values
+      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength - LABELHEIGHT*1.5, 
+		    (unsigned char*)matrixInfo->discreteMap->defaultlabel,  gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      for (i=0; i<numvals; i++) {
+	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + LABELHEIGHT/2 + blocksize*i, 
+		      (unsigned char*)get_nth_string(numvals - i - 1, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      }
+    } else { // horizontal
+	gdImageStringUp(img, LABELFONT, scaleBarxStart +  LABELHEIGHT/2, scaleBaryStart - PADDING, 
+			(unsigned char*)matrixInfo->discreteMap->defaultlabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      for (i=0; i<numvals; i++) {
+	gdImageStringUp(img, LABELFONT, scaleBarxStart +  LABELHEIGHT/2 + blocksize*(i+1), scaleBaryStart - PADDING, 
+		      (unsigned char*)get_nth_string(i, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      }
     }
   } else {
-    /* left label */
-
-    if (rotatelabels) {
-      gdImageStringUp(img, LABELFONT, scaleBarxStart, scaleBaryStart - LABELHEIGHT, 
-		      (unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
-      /* right label */
-      gdImageStringUp(img, LABELFONT, scaleBarxStart + scaleBarlength - LABELHEIGHT, scaleBaryStart - LABELHEIGHT,
-		      (unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
-      
-      /* middle label */
-      if (includemiddleval) {
-	gdImageStringUp(img, LABELFONT, scaleBarxStart + scaleBarlength/2 - LABELHEIGHT/2, scaleBaryStart - LABELHEIGHT,
-			(unsigned char*)middleLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
-      }
-    } else {
-      gdImageString(img, LABELFONT, scaleBarxStart -  CHARWIDTH*strlen(leftLabel)/2, scaleBaryStart - LABELHEIGHT, 
+    /* convert values to strings */
+    sprintf(leftLabel, LABELFORMAT, scaleMin);
+    sprintf(rightLabel, LABELFORMAT, scaleMax);
+    sprintf(middleLabel, LABELFORMAT, (scaleMax - scaleMin )/ 2);
+    
+    /* note that the casts to unsigned char* are just to avoid compiler warnings */
+    if (vertical) {
+      /* bottom label */
+      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength - LABELHEIGHT, 
 		    (unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
-      /* right label */
-      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarlength -  CHARWIDTH*strlen(rightLabel)/2, scaleBaryStart - LABELHEIGHT,
+      
+      /* top label */
+      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart,
 		    (unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
       
       /* middle label */
       if (includemiddleval) {
-	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarlength/2 - CHARWIDTH*strlen(middleLabel)/2, scaleBaryStart - LABELHEIGHT,
+	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength/2 - LABELHEIGHT,
 		      (unsigned char*)middleLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+      }
+    } else { // horizontal
+      /* left label */
+      if (rotatelabels) {
+	gdImageStringUp(img, LABELFONT, scaleBarxStart, scaleBaryStart - LABELHEIGHT + PADDING*2, 
+			(unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+	/* right label */
+	gdImageStringUp(img, LABELFONT, scaleBarxStart + scaleBarlength - LABELHEIGHT, scaleBaryStart - LABELHEIGHT + PADDING*2,
+			(unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+	
+	/* middle label */
+	if (includemiddleval) {
+	  gdImageStringUp(img, LABELFONT, scaleBarxStart + scaleBarlength/2 - LABELHEIGHT/2, scaleBaryStart - LABELHEIGHT + PADDING*2,
+			  (unsigned char*)middleLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+	}
+      } else {
+	gdImageString(img, LABELFONT, scaleBarxStart -  CHARWIDTH*strlen(leftLabel)/2, scaleBaryStart - LABELHEIGHT, 
+		      (unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+	/* right label */
+	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarlength -  CHARWIDTH*strlen(rightLabel)/2, scaleBaryStart - LABELHEIGHT,
+		      (unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+	
+	/* middle label */
+	if (includemiddleval) {
+	  gdImageString(img, LABELFONT, scaleBarxStart + scaleBarlength/2 - CHARWIDTH*strlen(middleLabel)/2, scaleBaryStart - LABELHEIGHT,
+			(unsigned char*)middleLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+	}
       }
     }
   }
 } /* labelScaleBar */
-
+  
 
 
 /* 
  * colorscalebar.c
  */
-
-
-
-
 
 
 

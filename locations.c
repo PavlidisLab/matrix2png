@@ -206,7 +206,7 @@ void align(gdImagePtr img,
 	   char* locationAsString,
 	   int *desiredupperLeftX, 
 	   int *desiredupperLeftY, 
-	   int featureWidth, 
+	   int featureWidth,  // we only need the width for justification
 	   USED_T* usedRegion)
 
 {
@@ -220,7 +220,6 @@ void align(gdImagePtr img,
    * topright, bottomright: move x left by imageXsize - lowerRightXtaken
    * leftmiddle, rightmiddle: move y down
    */
-
   if (strstr(locationAsString, "top") != NULL || strstr(locationAsString, "bottom") != NULL) {
     /* then move X, but not Y  unless the image is in the way */
     if (strstr(locationAsString, "right") != NULL) { /*topright or bottom right, bottommiddle or topmiddle */
@@ -278,7 +277,7 @@ void placeFeature(gdImagePtr img,
 
   /* special case: center is only available if the image is naive */
   if (desiredlooseloc == center) {
-    if (naive) {
+    if (naive) { // we are adding the first thing to the image.
       DEBUG_CODE(1, fprintf(stderr, "Placing feature in the center\n"););
       /* go ahead, but don't do any aligning. Resize if necessary and
          update the taken coordinates */
@@ -322,8 +321,10 @@ void placeFeature(gdImagePtr img,
 		     &desiredupperLeftX, 
 		     &desiredupperLeftY);
   
-  DEBUG_CODE(1, fprintf(stderr, "Before alignment, want to place object at: %d %d \n", desiredupperLeftX,  desiredupperLeftY););
+  /* usually the desired coordinates will be negative. */
+  DEBUG_CODE(1, fprintf(stderr, "Before alignment, want to place object at: (upper left x,y coordinates) %d %d \n", desiredupperLeftX,  desiredupperLeftY););
 
+  // this step just alters the dominant coordinate (x or y) to line up with what is there already.
   if (alignWithExisting && !naive) {
     align(img,
 	  locationAsString,
@@ -334,7 +335,7 @@ void placeFeature(gdImagePtr img,
   }
   desiredlowerRightX = desiredupperLeftX + featureWidth;
   desiredlowerRightY = desiredupperLeftY + featureHeight;
-  DEBUG_CODE(1, fprintf(stderr, "After alignment want to place at %d, %d, %d, %d\n", desiredupperLeftX, desiredupperLeftY, desiredlowerRightX, desiredlowerRightY););
+  DEBUG_CODE(1, fprintf(stderr, "After alignment want to place at (upperleft)  %d, %d, (lowerright) %d, %d\n", desiredupperLeftX, desiredupperLeftY, desiredlowerRightX, desiredlowerRightY););
 
   /* calculate the new image size and placement of the old image
      within it. It only needs to be resized if any of the coordinates
