@@ -324,6 +324,7 @@ int main (int argc, char **argv) {
   BOOLEAN_T skipformatline = FALSE; /* if selected, assumes that we ARE using RDB format */
   BOOLEAN_T ellipses = FALSE; /* draw ellipses or circles instead of rectangles */
   BOOLEAN_T normalize = FALSE; /* normalize the rows */
+  BOOLEAN_T logTransform = FALSE;
 
   double contrast = DEFAULTCONTRAST;
   int numcolors = DEFAULTNUMCOLORS;
@@ -338,6 +339,9 @@ int main (int argc, char **argv) {
   char* rangeInput = NULL;
   char* pixsizeInput = NULL;
   char* minsizeInput = NULL;
+
+  /* title string */
+  char* titleText = NULL;
 
   /* user-specified range for values represented in the image */
   double min = (double)FLT_MAX;
@@ -417,6 +421,8 @@ int main (int argc, char **argv) {
 	       outliers = atof(_OPTION_));
      DATA_OPTN(1, verbose, : Verbosity of the output 1|2|3|4|5 (default=2),
 	       verbosity = (VERBOSE_T)atoi(_OPTION_));
+     DATA_OPTN(1, title [title], : Add a title, titleText = (_OPTION_));
+
      CFLAG_OPTN(1, z, Row-normalize the data to mean 0 and variance 1, normalize = TRUE); 
      CFLAG_OPTN(1, b, Middle of color range is black, passThroughBlack = TRUE);
      CFLAG_OPTN(1, d, Add cell dividers, dodividers = TRUE);
@@ -425,6 +431,7 @@ int main (int argc, char **argv) {
      CFLAG_OPTN(1, c, Add column names, docolnames = TRUE);
      CFLAG_OPTN(1, f, Data file has a format line, skipformatline = TRUE); 
      CFLAG_OPTN(1, e, Draw ellipses instead of rectangles, ellipses = TRUE); 
+     CFLAG_OPTN(1, l, Log transform the data (base 2), logTransform = TRUE); 
      //     NON_SWITCH(1, \n datafile, dataFilename = _OPTION_);
      );
 
@@ -552,6 +559,17 @@ int main (int argc, char **argv) {
     }
   }
 
+  if (logTransform) {
+    MTYPE oneOverLog2 = 1/log(2.0);
+
+    if (discrete) {
+      fprintf(stderr, "Warning: log transforming a file for use with discrete mapping will probably yield undesirable results\n");
+    }
+
+    log_matrix(dataMatrix);
+    scalar_mult_matrix(oneOverLog2, dataMatrix);
+  }
+
   if (normalize) {
     if (discrete) {
       fprintf(stderr, "Warning: normalizing a file for use with discrete mapping will probably yield undesirable results\n");
@@ -612,7 +630,7 @@ int main (int argc, char **argv) {
     if (dodesctext) addRowLabels(img, desctext, matrixInfo);
     if (docolnames) addColLabels(img, colnames, matrixInfo);
     if (doscalebar) addScaleBar(img, matrixInfo);
-
+    if (titleText != NULL) addTitle(img, matrixInfo, titleText);
 
   // enlarge the canvas if requested (todo: make this a function call)
   if (matrixInfo->xminSize > gdImageSX(img) || matrixInfo->yminSize > gdImageSY(img)) {

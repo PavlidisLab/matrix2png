@@ -225,8 +225,14 @@ void align(gdImagePtr img,
     /* then move X, but not Y  unless the image is in the way */
     if (strstr(locationAsString, "right") != NULL) { /*topright or bottom right, bottommiddle or topmiddle */
       *desiredupperLeftX = usedRegion->lrx - featureWidth;
-    } else { /*  topleft or bottom left */
+    } else if (strstr(locationAsString, "left") != NULL || strstr(locationAsString, "right") != NULL)  { /*  topleft or bottom left */
       *desiredupperLeftX = usedRegion->ulx;
+    } else { /* middle */
+      if (featureWidth > (usedRegion->lrx - usedRegion->ulx)) {
+	*desiredupperLeftX = -(featureWidth - usedRegion->lrx - usedRegion->ulx)/2;
+      } else { 
+	*desiredupperLeftX = usedRegion->ulx + (usedRegion->lrx - usedRegion->ulx - featureWidth)/2;
+      }
     }
   } else { /* leftmiddle, rightmiddle */
     /* we align with the top, but not the left */

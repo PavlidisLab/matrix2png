@@ -562,6 +562,11 @@ void log_matrix (MATRIX_T* matrix)
 
   for (i_row = 0; i_row < num_rows; i_row++) {
     for (i_col = 0; i_col < num_cols; i_col++) {
+
+      if (get_matrix_cell(i_row, i_col, matrix) <= 0.0) {
+	die("Can't take the log of a non-positive value at row %d, column %d", i_row, i_col);
+      }
+
       set_matrix_cell(i_row, i_col, log (get_matrix_cell(i_row, i_col, matrix)), matrix);
     }
   }

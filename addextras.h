@@ -50,6 +50,9 @@ gdImagePtr addHighlight(gdImagePtr img,
 			REGION_T *region);
 
 
+/* add a title to the image */
+void addTitle(gdImagePtr img, 	MATRIXINFO_T* matrixInfo, char* titleText);
+
 /*****************************************************************************
  * restoreRegion: used after highlighting a region, and we want to
  * restore it.

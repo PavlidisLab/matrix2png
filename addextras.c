@@ -19,7 +19,7 @@
 #include "utils.h"
 #include "text2png.h"
 #include "matrix2png.h"
-
+#include "string.h"
 
 /*****************************************************************************
  * addScaleBar
@@ -243,6 +243,30 @@ gdImagePtr addHighlight(gdImagePtr img,
   return highlightedRegion;
 } /* addHighlight */
 
+
+
+/*****************************************************************************
+ * Add a title to the top center of the image.
+ *****************************************************************************/
+void addTitle(gdImagePtr img, MATRIXINFO_T* matrixInfo, char* titleText)
+{
+  gdFontPtr font = gdFontLarge;
+  int width = strlen(titleText)* font->w + 2*TEXTPADDING;
+  int height = font->h + 2* TEXTPADDING;
+  int x, y, xoff, yoff;
+  int textIntensity, textColor;
+  textIntensity = chooseContrastingColor(img);
+  textColor = gdImageColorClosest(img, textIntensity, textIntensity, textIntensity);
+
+  placeFeature(img, "topmiddle", TRUE, &x, &y, matrixInfo->usedRegion, width, height, &xoff, &yoff);
+  matrixInfo->ulx += xoff;
+  matrixInfo->uly += yoff;
+  matrixInfo->lrx += xoff;
+  matrixInfo->lry += yoff;
+
+  gdImageString(img, font, x, y, (unsigned char*)titleText, textColor);
+
+}
 
 
 /*****************************************************************************
