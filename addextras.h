@@ -34,7 +34,7 @@ void addRowLabels(gdImagePtr img,
 /*****************************************************************************
  * addColLabels
  *****************************************************************************/
-void addRowLabels(gdImagePtr img, 
+void addColLabels(gdImagePtr img, 
 		  STRING_LIST_T* colLabels, 
 		  USED_T* usedRegion, 
 		  int xBlockSize, 

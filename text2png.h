@@ -37,7 +37,7 @@ void calcTextDimensions (STRING_LIST_T* strings,
  *****************************************************************************/
 void stringlist2image (gdImagePtr img,
 			     STRING_LIST_T* strings,
-			     BOOLEAN_T leftJustified, /* this means bottom justified if vertical is true */
+			     BOOLEAN_T rightJustified, /* this means top justified if vertical is true */
 			     BOOLEAN_T vertical,
 			     int padding, /* extra pixels at edge of image */
 			     int linespacing,

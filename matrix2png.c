@@ -21,6 +21,7 @@
 #include "cmdline.h"
 #include "cmdparse.h"
 #include "addextras.h"
+#include <float.h>
 
 /* create a new matrixinfo struct */
 MATRIXINFO_T* newMatrixInfo(void) {
@@ -46,10 +47,11 @@ gdImagePtr matrix2img (
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,
 		     USED_T* usedRegion,
-		     MATRIXINFO_T* matrixInfo
+		     MATRIXINFO_T* matrixInfo,
+		     MTYPE** rawmatrix
 		     )
 {
-  MTYPE** rawmatrix;
+
   MTYPE* rawrow;
   ARRAY_T* row;
   int numrows;
@@ -59,7 +61,11 @@ gdImagePtr matrix2img (
   numrows = get_num_rows(matrix);
   numcols = get_num_cols(matrix);
 
-  rawmatrix = (MTYPE**)mymalloc(numrows*sizeof(MTYPE)); /* need to free this at some point...yikes. */
+  if (rawmatrix != NULL) {
+    die("Attempt to pass raw matrix to matrix2img with  non-NULL value\n");
+  } else {
+    rawmatrix = (MTYPE**)mymalloc(numrows*sizeof(MTYPE));
+  }
 
   /* decant the matrix into a regular matrix */
   for (i=0;i<numrows;i++) {
@@ -114,17 +120,16 @@ gdImagePtr rawmatrix2img (
   int initX, initY; /* where we should start drawing the matrix */
   int xoffset, yoffset;
   int featureWidth, featureHeight;
-  int dividerColor;
+  int dividerColor = 0;
 
-  /* create image to fit */
-  width = numcols * xSize;
-  height = numrows * ySize;
+  /* create image to fit (1 pixel dividers)*/
   if (includeDividers) {
-    width += numcols - 1;
-    height += numrows - 1;
-    xSize += 1;
-    ySize += 1;
+    xSize++;
+    height = numrows * (ySize+1);
+  } else {
+    height = numrows * ySize;
   }
+  width = numcols * xSize;
 
   featureWidth = width;
   featureHeight = height;
@@ -164,7 +169,7 @@ gdImagePtr rawmatrix2img (
   /* figure out the value-to-color mapping */
   if (useDataRange) {
     int minindx, maxindx, minindy, maxindy; /* these are thrown away */
-    find_rawmatrix_min_and_max(matrix, numrows, numcols, &min, &max, &maxindx, &maxindy, &minindx, &minindx);
+    find_rawmatrix_min_and_max(matrix, numrows, numcols, &min, &max, &maxindx, &maxindy, &minindx, &minindy);
     min/=contrast;
     max/=contrast;
   } else {
@@ -201,9 +206,12 @@ gdImagePtr rawmatrix2img (
       colorcode = (int)( (value - min) / stepsize) + NUMRESERVEDCOLORS;
 
       /* draw rectangle and advance to the next position */
-      gdImageFilledRectangle(img, x, y, x+xSize, y+ySize, colorcode);
+
       if (includeDividers) {
-	gdImageLine(img, x+xSize-1, y, x+xSize-1, y+ySize-1, dividerColor);
+	gdImageFilledRectangle(img, x, y, x+xSize, y+ySize-1, colorcode);
+	gdImageLine(img, x+xSize-1, y-1, x+xSize-1, y+ySize-1, dividerColor);
+      } else {
+	gdImageFilledRectangle(img, x, y, x+xSize, y+ySize, colorcode);
       }
       x+=xSize;
     }
@@ -236,11 +244,12 @@ int main (int argc, char **argv) {
   /* Main data structures and corresponding command line inputs */
   gdImagePtr img;
   FILE* pngout;
-  char* dataFilename;
+  char* dataFilename = NULL;
   FILE* dataFile;
   MATRIX_T* dataMatrix;
   RDB_MATRIX_T* rdbdataMatrix;
   USED_T* usedRegion; /* keep track of free space on the image canvas */
+  MTYPE** rawmatrix = NULL;
 
   /* command line options */
   BOOLEAN_T doscalebar = FALSE;
@@ -260,7 +269,8 @@ int main (int argc, char **argv) {
   char* minsizeInput = NULL;
 
   /* user-specified range for values represented in the image */
-  double min,max; 
+  double min = (double)FLT_MAX;
+  double max = (double)FLT_MIN;
 
   /* user-defined colors */
   char* minColorInput = NULL;
@@ -279,7 +289,7 @@ int main (int argc, char **argv) {
   int yminSize = -1;
 
   /* optional additional text information added to image */
-  char* descFilename;
+  char* descFilename = NULL;
   FILE* descFile;
   MATRIXINFO_T* matrixInfo;
   STRING_LIST_T* rownames = NULL;
@@ -334,7 +344,7 @@ int main (int argc, char **argv) {
     parseValuePair(rangeInput, DIVIDER, &parseval1, &parseval2);
     min = (double)parseval1;
     max = (double)parseval2;
-    fprintf(stderr, "Using %f and %f as min and max values\n", min, max);
+    DEBUG_CODE(1, fprintf(stderr, "Using %f and %f as min and max values\n", min, max););
     if (min >= max) die("Illegal values for min and max range");
     useDataRange = FALSE;
   }
@@ -401,18 +411,17 @@ int main (int argc, char **argv) {
 		   maxColor,
 		   bkgColor,
 		   xminSize, yminSize,
-		   numcolors, usedRegion, matrixInfo);
+		   numcolors, usedRegion, matrixInfo, rawmatrix);
   
   /* add extra goodies: (the order matters because of primitive
      feature placement routine) */
-
   if (dorownames) addRowLabels(img, rownames, usedRegion, ypixSize, matrixInfo);
   if (dodesctext) addRowLabels(img, desctext, usedRegion, ypixSize, matrixInfo);
   if (docolnames) addColLabels(img, colnames, usedRegion, xpixSize, matrixInfo);
   if (doscalebar) addScaleBar(img, usedRegion, matrixInfo);
 
   /* test: add highlight to some of the image */
-  DEBUG_CODE(1, 
+  DEBUG_CODE(0, 
   {
     int r = matrixInfo->numrows;
     int c = matrixInfo->numcols;
@@ -428,16 +437,15 @@ int main (int argc, char **argv) {
 	     );
 
   /* output */
-  pngout = fopen("test.png", "wb");
-  gdImagePng(img, pngout);
-  fclose(pngout);
+  gdImagePng(img, stdout);
 
   /* clean up */
   gdImageDestroy(img);
   free_rdb_matrix(rdbdataMatrix);
   free(usedRegion);
   free(matrixInfo);
-  
+  free(rawmatrix);
+
   return 0;
 
 }

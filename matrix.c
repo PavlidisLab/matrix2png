@@ -1186,6 +1186,10 @@ void find_matrix_min_and_max (MATRIX_T* matrix, MTYPE* min, MTYPE* max,
   MTYPE lmin = (MTYPE)(FLT_MAX);
   MTYPE lmax = (MTYPE)(FLT_MIN);
   MTYPE value = 0.0;
+  lmaxrow = 0;
+  lmaxcol = 0;
+  lminrow = 0;
+  lmincol = 0;
 
   num_rows = get_num_rows(matrix);
   num_cols = get_num_cols(matrix);
@@ -1223,6 +1227,11 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, MTY
   MTYPE lmin = (MTYPE)(FLT_MAX);
   MTYPE lmax = (MTYPE)(FLT_MIN);
   MTYPE value = 0.0;
+  lmaxrow = 0;
+  lmaxcol = 0;
+  lminrow = 0;
+  lmincol = 0;
+
 
   for (i=0; i<num_rows; i++) {
     for(j=0; j<num_cols; j++) {

@@ -89,7 +89,6 @@ void freeStandardLocs (LOCATION_T** standardlocs)
 LOCATION_T** defineStandardLocations(void)
 { 
   LOCATION_T** standardlocs;
-  int i;
   standardlocs = (LOCATION_T**)mymalloc(NUMSTANDARDLOCS*sizeof(LOCATION_T*));
 
   standardlocs[0] = defineLocation("center", center, MIDDLE, MIDDLE);
@@ -171,8 +170,7 @@ void updateUsedRegion(USED_T* usedRegion, int newulx, int newuly, int newlrx, in
  * Return upper left coordinate for an object, allowing for the used
  * region. The coordinates might be negative numbers.
  *****************************************************************************/
-void findLocationCoords(gdImagePtr img, 
-			LOCATION_T* location, 
+void findLocationCoords(LOCATION_T* location, 
 			USED_T* usedRegion,
 			int featureWidth, 
 			int featureHeight, 
@@ -205,16 +203,10 @@ void findLocationCoords(gdImagePtr img,
  * Adjust coordinates to align with existing features.
  *****************************************************************************/
 void align(gdImagePtr img,
-	   BOOLEAN_T align,
 	   char* locationAsString,
 	   int *desiredupperLeftX, 
 	   int *desiredupperLeftY, 
 	   int featureWidth, 
-	   int featureHeight, 
-	   int *currentimageUpperLeftX,
-	   int *currentimageUpperLeftY,
-	   int *newwidth,
-	   int *newheight,
 	   USED_T* usedRegion)
 
 {
@@ -260,7 +252,7 @@ void placeFeature(gdImagePtr img,
 		  int featureHeight,
 		  int *xoffset, int *yoffset)
 {
-  int currentXSize, currentYSize, newXSize, newYSize;
+  int currentXSize, currentYSize;
   int desiredupperLeftX, desiredupperLeftY, desiredlowerRightX, desiredlowerRightY;
   int newwidth, newheight, newstartX, newstartY;
   LOCATION_T** standardlocs;
@@ -323,8 +315,7 @@ void placeFeature(gdImagePtr img,
   newstartX = usedRegion->ulx;
   newstartY = usedRegion->uly;
 
-  findLocationCoords(img, 
-		     desiredlocation, 
+  findLocationCoords(desiredlocation, 
 		     usedRegion,
 		     featureWidth, 
 		     featureHeight, 
@@ -335,16 +326,10 @@ void placeFeature(gdImagePtr img,
 
   if (alignWithExisting && !naive) {
     align(img,
-	  alignWithExisting,
 	  locationAsString,
 	  &desiredupperLeftX, 
 	  &desiredupperLeftY, 
 	  featureWidth,
-	  featureHeight,
-	  &newstartX,
-	  &newstartY,
-	  &newwidth,
-	  &newheight,
 	  usedRegion);
   }
   desiredlowerRightX = desiredupperLeftX + featureWidth;
@@ -429,7 +414,7 @@ void enlargeCanvas(gdImagePtr img,
 		   int Xplace, /* where to move the old image to in the new image */
 		   int Yplace)
 {
-  int i,j;
+  int i;
   if (newXsize < gdImageSX(img) || newYsize < gdImageSY(img)) die("Can't make image smaller");
   if (Xplace > newXsize || Yplace > newYsize) die("Can't place old image in resized version at given coordinates - off the canvas");
   if (Xplace + gdImageSX(img) > newXsize || Yplace + gdImageSY(img) > newYsize) die ("New image isn't big enough place old image there");

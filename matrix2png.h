@@ -15,6 +15,7 @@
 #include "rdb-matrix.h"
 #include "string-list.h"
 #include "utils.h"
+#include "matrix.h"
 
 #define DEFAULTCONTRAST 1.0
 #define DEFAULTBKGCOLOR white
@@ -65,7 +66,8 @@ gdImagePtr matrix2img (
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,
 		     USED_T* usedRegion,
-		     MATRIXINFO_T* matrixInfo		     
+		     MATRIXINFO_T* matrixInfo,
+		     MTYPE** rawmatrix
 		     );
 
 

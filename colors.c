@@ -45,8 +45,6 @@ void allocateColors (
   double greenStepSize;
   double blueStepSize;
   
-  int colorReturn= 0; /* the return value from gdAllocatecolor */
-
   /* check for valid color choices */
   if (minColor == maxColor) {
     colorError(norange);
@@ -169,6 +167,12 @@ void string2color(char* string, color_T* colorVal)
     *colorVal = yellow;
   } else if (!strcmp(string, "grey")) {
     *colorVal = grey;
+  } else if (!strcmp(string, "orange")) {
+    *colorVal = orange;
+  } else if (!strcmp(string, "violet")) {
+    *colorVal = violet;
+
+
   } else {
     *colorVal = NULL;
   }
@@ -210,6 +214,13 @@ void color2rgb(color_T colorVal, int* r, int* g, int* b) {
   case grey:
     *r = 128;   *g = 128;   *b = 128;
     break;
+  case orange:
+    *r = 255;   *g = 150;   *b = 60;
+    break;
+  case violet:
+    *r = 128;   *g = 0;   *b = 255;
+    break;
+
   default:
     colorError(invalid);
     break;

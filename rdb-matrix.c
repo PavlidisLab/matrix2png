@@ -314,10 +314,19 @@ RDB_MATRIX_T* read_rdb_matrix
       if (string_ptr == NULL) {
 	die("Error reading rdb matrix at position (%d,%d). ", i_row, i_column);
       }
+
+      /* Paul found this is quite a bit faster than sscanf (but not as
+         safe, and ignores MSCAN): */
+#ifdef QUICKBUTCARELESS
+      one_value = strtod(string_ptr, NULL); 
+      num_scanned = 1; /* avoid compiler warning */
+#else
+      /* Bill's original code. sscanf is slow but gives a useful return value */
       num_scanned = sscanf(string_ptr, MSCAN, &one_value);
       if ((num_scanned == 0) || (num_scanned == EOF)) {
 	die("Error reading rdb matrix at position (%d,%d).", i_row, i_column);
       }
+#endif
 
       /* Store the value. */
       set_array_item(i_column, one_value, this_row);

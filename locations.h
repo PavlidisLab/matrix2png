@@ -93,8 +93,7 @@ LOCATION_T** defineStandardLocations(void);
 /*****************************************************************************
  * Return upper left coordinate for an object given a location
  *****************************************************************************/
-void findLocationCoords(gdImagePtr img, 
-			LOCATION_T* location, 
+void findLocationCoords(LOCATION_T* location, 
 			USED_T* usedRegion,
 			int featureWidth, 
 			int featureHeight, 
@@ -107,16 +106,10 @@ void findLocationCoords(gdImagePtr img,
  * Adjust coordinates to align with existing features.
  *****************************************************************************/
 void align(gdImagePtr img,
-	   BOOLEAN_T align,
 	   char* locationAsString,
 	   int *desiredupperLeftX, 
 	   int *desiredupperLeftY, 
 	   int featureWidth, 
-	   int featureHeight, 
-	   int *currentimageUpperLeftX,
-	   int *currentimageUpperLeftY,
-	   int *newwidth,
-	   int *newheight,
 	   USED_T* usedRegion);
 
 

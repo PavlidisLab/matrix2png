@@ -87,14 +87,14 @@ void calcTextDimensions (STRING_LIST_T* strings,
  * stringlist2image - takes a string list structure							      
  *****************************************************************************/
 void stringlist2image (gdImagePtr img,
-			     STRING_LIST_T* strings,
-			     BOOLEAN_T rightJustified, /* this means top justified if vertical is true */
-			     BOOLEAN_T vertical,
-			     int padding, /* extra pixels at start of text */
-			     int linespacing,
-			     int initX,
-			     int initY,
-			     gdFontPtr font)
+		       STRING_LIST_T* strings,
+		       BOOLEAN_T rightJustify,
+		       BOOLEAN_T vertical,		       
+		       int padding, /* extra pixels at start of text */
+		       int linespacing,
+		       int initX,
+		       int initY,
+		       gdFontPtr font)
 {
   int numstrings;
   int i;
@@ -103,6 +103,8 @@ void stringlist2image (gdImagePtr img,
   int width, height;
 
   numstrings = get_num_strings(strings);
+
+  if (rightJustify){;}  /* avoid compiler warning. Not using this right now, and might be able to remove it */
 
   /* this is already done in some situations */
   calcTextDimensions(strings, vertical, padding, linespacing, font, &width, &height);
@@ -140,10 +142,10 @@ void stringlist2image (gdImagePtr img,
     word = strtok(string, DIVIDERCHARS);
     while (word != NULL) {
       if (vertical) {
-	gdImageStringUp(img, font, initX + i*(linespacing + font->h), currentpos + height - padding, word, textColor);
+	gdImageStringUp(img, font, initX + i*(linespacing + font->h), currentpos + height - padding, (unsigned char*)word, textColor);
 	currentpos += (strlen(word)+DIVIDERWIDTH) * font->h;
       } else {
-	gdImageString(img, font, currentpos + padding, initY + i*(linespacing + font->h), word, textColor);
+	gdImageString(img, font, currentpos + padding, initY + i*(linespacing + font->h), (unsigned char*)word, textColor);
 	currentpos += (strlen(word)+DIVIDERWIDTH) * font->w;
       }
       word = strtok(NULL, DIVIDERCHARS);

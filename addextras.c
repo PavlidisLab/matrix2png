@@ -68,7 +68,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   int textHeight;
   int linespacing, initX, initY;
   int xoffset, yoffset;
-  gdFontPtr font;
+  gdFontPtr font = NULL;
   /* make sure the text and the ysize are _exactly_ the same. Choose the appropriate font, up to large */
   if (matrixInfo->dividers) {
     yBlockSize++;
@@ -107,7 +107,7 @@ void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels,
   int textHeight;
   int linespacing, initX, initY;
   int xoffset, yoffset;
-  gdFontPtr font;
+  gdFontPtr font = NULL;
   /* make sure the text and the ysize are _exactly_ the same. Choose the appropriate font, up to large */
   if (matrixInfo->dividers) {
     xBlockSize++;
@@ -183,9 +183,9 @@ gdImagePtr addHighlight(gdImagePtr img,
   if (matrixInfo->dividers)  divideradd = 1;
   
   highulx = matrixInfo->ulx + firstx*(matrixInfo->xblocksize + divideradd) - divideradd;
-  highuly = matrixInfo->uly + firsty*(matrixInfo->yblocksize + divideradd) - 2*divideradd;
+  highuly = matrixInfo->uly + firsty*(matrixInfo->yblocksize + divideradd) - 2*divideradd + 1;
   highlrx = matrixInfo->ulx + lastx*(matrixInfo->xblocksize + divideradd) - 1;
-  highlry = matrixInfo->uly + lasty*(matrixInfo->yblocksize + divideradd) - 1 - divideradd;
+  highlry = matrixInfo->uly + lasty*(matrixInfo->yblocksize + divideradd) - divideradd;
   region->ulx = highulx;
   region->uly = highuly;
   region->lrx = highlrx;

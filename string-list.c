@@ -25,6 +25,7 @@ struct string_list_t {
  *************************************************************************/
 #define DEFAULT_MAX_STRINGS 100
 #define DEFAULT_STRING_LENGTH  5
+#define DEFAULT_LINE_LENGTH 500 /* max length of a line read from a file */
 STRING_LIST_T* new_string_list
   ()
 {
@@ -409,8 +410,7 @@ char* combine_string_list
 STRING_LIST_T* read_string_list
   (FILE* infile)
 {
-  int defaultstringlength = 500; /* assume files have longer lines */
-  char           this_line[defaultstringlength];
+  char           this_line[DEFAULT_LINE_LENGTH];
   char*          fgets_result;
   STRING_LIST_T* return_value;
   
@@ -418,7 +418,7 @@ STRING_LIST_T* read_string_list
   return_value = new_string_list();
 
   /* Read the first name. */
-  fgets_result = fgets(this_line, defaultstringlength, infile);
+  fgets_result = fgets(this_line,  DEFAULT_LINE_LENGTH, infile);
   this_line[strlen(this_line)-1] = 0; // chop
 
   /* Make sure we got at least one name. */
@@ -432,7 +432,7 @@ STRING_LIST_T* read_string_list
     add_string(this_line, return_value);
 
      /* Read the next name. */
-     fgets_result = fgets(this_line, defaultstringlength, infile);
+     fgets_result = fgets(this_line,  DEFAULT_LINE_LENGTH, infile);
      this_line[strlen(this_line)-1] = 0; // chop
   }
 
@@ -509,7 +509,7 @@ void right_justify_string_list
   char* addedSpaces;
 
   int numSpacesToAdd;
-  int lastaddedSpaces;
+  int lastaddedSpaces = 0;
 
   numstrings = get_num_strings(a_list);
   maxstring = max_string_length(a_list);

@@ -27,7 +27,18 @@
 #define DEFAULTNUMCOLORS 16
 
 /* color names - each corresponds to a case in color2rgb */
-typedef enum {white=1, red, yellow, green, cyan, blue, magenta, black, grey} color_T;
+typedef enum {white=1, 
+	      red, 
+	      yellow, 
+	      green, 
+	      cyan, 
+	      blue, 
+	      magenta, 
+	      black, 
+	      grey, 
+	      orange,
+	      violet
+} color_T;
 
 /* error codes for color allocation */
 typedef enum {invalid, nocolor, norange, toofew, toomany} colorerrorcode_T;
