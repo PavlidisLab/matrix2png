@@ -332,10 +332,10 @@ int main (int argc, char **argv) {
   char* maxColorInput = NULL;
   char* bkgColorInput = NULL;
   char* missingColorInput = NULL;
-  colorV_T* minColor = initColorVByName(blue);
-  colorV_T* maxColor = initColorVByName(red);
-  colorV_T* bkgColor = initColorVByName(white);
-  colorV_T* missingColor = initColorVByName(grey);
+  colorV_T* minColor = NULL;
+  colorV_T* maxColor = NULL;
+  colorV_T* bkgColor = NULL;
+  colorV_T* missingColor = NULL;
   DISCRETEMAP_T* discreteMap = NULL;
 
   /* how big each square in the image is */
@@ -458,14 +458,6 @@ int main (int argc, char **argv) {
     fprintf(stderr, "Warning: Specifying trimming with discrete mapping will probably yield undesirable results\n");
   }
 
-  if (bkgColorInput != NULL) {
-    string2color(bkgColorInput, bkgColor);
-    if (bkgColor == 0) die("Illegal background color chosen");
-  }
-  if (missingColorInput != NULL) {
-    string2color(missingColorInput, missingColor);
-    if (missingColor == 0) die("Illegal missing color chosen");
-  }
 
 
   if (startr >= 1) {
@@ -511,6 +503,18 @@ int main (int argc, char **argv) {
 
 
   /* convert user-defined colors into corresponding colorV_T */
+  minColor = initColorVByName(blue);
+  maxColor = initColorVByName(red);
+  bkgColor = initColorVByName(white);
+  missingColor = initColorVByName(grey);
+
+  if (bkgColorInput != NULL) {
+    string2color(bkgColorInput, bkgColor);
+  }
+  if (missingColorInput != NULL) {
+    string2color(missingColorInput, missingColor);
+  }
+
   if (colorMap != 0) {
     DEBUG_CODE(1, fprintf(stderr, "Using color map %d\n", colorMap););
     if (abs(colorMap > MAXCOLORMAP) )
@@ -528,11 +532,9 @@ int main (int argc, char **argv) {
   } else {
     if (minColorInput != NULL) {
       string2color(minColorInput, minColor);
-      if (minColor == 0) die("Illegal mincolor chosen");
     }
     if (maxColorInput != NULL) {
       string2color(maxColorInput, maxColor);
-      if (maxColor == 0) die("Illegal maxcolor chosen");
     }
   }
 
