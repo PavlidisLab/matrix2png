@@ -3,25 +3,22 @@
 # AUTHOR: Paul Pavlidis
 # PROJECT: plotkit
 # COPYRIGHT: 2001, Columbia University
-# VERSION: $Revision: 1.1 $
+# VERSION: 
 #********************************************************************
 
 COMPILER=gcc
 
-AR=ar
+#AR=ar
 
-CFLAGS=-O3
+CFLAGS=-O3 -Werror
 
-GD_INCLUDEDIR=-I/usr/local/include
-
-INCLUDEDIRS=-I. $(GD_INCLUDEDIR)
+DEFINES=-DDEBUG -DTINYTEXT
 
 LIBS=-lgd -lm -lpng -lz
 
-#Location where libgd.a is installed
-LIBGD_DIR=-L/usr/local/lib
+CC=$(COMPILER)  $(CFLAGS) 
 
-CC=$(COMPILER) $(INCLUDEDIRS)
+EXTRAFLAGS=$(LIBGD_DIR) $(LIBS) 
 
 all: $(PROGRAMS)
 
@@ -29,7 +26,22 @@ tags:
 	etags ./*.h ./*.c
 
 
+TEST = utils.SUF colors.SUF colorscalebar.SUF
+TEST_OBJ = $(TEST:SUF=o)
+test: $(TEST_OBJ)
+	$(CC) -o testout test.c $(TEST_OBJ) $(EXTRAFLAGS) $(DEFINES)
+	rm -f test.o colors.o colorscalebar.o utils.o
 
-test: test.o 
-	$(CC) colors.c test.o utils.c -o testout $(LIBGD_DIR) $(LIBS) 
+#--------------------------------------------------------------------
+
+utils.o: utils.h utils.c
+	$(CC) -c utils.c $(DEFINES)
+
+colors.o: colors.h colors.c
+	$(CC) -c colors.c $(DEFINES)
+
+colorscalebar.o: colorscalebar.h colorscalebar.c
+	$(CC) -c colorscalebar.c $(DEFINES)
+
+
 

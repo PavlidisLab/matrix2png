@@ -9,7 +9,6 @@
 #include "gd.h"
 #include "utils.h"
 #include "colors.h"
-#include "debug.h" /* definition of DEBUG */
 
 /**********************************************************
  * Allocate a color table for an image. The start and end colors can
@@ -79,10 +78,22 @@ void allocateColors (
   color2rgb(minColor, &startRed, &startGreen, &startBlue);
   color2rgb(maxColor, &endRed, &endGreen, &endBlue);
   color2rgb(backgroundColor, &backgroundRed, &backgroundGreen, &backgroundBlue);
+
   
-  /* allocate the background color */
-  colorReturn = gdImageColorAllocate(img, backgroundRed, backgroundGreen, backgroundBlue);
-  checkColor(colorReturn);
+  /* the following three calls take care of the 'reserved' colors that
+     we need to have around. White and black could get allocated twice
+     this way */
+
+  /* allocate the background color, index 0 */
+  checkColor(gdImageColorAllocate(img, backgroundRed, backgroundGreen, backgroundBlue));
+
+  /* Allocate white, index 1 */
+  checkColor(gdImageColorAllocate(img, 255, 255, 255));
+
+  /* Allocate black, index 2 */
+  checkColor(gdImageColorAllocate(img, 0, 0 ,0));
+
+
 
   /* allocate the rest of the colors */
   if (passThroughBlack) {
@@ -117,7 +128,7 @@ void allocateColors (
     greenStepSize = getStepSize(startGreen, endGreen, numColors);
     blueStepSize = getStepSize(startBlue, endBlue, numColors);    
     DEBUG_CODE(1, fprintf(stderr, "Red step size: %f Green step size: %f Blue step size: %f\n", redStepSize, greenStepSize, blueStepSize); );
-    makeColors(img, r, g, b, redStepSize, greenStepSize, blueStepSize, numColors + 1);
+    makeColors(img, r, g, b, redStepSize, greenStepSize, blueStepSize, numColors+1);
   }
 } /* allocateColors */
 

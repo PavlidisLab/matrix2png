@@ -11,12 +11,14 @@
 
 #include "gd.h"
 #include "utils.h"
-#include "debug.h"
 
-#define MAXCOLORS (gdMaxColors-2) /* reserve one color out of 256 for
-                                     the background color, and an
-                                     extra for the 'middle' of the
-                                     scale */
+/* how many colors are set aside - includes the background color and
+   white and black */
+#define NUMRESERVEDCOLORS 3
+
+/* reserve one color out of 256 for the background color, one for
+ * white, and an extra for the 'middle' of the scale */
+#define MAXCOLORS (gdMaxColors-(1+NUMRESERVEDCOLORS) )
 
 #define PASSTHROUGHBLACKMINCOLORS 2 
 #define NOPASSTHROUGHBLACKMINCOLORS 2

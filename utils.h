@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "debug.h"  /* definition of DEBUG */
 
 #define FALSE 0
 #define TRUE 1

@@ -14,7 +14,7 @@
 /* function which: given a matrix, and some other information, returns
  * a pointer to a gdimage object */
 gdImage* matrix2img (
-		     *MATRIX_T matrix,
+		     MATRIX_T* matrix,
 		     double contrast,
 		     BOOLEAN useDataRange, /* let the data define the range of values depicted. If false, must set minVal and maxVal */
 		     BOOLEAN includeRowNames,
@@ -40,7 +40,7 @@ gdImage* matrix2img (
 /* Given a raw 2-d array structure, do the same as the above (see
    there for descriptions of inputs */
 gdImage* rawmatrix2img (
-		     **ATYPE matrix,
+		     ATYPE** matrix,
 		     BOOLEAN includeRowNames,
 		     BOOLEAN includeColNames,
 		     BOOLEAN includeDescriptiveText,
@@ -61,24 +61,6 @@ gdImage* rawmatrix2img (
 		     location descriptiveTextLoc,
 		     color backgroundColor
 		     );
-
-
-/* add a scale bar to an image. Must designate where to put it. If
-   space was not allotted in the image for the scale bar */
-void scaleBar (
-	       gdImage* img,
-	       int xStart,
-	       int yStart,
-	       int minColor,
-	       int maxColor,
-	       int height,
-	       int width,
-	       int numSteps
-	       );
-
-
-
-
 
 
 

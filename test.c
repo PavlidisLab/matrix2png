@@ -1,29 +1,33 @@
-#include <stdio.h>  /* Bring in standard I/O so we can output the PNG to a file */
+#include <stdio.h>
 #include "gd.h"
 #include "colors.h"
 #include <math.h>
-#include "debug.h"
+#include "colorscalebar.h"
 
 int main() {
   gdImagePtr im;
   FILE *pngout;
   int imagesize = 1000;
-  int numcolors = 2;
+  int numcolors = 4;
   int i;
   int place = (int)ceil( (double) ((imagesize-1)/numcolors) );
-  
+  int sbwidth;
+  int sbheight;
+
   if (DEBUG) {
     fprintf(stderr, "Debugging is on\n");
   }
 
   place = 1000/(numcolors+2);
   
-  im = gdImageCreate(imagesize, imagesize);
-  allocateColors(im, black, red, green, 0, numcolors);
+  sbwidth = 275;
+  sbheight = 20;
 
-  for (i = 0; i< numcolors + 2;i++) {
-    gdImageLine(im, i*place, i*place, (i+1)*place, (i+1)*place, i);
-  }
+  im = gdImageCreate(imagesize, imagesize);
+  allocateColors(im, cyan, red, green, 0, numcolors);
+  
+  drawScaleBar(im, 0, 100, 40, sbheight, sbwidth);
+  labelScaleBar(im, 1, 0, 100, 40, sbheight, sbwidth, 0.0, 10.0);
 
   pngout = fopen("test.png", "wb");  
   gdImagePng(im, pngout);
@@ -31,12 +35,4 @@ int main() {
   gdImageDestroy(im);
   return 1; 
 }
-
-
-
-
-
-
-
-
 
