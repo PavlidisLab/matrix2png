@@ -23,9 +23,9 @@ struct string_list_t {
 /*************************************************************************
  * Allocate dynamic memory for a string list.
  *************************************************************************/
-#define DEFAULT_MAX_STRINGS 100
-#define DEFAULT_STRING_LENGTH  5
-#define DEFAULT_LINE_LENGTH 500 /* max length of a line read from a file */
+#define DEFAULT_MAX_STRINGS 1000
+#define DEFAULT_STRING_LENGTH  50
+#define DEFAULT_LINE_LENGTH 5000 /* max length of a line read from a file */
 STRING_LIST_T* new_string_list
   ()
 {
@@ -138,8 +138,8 @@ void add_string
    STRING_LIST_T* a_list)
 {
   int i_string;
-
   check_null_list(a_list);
+
 
   /* Reallocate space if there isn't any. */
   if (a_list->num_strings >= a_list->max_strings) {
@@ -156,7 +156,6 @@ void add_string
 
   /* Make all the strings longer if this one is too long. */
   resize_string_list((int)strlen(a_string), a_list);
-
   /* Put the string in the list. */
   strcpy(a_list->strings[a_list->num_strings], a_string);
   (a_list->num_strings)++;

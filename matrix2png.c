@@ -344,7 +344,7 @@ int main (int argc, char **argv) {
 
 
   if (numcolors < MINCOLORS || numcolors > MAXCOLORS) 
-    die("Illegal number of colors, must be between %s and %s", MINCOLORS, MAXCOLORS);
+    die("Illegal number of colors, must be between %d and %d", MINCOLORS, MAXCOLORS);
 
 
   if (minsizeInput != NULL) {
@@ -394,11 +394,12 @@ int main (int argc, char **argv) {
 
 
   /* read data */
+  DEBUG_CODE(1, fprintf(stderr, "Reading data\n"););
   if (open_file(dataFilename, "r", FALSE, "data", "the data", &dataFile) == 0) exit(1);
   rdbdataMatrix = read_rdb_matrix(1, dataFile);
   dataMatrix = get_raw_matrix(rdbdataMatrix);
   fclose(dataFile);
-
+  DEBUG_CODE(1, fprintf(stderr, "Done reading\n"););
   if (dorownames) {
     rownames = get_row_names(rdbdataMatrix);
   }
@@ -407,6 +408,7 @@ int main (int argc, char **argv) {
     colnames = get_col_names(rdbdataMatrix);
   }
 
+  DEBUG_CODE(1, fprintf(stderr, "Getting raw matrix\n"););
   if ( numtodo > 0) {
     int i;
     MATRIX_T* temp = allocate_matrix(numtodo, get_num_cols(dataMatrix));
@@ -441,6 +443,7 @@ int main (int argc, char **argv) {
   matrixInfo->xblocksize = xpixSize;
   matrixInfo->yblocksize = ypixSize;
 
+  DEBUG_CODE(1, fprintf(stderr, "Building image\n"););
   /* make the image as specified */
   img = matrix2img(dataMatrix, contrast, useDataRange, dodividers, passThroughBlack,
 		   xpixSize, ypixSize, min, max, 

@@ -263,6 +263,7 @@ RDB_MATRIX_T* read_rdb_matrix
     
   /* Store the name of the first column. */
   string_ptr = strtok(one_row, "\t");
+
   copy_string(&corner_string, string_ptr);
 
   /* Store the names of the columns. */
@@ -279,6 +280,7 @@ RDB_MATRIX_T* read_rdb_matrix
       add_string(string_ptr, col_names);
     }
   }
+
   num_cols = get_num_strings(col_names);
 
   /* Allocate the matrix. */

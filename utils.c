@@ -188,7 +188,7 @@ void *mycalloc
   temp_ptr = calloc(nelem, size);
 
   if (temp_ptr == NULL)
-    die("Memory exhausted.  Cannot allocate %d bytes.", (int)size);
+    die("Memory exhausted.  Cannot callocate %d bytes.", (int)size);
 
   return(temp_ptr);
 }
@@ -212,7 +212,7 @@ void * myrealloc
   }
 
   if (temp_ptr == NULL)
-    die("Memory exhausted.  Cannot allocate %d bytes.", (int)size);
+    die("Memory exhausted.  Cannot reallocate %d bytes.", (int)size);
 
   return(temp_ptr);
 }
