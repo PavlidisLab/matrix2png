@@ -35,7 +35,7 @@ STRING_LIST_T* new_string_list
   new_list = (STRING_LIST_T*)mycalloc(1, sizeof(STRING_LIST_T));
   new_list->num_strings = 0;
   new_list->max_strings = DEFAULT_MAX_STRINGS;
-  new_list->longest_string = DEFAULT_STRING_LENGTH;
+  new_list->longest_string = DEFAULT_STRING_LENGTH + 1;
   new_list->strings = (char**)mycalloc(DEFAULT_MAX_STRINGS, sizeof(char*));
   for (i_string = 0; i_string < DEFAULT_MAX_STRINGS; i_string++) {
     new_list->strings[i_string] = (char*)mycalloc(DEFAULT_STRING_LENGTH + 1,
@@ -86,7 +86,8 @@ static void resize_string_list
   int i_string;
       
   if (new_length > a_list->longest_string) {
-    a_list->longest_string = new_length + 2; /* I don't know why, but the extra byte is needed on i86 solaris. -- PP */
+    fprintf(stderr, "Resizing the string list to make room for strings of length %d (previous longest is %d)\n", new_length, a_list->longest_string );
+    a_list->longest_string = new_length + 1;
     for (i_string = 0; i_string < a_list->max_strings; i_string++) {
       a_list->strings[i_string] 
 	= (char*)myrealloc(a_list->strings[i_string], 
@@ -94,6 +95,7 @@ static void resize_string_list
     }
   }
 }						    
+
 
 /*************************************************************************
  * Get the nth string from a list.
@@ -128,7 +130,6 @@ void set_nth_string
   strcpy(a_list->strings[n], new_string);
 }
 
-
 /*************************************************************************
  * Add a string to the end of a given list.
  *************************************************************************/
@@ -139,8 +140,15 @@ void add_string
   int i_string;
   check_null_list(a_list);
 
+  /* Make sure we're not adding a null string. */
+  if (a_string == NULL) {
+    die("Adding null string to string list.");
+  }
+
+  fprintf(stderr, "Adding %s\n", a_string);
   /* Reallocate space if there isn't any. */
   if (a_list->num_strings >= a_list->max_strings) {
+    fprintf(stderr, "need to add more space for more strings, we already have %d\n", a_list->num_strings);
     a_list->strings = (char**)myrealloc(a_list->strings, 
 					(a_list->max_strings 
 					 + DEFAULT_MAX_STRINGS)

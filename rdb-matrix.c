@@ -223,7 +223,7 @@ static void read_one_row
 /***********************************************************************
  * Read an RDB file into a matrix.
  ***********************************************************************/
-#define MAX_ROW 100000
+#define MAX_ROW 1000000
 RDB_MATRIX_T* read_rdb_matrix
   (BOOLEAN_T format_line,
    FILE* infile)
@@ -390,7 +390,7 @@ RDB_MATRIX_T* read_rdb_matrix
    from. 
  */
 
-#define BUFSIZE 100
+#define BUFSIZE 1000
 RDB_MATRIX_T* read_rdb_matrix_wmissing
   (BOOLEAN_T format_line,
    FILE* infile,
@@ -511,6 +511,9 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
     while (one_row[i_char] != '\t' && i_char < BUFSIZE - 1) {
       string[i_char] = one_row[i_char];
       i_char++;
+    }
+    if(i_char >= BUFSIZE - 1) {
+      die("Row name too long (maximum is %d)\n", (int)BUFSIZE);
     }
     string[i_char] = '\0';
     i_char++; // go past the tab we just encountered.
