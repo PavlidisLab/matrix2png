@@ -23,7 +23,7 @@
 /*****************************************************************************
  * addScaleBar
  *****************************************************************************/
-void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo, int numcolors)
+void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
 {
   int x, y, xoffset, yoffset; /* the offsets are where the actual scale bar starts, exclusive of labels */
   int featureWidth, featureHeight;
@@ -38,8 +38,8 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo, int numcolors)
 
   DEBUG_CODE(1, fprintf(stderr, "--Adding scale bar\n"););
 
-  if (numcolors > DEFAULTSCALEBARLENGTH) {
-    barWidth  = numcolors;
+  if (matrixInfo->numColors > DEFAULTSCALEBARLENGTH) {
+    barWidth  = matrixInfo->numColors;
   } else {
     barWidth  = DEFAULTSCALEBARLENGTH;
   }
@@ -56,7 +56,7 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo, int numcolors)
 	       TRUE,  // align.
 	       &x, &y, /* these will contain the positions for the _entire_ scale bar, including labels */
 	       matrixInfo->usedRegion,
-	       featureWidth, featureHeight,
+	       featureWidth+xoffset, featureHeight,
 	       &xtotaloffset, &ytotaloffset // this is how much we had to move everything
 	       );
 

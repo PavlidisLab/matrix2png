@@ -40,6 +40,7 @@ typedef struct matrixinfo_t {
   int lry;
   int numrows; 
   int numcols; 
+  int numColors;
   int xblocksize;
   int yblocksize;
   double minval;
@@ -71,7 +72,6 @@ gdImagePtr matrix2img (
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap, /* optional color mapping */
-		     int numcolors,
 		     MATRIXINFO_T* matrixInfo,
 		     MTYPE** rawmatrix
 		     );
@@ -96,7 +96,6 @@ gdImagePtr rawmatrix2img (
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap, /* optional color mapping */
-		     int numcolors,
 		     MATRIXINFO_T* matrixInfo
 		     );
 

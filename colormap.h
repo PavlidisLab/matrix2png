@@ -10,6 +10,7 @@
 #include "gd.h"
 #include "utils.h"
 #include "colors.h"
+#include "matrix2png.h"
 
 /* color map definitions: these are the colors which we pass through, evenly spaced. */
 /* black body color map (black, darkred, orange, yellow, white) */
@@ -28,7 +29,7 @@ void allocateColorMap (
 		       colorV_T* backgroundColor,
 		       colorV_T* missingColor,
 		       int colorMap,
-		       int numColors
+		       MATRIXINFO_T* matrixInfo
 		       );
 
 #endif

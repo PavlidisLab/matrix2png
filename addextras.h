@@ -17,8 +17,7 @@
  * addScaleBar
  *****************************************************************************/
 void addScaleBar(gdImagePtr img, 
-		 MATRIXINFO_T* matrixInfo,
-		 int numcolors);
+		 MATRIXINFO_T* matrixInfo);
 
 
 /*****************************************************************************

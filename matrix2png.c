@@ -53,7 +53,6 @@ gdImagePtr matrix2img (
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap,
-		     int numcolors,
 		     MATRIXINFO_T* matrixInfo,
 		     MTYPE** rawmatrix
 		     )
@@ -77,7 +76,7 @@ gdImagePtr matrix2img (
   return rawmatrix2img(rawmatrix, contrast, useDataRange, 
 		       includeDividers, passThroughBlack,
 		       minVal, maxVal,
-		       minColor, maxColor, backgroundColor, missingColor, colorMap, numcolors, matrixInfo);
+		       minColor, maxColor, backgroundColor, missingColor, colorMap, matrixInfo);
   
 } /* matrix2img */
 
@@ -97,7 +96,6 @@ gdImagePtr rawmatrix2img (
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap,
-		     int numColors,
 		     MATRIXINFO_T* matrixInfo
 		     )
 {
@@ -136,11 +134,11 @@ gdImagePtr rawmatrix2img (
 
   /* allocate the colors */
   if (colorMap) {
-    allocateColorMap(img, backgroundColor, missingColor, colorMap, numColors);
+    allocateColorMap(img, backgroundColor, missingColor, colorMap, matrixInfo);
   } else if (matrixInfo->discreteMap != NULL) {
     allocateColorsDiscrete(img, matrixInfo->discreteMap, backgroundColor, missingColor);
   } else {
-    allocateColors(img, backgroundColor, minColor, maxColor, missingColor, passThroughBlack, numColors);
+    allocateColors(img, backgroundColor, minColor, maxColor, missingColor, passThroughBlack, matrixInfo->numColors);
   }
 
   if (includeDividers) {
@@ -180,7 +178,7 @@ gdImagePtr rawmatrix2img (
   }
 
   range = max - min;
-  stepsize = range / numColors;
+  stepsize = range / matrixInfo->numColors;
   DEBUG_CODE(1, fprintf(stderr, "Min is %f, max is %f, Step size is %f\n", min, max, stepsize););
 
   /* draw the image */
@@ -213,7 +211,10 @@ gdImagePtr rawmatrix2img (
  	    value = min;
  	  }
  	}
- 	colorcode = (int)( (value - min) / stepsize) + NUMRESERVEDCOLORS;
+	// 	colorcode = (int)( (value - min) / stepsize) + NUMRESERVEDCOLORS;
+ 	colorcode = (int)(( (value - min) / stepsize) + NUMRESERVEDCOLORS);
+	if (colorcode > gdImageColorsTotal(img) - 1)
+	  colorcode = gdImageColorsTotal(img) - 1;
       }
 
       /* draw rectangle and advance to the next position */
@@ -350,7 +351,7 @@ int main (int argc, char **argv) {
      	       contrast = atof(_OPTION_));
      DATA_OPTN(1, size, : pixel dimensions per value as  x:y (default = 2x2),
 	       pixsizeInput = _OPTION_);
-     DATA_OPTN(1, numcols, : number of colors (default = 16),
+     DATA_OPTN(1, numcols, : number of colors (default = DEFAULTNUMCOLORS),
 	       numcolors = atoi(_OPTION_));
      DATA_OPTN(1, minsize, : minimum image size as x:y pixels,
 	       minsizeInput = _OPTION_);
@@ -547,6 +548,7 @@ int main (int argc, char **argv) {
   matrixInfo->yminSize = yminSize;
   matrixInfo->usedRegion = usedRegion;
   matrixInfo->discreteMap = discreteMap;
+  matrixInfo->numColors = numcolors;
 
   DEBUG_CODE(1, dumpMatrixInfo(matrixInfo););
   
@@ -559,7 +561,6 @@ int main (int argc, char **argv) {
 		   bkgColor,
 		   missingColor,
 		   colorMap,
-		   numcolors, 
 		   matrixInfo, 
 		   rawmatrix);
   
@@ -568,7 +569,7 @@ int main (int argc, char **argv) {
   if (dorownames) addRowLabels(img, rownames, matrixInfo);
   if (dodesctext) addRowLabels(img, desctext, matrixInfo);
   if (docolnames) addColLabels(img, colnames, matrixInfo);
-  if (doscalebar) addScaleBar(img, matrixInfo, numcolors);
+  if (doscalebar) addScaleBar(img, matrixInfo);
 
   // enlarge the canvas if requested (todo: make this a function call)
   if (matrixInfo->xminSize > gdImageSX(img) || matrixInfo->yminSize > gdImageSY(img)) {

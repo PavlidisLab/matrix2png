@@ -421,6 +421,7 @@ void enlargeCanvas(gdImagePtr img,
   if (Xplace + gdImageSX(img) > newXsize || Yplace + gdImageSY(img) > newYsize)
     die ("enlargeCanvas: New image (%d x %d) isn't going to be big enough to place old image at (%d, %d): current size is %d x %d.", 
 										     newXsize, newYsize, Xplace, Yplace, gdImageSX(img), gdImageSY(img) );
+  DEBUG_CODE(1, fprintf(stderr, "enlargeCanvas: Increase size to %d by %d, move to %d %d\n", newXsize, newYsize, Xplace, Yplace););
 
   /* realloc, memmove, memcopy as needed */
   if (newYsize > gdImageSY(img)) {
@@ -430,7 +431,6 @@ void enlargeCanvas(gdImagePtr img,
     DEBUG_CODE(1, if (img->pixels == NULL) die("Null pointer\n"););
     for (i=gdImageSY(img); i<newYsize; i++) { /* assign new rows we need */
       img->pixels[i] = (unsigned char*)mycalloc(newXsize, sizeof(unsigned char));
-      DEBUG_CODE(1, if (img->pixels[i] == NULL) die("Null pointer\n"););
     }
   }
 
@@ -438,7 +438,6 @@ void enlargeCanvas(gdImagePtr img,
     DEBUG_CODE(1, fprintf(stderr, "Realloc X %d\n", newXsize););
     for (i=0; i< newYsize; i++) {
       img->pixels[i] = (unsigned char*)myrealloc(img->pixels[i], newXsize*sizeof(unsigned char));
-      DEBUG_CODE(1, if (img->pixels[i] == NULL) die("Null pointer\n"););
     }
   }
 

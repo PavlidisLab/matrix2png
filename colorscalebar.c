@@ -129,7 +129,7 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
     }
   }
 
-  DEBUG_CODE(1, fprintf(stderr, "Total scale bar dimensions will be %d wide by %d high, labels is %d, vertical is %d, rotatelabels is %d\n", *width, *height, (int)addLabels, (int)vertical, (int)rotatelabels););
+  DEBUG_CODE(1, fprintf(stderr, "Total scale bar dimensions will be %d wide by %d high, x offset %d, y offset %d, labels is %d, vertical is %d, rotatelabels is %d\n", *width, *height, *widthoffset, *heightoffset, (int)addLabels, (int)vertical, (int)rotatelabels););
 } /* getTotalScaleBarDims */
 
 
@@ -165,7 +165,7 @@ void drawScaleBar (
   *blockLength = ((double)length/(numColors - NUMRESERVEDCOLORS));
   if (*blockLength < 1.0) *blockLength = 1.0;
   
-  DEBUG_CODE(1, fprintf(stderr, "Block length is %f\n", *blockLength););
+  DEBUG_CODE(1, fprintf(stderr, "Block length is %f and there will be %d colors in the scale bar\n", *blockLength, numColors - NUMRESERVEDCOLORS););
   
   x = (double)xStart;
   y = (double)yStart;
@@ -231,10 +231,10 @@ void labelScaleBar (
 		      (unsigned char*)get_nth_string(numvals - i - 1, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
     } else { // horizontal
-	gdImageStringUp(img, LABELFONT, scaleBarxStart +  LABELHEIGHT/2, scaleBaryStart - PADDING, 
-			(unsigned char*)matrixInfo->discreteMap->defaultlabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      gdImageStringUp(img, LABELFONT, scaleBarxStart, scaleBaryStart - PADDING, 
+		      (unsigned char*)matrixInfo->discreteMap->defaultlabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       for (i=0; i<numvals; i++) {
-	gdImageStringUp(img, LABELFONT, scaleBarxStart +  LABELHEIGHT/2 + blocksize*(i+1), scaleBaryStart - PADDING, 
+	gdImageStringUp(img, LABELFONT, scaleBarxStart + blocksize*(i+1), scaleBaryStart - PADDING, 
 		      (unsigned char*)get_nth_string(i, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
     }

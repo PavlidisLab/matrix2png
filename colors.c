@@ -66,9 +66,7 @@ void allocateColors (
   }
       
   if (numColors > MAXCOLORS) {
-    colorError(toomany); /* note that if number of colors chosen is
-                            even, the 'middle' color won't necessarily
-                            be right */
+    colorError(toomany);
   }
 
   /* clear the entire color table for this image */
@@ -123,10 +121,8 @@ void allocateColors (
     blueStepSize = 2*getStepSize(0, endBlue, numColors);
     DEBUG_CODE(1, fprintf(stderr, "Red step size: %f Green step size: %f Blue step size: %f\n", redStepSize, greenStepSize, blueStepSize); );
     makeColors(img, r, g, b, redStepSize, greenStepSize, blueStepSize, numColors/2 + 1);
-    
   } else { /* don't pass through black */
-    /* smooth change between the two colors, middle color is a
-       mixture; the middle color is 'extra' */
+    /* smooth change between the two colors */
     r = startRed;
     g = startGreen;
     b = startBlue;
@@ -134,7 +130,7 @@ void allocateColors (
     greenStepSize = getStepSize(startGreen, endGreen, numColors);
     blueStepSize = getStepSize(startBlue, endBlue, numColors);    
     DEBUG_CODE(1, fprintf(stderr, "Red step size: %f Green step size: %f Blue step size: %f\n", redStepSize, greenStepSize, blueStepSize); );
-    makeColors(img, r, g, b, redStepSize, greenStepSize, blueStepSize, numColors+1);
+    makeColors(img, r, g, b, redStepSize, greenStepSize, blueStepSize, numColors);
   }
 } /* allocateColors */
 
@@ -147,7 +143,7 @@ double getStepSize(int minColor,
 		   int maxColor, 
 		   int numColors) 
 {
-  return ((double)(maxColor - minColor)/numColors);
+  return ((double)(maxColor - minColor)/(numColors == 1 ? 1 : numColors-1));
 } /* getStepSize */
 
 
