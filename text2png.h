@@ -10,6 +10,7 @@
 #define TEXT2IMAGE_H
 #include "gd.h"
 #include "utils.h"
+#include "matrix2png.h"
 
 #define WARNINGSIZE 40000 /* images larger than this many pixels
                              (wide,high) may not display properly in
@@ -24,6 +25,7 @@
  * calcTextDimensions - calculate the space needed for the text
  *****************************************************************************/
 void calcTextDimensions (STRING_LIST_T* strings,
+			 int numtodo,
 			 BOOLEAN_T vertical,
 			 int padding,
 			 int linespacing,
@@ -36,15 +38,16 @@ void calcTextDimensions (STRING_LIST_T* strings,
  * stringlist2image - takes a string list structure							      
  *****************************************************************************/
 void stringlist2image (gdImagePtr img,
-			     STRING_LIST_T* strings,
-			     BOOLEAN_T rightJustified, /* this means top justified if vertical is true */
-			     BOOLEAN_T vertical,
-			     int padding, /* extra pixels at edge of image */
-			     int linespacing,
-			     int initX,
-			     int initY,
-			     gdFontPtr font /* 0,1,2,3,4 for tiny, small, medium, large, giant */
-			     );
+		       STRING_LIST_T* strings,
+		       int numtodo,
+		       BOOLEAN_T rightJustified, /* this means top justified if vertical is true */
+		       BOOLEAN_T vertical,
+		       int padding, /* extra pixels at edge of image */
+		       int linespacing,
+		       int initX,
+		       int initY,
+		       gdFontPtr font /* 0,1,2,3,4 for tiny, small, medium, large, giant */
+		       );
 
 
 /*****************************************************************************

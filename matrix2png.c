@@ -56,30 +56,30 @@ gdImagePtr matrix2img (
 
   MTYPE* rawrow;
   ARRAY_T* row;
-  int numrows;
-  int numcols;
+  //  int numrows;
+  //  int numcols;
   int i;
 
-  numrows = get_num_rows(matrix);
-  numcols = get_num_cols(matrix);
+  //  numrows = get_num_rows(matrix);
+  //  numcols = get_num_cols(matrix);
 
   if (rawmatrix != NULL) {
     die("Attempt to pass raw matrix to matrix2img with  non-NULL value\n");
   } else {
-    rawmatrix = (MTYPE**)mymalloc(numrows*sizeof(MTYPE));
+    rawmatrix = (MTYPE**)mymalloc(matrixInfo->numrows*sizeof(MTYPE));
   }
 
   /* decant the matrix into a regular matrix */
-  for (i=0;i<numrows;i++) {
+  for (i=0;i<matrixInfo->numrows;i++) {
     row = get_matrix_row(i, matrix);
     rawrow = row->items;
     rawmatrix[i] = rawrow;
   }
   
-  if (numrows == 0) die("No rows in matrix");
-  if (numcols == 0) die("No cols in matrix");
+  //  if (numrows == 0) die("No rows in matrix");
+  //  if (numcols == 0) die("No cols in matrix");
 
-  return rawmatrix2img(rawmatrix, numrows, numcols, contrast, useDataRange, 
+  return rawmatrix2img(rawmatrix, contrast, useDataRange, 
 		       includeDividers, passThroughBlack,
 		       xSize, ySize, minVal, maxVal,
 		       minColor, maxColor, backgroundColor, colorMap, xMinSize, yMinSize, numcolors, usedRegion, matrixInfo);
@@ -91,8 +91,8 @@ gdImagePtr matrix2img (
 /* Given a raw 2-d array structure make image */
 gdImagePtr rawmatrix2img (
 		     MTYPE** matrix,
-		     int numrows,
-		     int numcols,
+		     //		     int numrows,
+		     //		     int numcols,
 		     double contrast,
 		     BOOLEAN_T useDataRange, /* let the data define the range of values depicted. If false, must set minVal and maxVal */
 		     BOOLEAN_T includeDividers, /* add a 1-pixel grey border between each block */
@@ -128,11 +128,11 @@ gdImagePtr rawmatrix2img (
   /* create image to fit (1 pixel dividers)*/
   if (includeDividers) {
     xSize++;
-    height = numrows * (ySize+1);
+    height = matrixInfo->numrows * (ySize+1);
   } else {
-    height = numrows * ySize;
+    height = matrixInfo->numrows * ySize;
   }
-  width = numcols * xSize;
+  width = matrixInfo->numcols * xSize;
 
   featureWidth = width;
   featureHeight = height;
@@ -177,7 +177,8 @@ gdImagePtr rawmatrix2img (
   /* figure out the value-to-color mapping */
   if (useDataRange && matrix[0] != NULL) {
     int minindx, maxindx, minindy, maxindy; /* caution: these are not used now  */
-    find_rawmatrix_min_and_max(matrix, numrows, numcols, matrixInfo->outliers, &min, &max, &maxindx, &maxindy, &minindx, &minindy);
+    if (matrixInfo->numrows > 0)
+      find_rawmatrix_min_and_max(matrix, matrixInfo->numrows, matrixInfo->numcols, matrixInfo->outliers, &min, &max, &maxindx, &maxindy, &minindx, &minindy);
     min/=contrast;
     max/=contrast;
   } else {
@@ -191,14 +192,14 @@ gdImagePtr rawmatrix2img (
 
   /* draw the image */
   y = initY;
-  for (i=0; i<numrows; i++) {
+  for (i=0; i<matrixInfo->numrows; i++) {
     x = initX;
     if(includeDividers && i>0) {
       gdImageLine(img, initX, y, initX + width, y, dividerColor);
       y++;
     }
 
-    for (j=0; j<numcols; j++) {
+    for (j=0; j<matrixInfo->numcols; j++) {
 
       value = matrix[i][j];
       
@@ -243,8 +244,6 @@ gdImagePtr rawmatrix2img (
   matrixInfo->uly = yoffset;
   matrixInfo->lrx = featureWidth + xoffset;
   matrixInfo->lry = featureHeight + yoffset;
-  matrixInfo->numrows = numrows;
-  matrixInfo->numcols = numcols;
   matrixInfo->minval = min;
   matrixInfo->maxval = max;
   matrixInfo->dividers = includeDividers;
@@ -272,6 +271,9 @@ int main (int argc, char **argv) {
   USED_T* usedRegion; /* keep track of free space on the image canvas */
   MTYPE** rawmatrix = NULL;
 
+  int numactualrows = 0;
+  int numactualcols = 0;
+
   /* command line options */
   BOOLEAN_T doscalebar = FALSE;
   BOOLEAN_T dorownames = FALSE;
@@ -282,10 +284,12 @@ int main (int argc, char **argv) {
   BOOLEAN_T passThroughBlack = FALSE;
   BOOLEAN_T skipformatline = FALSE; /* if selected, assumes that we ARE using RDB format */
   BOOLEAN_T ellipses = FALSE; /* draw ellipses or circles instead of rectangles */
+  BOOLEAN_T normalize = FALSE; /* normalize the rows N(0,1) */
   double contrast = DEFAULTCONTRAST;
   int numcolors = DEFAULTNUMCOLORS;
   int colorMap = DEFAULTCOLORMAP;
-  int numtodo = -1;
+  int numr = -1; /* number of rows to process */
+  int numc = -1; /* number of columsn to process */
   double outliers = 0.0;
 
   /* the following are given in the format xDIVIDERy */
@@ -321,6 +325,8 @@ int main (int argc, char **argv) {
   STRING_LIST_T* colnames = NULL;
   STRING_LIST_T* desctext = NULL;
 
+  verbosity = NORMAL_VERBOSE;
+
   /* process command line */
   DO_STANDARD_COMMAND_LINE
     (1,
@@ -346,10 +352,16 @@ int main (int argc, char **argv) {
 	       bkgColorInput = _OPTION_);
      DATA_OPTN(1, map, : color map choice: overrides min/max colors (default = 0 (none) ),
 	       colorMap = atoi(_OPTION_));
-     DATA_OPTN(1, numtodo, Number of rows to process,
-	       numtodo = atoi(_OPTION_));
+     DATA_OPTN(1, numr, Number of rows to process,
+	       numr = atoi(_OPTION_));
+     DATA_OPTN(1, numc, Number of columns to process,
+	       numc = atoi(_OPTION_));
+     DATA_OPTN(1, numtodo, Number of rows to process (deprecated),
+	       numr = atoi(_OPTION_));
      DATA_OPTN(1, outliers, Trim this percent of outliers (only without the -range option),
 	       outliers = atof(_OPTION_));
+     DATA_OPTN(1, verbose, Verbosity of the output 1|2|3|4|5 (default=2),
+	       verbosity = (VERBOSE_T)atoi(_OPTION_));
      SIMPLE_CFLAG_OPTN(1, b, passThroughBlack);
      SIMPLE_CFLAG_OPTN(1, d, dodividers);
      SIMPLE_CFLAG_OPTN(1, s, doscalebar);
@@ -357,6 +369,7 @@ int main (int argc, char **argv) {
      SIMPLE_CFLAG_OPTN(1, c, docolnames);
      SIMPLE_CFLAG_OPTN(1, f, skipformatline);
      SIMPLE_CFLAG_OPTN(1, e, ellipses);
+     SIMPLE_CFLAG_OPTN(1, n, normalize);
      );
 
 
@@ -417,41 +430,38 @@ int main (int argc, char **argv) {
     if (bkgColor == 0) die("Illegal background color chosen");
   }
 
-
   /* read data */
   DEBUG_CODE(1, fprintf(stderr, "Reading data\n"););
-  if (open_file(dataFilename, "r", FALSE, "data", "the data", &dataFile) == 0) exit(1);
-  rdbdataMatrix = read_rdb_matrix(skipformatline, dataFile);
+  if (!strcmp(dataFilename, "-")) { /* read from stdin */
+    rdbdataMatrix = read_rdb_matrix(skipformatline, stdin);
+  } else {
+    if (open_file(dataFilename, "r", FALSE, "data", "the data", &dataFile) == 0) exit(1);
+    rdbdataMatrix = read_rdb_matrix(skipformatline, dataFile);
+    fclose(dataFile);
+  }
   dataMatrix = get_raw_matrix(rdbdataMatrix);
-  fclose(dataFile);
   DEBUG_CODE(1, fprintf(stderr, "Done reading\n"););
-  if (dorownames) {
+  numactualrows = get_num_rows(dataMatrix);
+  numactualcols = get_num_cols(dataMatrix);
+
+  if (numactualrows == 0 || numactualcols == 0)
+    die("Data file contains no data!\n");
+
+  if (dorownames)
     rownames = get_row_names(rdbdataMatrix);
-  }
 
-  if (docolnames) {
+  if (docolnames)
     colnames = get_col_names(rdbdataMatrix);
-  }
 
-  DEBUG_CODE(1, fprintf(stderr, "Getting raw matrix\n"););
-  if ( numtodo > 0) {
-    int i;
-    int numactualrows = get_num_cols(dataMatrix);
-    MATRIX_T* temp = allocate_matrix(numtodo, get_num_cols(dataMatrix));
-    if (numtodo > numactualrows) {
-      numtodo = numactualrows;
-    }
-    for (i=0; i<numtodo; i++) {
-      temp->rows[i] = get_matrix_row(i, dataMatrix);
-    }
-    free(dataMatrix);
-    dataMatrix = temp;
-  } else if (numtodo == 0) {
-    int i;
-    MATRIX_T* temp = allocate_matrix(1, get_num_cols(dataMatrix));
-    temp->rows[0] = NULL; /* test for this to detect need for no rows drawn */
-    free(dataMatrix);
-    dataMatrix = temp;
+  if (numr < 0 || numr > numactualrows)
+    numr = numactualrows;    
+
+  if (numc < 0 || numc > numactualcols)
+    numc = numactualcols;
+
+  if (normalize) {
+    zero_mean_matrix_rows(dataMatrix);
+    variance_one_matrix_rows(dataMatrix);
   }
 
   /* read descriptive text if needed */
@@ -469,15 +479,19 @@ int main (int argc, char **argv) {
    ******************************************************************/
   usedRegion = initUsedRegion();
   matrixInfo = newMatrixInfo();
-  matrixInfo->xblocksize = xpixSize; // slowly migrating to this instead of passing a million parameters
+  matrixInfo->xblocksize = xpixSize;
   matrixInfo->yblocksize = ypixSize;
   matrixInfo->outliers = outliers;
   matrixInfo->circles = ellipses;
-
+  matrixInfo->numactualrows = numactualrows;
+  matrixInfo->numactualcols = numactualcols;
+  matrixInfo->numrows = numr;
+  matrixInfo->numcols = numc;
+  
   DEBUG_CODE(1, fprintf(stderr, "Building image\n"););
   /* make the image as specified */
   img = matrix2img(dataMatrix, contrast, useDataRange, dodividers, passThroughBlack,
-		   xpixSize, ypixSize, min, max, 
+		   xpixSize, ypixSize, min, max,
 		   minColor,
 		   maxColor,
 		   bkgColor,

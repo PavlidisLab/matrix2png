@@ -36,8 +36,10 @@ typedef struct matrixinfo_t {
   int uly;
   int lrx;
   int lry;
-  int numrows;
-  int numcols;
+  int numrows; // how many rows we will show
+  int numcols; // how many cols we will show
+  int numactualrows; // how many rows are actually in the data set
+  int numactualcols; // how many cols are actually in the data set
   int xblocksize;
   int yblocksize;
   double minval;
@@ -79,8 +81,8 @@ gdImagePtr matrix2img (
    there for descriptions of inputs */
 gdImagePtr rawmatrix2img (
 		     MTYPE** matrix,
-		     int numrows,
-		     int numcols,
+		     //		     int numrows,
+		     //		     int numcols,
 		     double contrast,
 		     BOOLEAN_T useDataRange, /* let the data define the range of values depicted. If false, must set minVal and maxVal */
 		     BOOLEAN_T includeDividers, /* add a 1-pixel grey border between each block */

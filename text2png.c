@@ -47,6 +47,7 @@ gdFontPtr chooseFont (char* cmdlineflag)
  * calcTextDimensions - calculate the space needed for the text
  *****************************************************************************/
 void calcTextDimensions (STRING_LIST_T* strings,
+			 int numtodo,
 			 BOOLEAN_T vertical,
 			 int padding,
 			 int linespacing, /* extra linespacing */
@@ -59,7 +60,12 @@ void calcTextDimensions (STRING_LIST_T* strings,
 
   maxstring = max_string_length(strings);
   numstrings = get_num_strings(strings);
-  DEBUG_CODE(1, fprintf(stderr, "Max string is %d\n", maxstring););
+  if (numstrings < numtodo) {
+    //    die ("Request to calculate space for more strings than are available (%d requested, %d available)\n", numtodo, numstrings);
+  } else if (numstrings > numtodo) {
+    numstrings = numtodo;
+  }
+  DEBUG_CODE(1, fprintf(stderr, "Max string is %d; there are %d strings in the list, we are using %d\n", maxstring, get_num_strings(strings), numstrings););
 
   /* calculate width and height of the image. If vertical, the
      gdImagedimensions are reversed from the usual */
@@ -67,7 +73,8 @@ void calcTextDimensions (STRING_LIST_T* strings,
   *height = numstrings*font->h + 2* padding + numstrings*linespacing;
 
   if (*width > WARNINGSIZE || *height > WARNINGSIZE) {
-    fprintf(stderr, "Warning: Image is larger than %d pixels wide and/or high. It may not display properly in some web browsers\n", WARNINGSIZE);
+    if (verbosity >= NORMAL_VERBOSE)
+      fprintf(stderr, "Warning: Image is larger than %d pixels wide and/or high. It may not display properly in some web browsers\n", WARNINGSIZE);
   }
 
   if (vertical) {
@@ -88,6 +95,7 @@ void calcTextDimensions (STRING_LIST_T* strings,
  *****************************************************************************/
 void stringlist2image (gdImagePtr img,
 		       STRING_LIST_T* strings,
+		       int numtodo,
 		       BOOLEAN_T rightJustify,
 		       BOOLEAN_T vertical,		       
 		       int padding, /* extra pixels at start of text */
@@ -103,11 +111,15 @@ void stringlist2image (gdImagePtr img,
   int width, height;
 
   numstrings = get_num_strings(strings);
-
+  if (numstrings < numtodo) {
+    //    die ("Request to draw more strings than are available\n");
+  } else if (numstrings > numtodo) {
+    numstrings = numtodo;
+  }
   if (rightJustify){;}  /* avoid compiler warning. Not using this right now, and might be able to remove it */
 
   /* this is already done in some situations */
-  calcTextDimensions(strings, vertical, padding, linespacing, font, &width, &height);
+  calcTextDimensions(strings, numtodo, vertical, padding, linespacing, font, &width, &height);
   
   /* allocate image and colors if image is null; otherwise add to existing image */
   if (img == NULL) {

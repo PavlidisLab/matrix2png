@@ -1238,7 +1238,7 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, dou
   int i,j;
   int lmaxrow, lmaxcol, lminrow, lmincol;
   MTYPE lmin = (MTYPE)(FLT_MAX);
-  MTYPE lmax = (MTYPE)(FLT_MIN);
+  MTYPE lmax = -(MTYPE)(FLT_MAX);
   MTYPE value = 0.0;
   lmaxrow = 0;
   lmaxcol = 0;
@@ -1260,7 +1260,8 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, dou
     index_dist = (int)ceil(((double)num_rows * (double)num_cols * outliers/100.0));
     lmin = concatenated_data[index_dist];
     lmax = concatenated_data[num_rows * num_cols - index_dist - 1];
-    fprintf(stderr, "Minimum value is %.2f; maximum values is %.2f; trimming outliers below %.2f and above %.2f\n", concatenated_data[0], concatenated_data[num_rows*num_cols -1], lmin, lmax);
+    if(verbosity > NORMAL_VERBOSE)
+      fprintf(stderr, "Minimum value is %.2f; maximum values is %.2f; trimming outliers below %.2f and above %.2f\n", concatenated_data[0], concatenated_data[num_rows*num_cols -1], lmin, lmax);
     free(concatenated_data);
   } else {
     for (i=0; i<num_rows; i++) {
@@ -1270,14 +1271,16 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, dou
 	  lmin = value;
 	  lminrow = i;
 	  lmincol = j;
-	} else if (value > lmax) {
+	} 
+	if (value > lmax) {
 	  lmax = value;
 	  lmaxrow = i;
 	  lmaxcol = j;
 	}
       }
     }
-    fprintf(stderr, "Minimum value is %.2f; maximum values is %.2f\n", lmin, lmax);
+    if (verbosity > NORMAL_VERBOSE)
+      fprintf(stderr, "Minimum value is %.2f; maximum values is %.2f\n", lmin, lmax);
   }
 
   *min = lmin;

@@ -1,0 +1,24 @@
+2002-05-08  Paul Pavlidis  <pavlidis@microarray>
+
+	* normalize: added command line option -n to normalize the rows i.e.,
+	N(0,1) of the matrix. Currently this is done before taking numr
+	and numc into account.
+
+	* matrix2png.c range determination is skipped if 0 rows are
+	selected. This now cleans up response of the program when zero
+	rows are selected, which lets us make headers only.
+
+	* Fixed bug where when not using all rows or columns got too many
+	row labels; now also works correctly with single columns files.
+
+	* text2png.h: calcTextDimensions and stringlist2image accept
+	numtodo argument so not all strings are necessarily used.
+
+	* verbosity is now a command line option; set to 3 or more to get
+	more output to stderr. This affects range output when not using
+	range, or using outlier trimming.
+ 
+	* input accepted on stdin using "-" instead of a data file name
+
+	* numtodo is deprecated; replaced with numr (number of rows) and
+	numc (number of columns).

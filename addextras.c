@@ -91,7 +91,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   linespacing = yBlockSize - font->h;
   DEBUG_CODE(1, if(linespacing<0) die("Linespacing is < 0"););
 
-  calcTextDimensions(rowLabels, FALSE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
+  calcTextDimensions(rowLabels, matrixInfo->numrows, FALSE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
   DEBUG_CODE(1, fprintf(stderr, "Adding row labels %d %d\n", textWidth, textHeight););
 
   placeFeature(img, "rightmiddle", TRUE, &initX, &initY, usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
@@ -101,7 +101,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   matrixInfo->lrx += xoffset;
   matrixInfo->lry += yoffset;
 
-  stringlist2image(img, rowLabels, FALSE, FALSE, TEXTPADDING, linespacing, initX, initY, font);
+  stringlist2image(img, rowLabels, matrixInfo->numrows, FALSE, FALSE, TEXTPADDING, linespacing, initX, initY, font);
 
 } /* addRowLabels */
 
@@ -130,7 +130,7 @@ void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels,
   linespacing = xBlockSize - font->h;
   DEBUG_CODE(1, if(linespacing<0) die("Linespacing is < 0"););
 
-  calcTextDimensions(colLabels, TRUE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
+  calcTextDimensions(colLabels, matrixInfo->numcols, TRUE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
   placeFeature(img, "topleft", TRUE, &initX, &initY, usedRegion, textWidth, textHeight + TEXTPADDING*2, &xoffset, &yoffset); /* what's with the x2? */
   DEBUG_CODE(1, fprintf(stderr, "Adding col labels %d %d %d %d\n", textWidth, textHeight, initX, initY););
 
@@ -139,7 +139,7 @@ void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels,
   matrixInfo->lrx += xoffset;
   matrixInfo->lry += yoffset;
 
-  stringlist2image(img, colLabels, FALSE, TRUE, TEXTPADDING, linespacing, initX, initY, font);
+  stringlist2image(img, colLabels, matrixInfo->numcols, FALSE, TRUE, TEXTPADDING, linespacing, initX, initY, font);
   
 } /* addColLabels */
 
