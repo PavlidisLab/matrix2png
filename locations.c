@@ -264,7 +264,7 @@ void placeFeature(gdImagePtr img,
   /* get the locations set up */
   standardlocs = defineStandardLocations();
   string2looseloc(locationAsString, &desiredlooseloc);
-  if (desiredlooseloc == NULL) die("Illegal location %s\n", locationAsString);
+  if (desiredlooseloc == 0) die("Illegal location %s\n", locationAsString);
   desiredlocation = standardlocs[desiredlooseloc - 1];
 
   DEBUG_CODE(1, fprintf(stderr, "Desired location is %s, %d\n", desiredlocation->description, (int)alignWithExisting););
@@ -445,10 +445,10 @@ void enlargeCanvas(gdImagePtr img,
     for (i=0; i<gdImageSY(img); i++) {
       if (Xplace != 0) {
 	memmove(&img->pixels[i][Xplace], &img->pixels[i][0], gdImageSX(img));
-	memset(&img->pixels[i][0], NULL, Xplace-1); /* set beginning to zero */
+	memset(&img->pixels[i][0], 0, Xplace-1); /* set beginning to zero */
       }
       if (newXsize > Xplace + gdImageSX(img)) { /* set end to zero */
-	memset(&img->pixels[i][Xplace + gdImageSX(img)], NULL, newXsize - (Xplace + gdImageSX(img)));
+	memset(&img->pixels[i][Xplace + gdImageSX(img)], 0, newXsize - (Xplace + gdImageSX(img)));
       }
     }
   }
@@ -457,7 +457,7 @@ void enlargeCanvas(gdImagePtr img,
   if (Yplace != 0) {
     unsigned char** temp;
     DEBUG_CODE(1, fprintf(stderr, "Memmove Y %d\n", Yplace););
-    temp = (unsigned char**)mymalloc(sizeof(unsigned char*));
+    temp = (unsigned char**)mymalloc(sizeof(unsigned char*)*Yplace);
     for (i=0; i<Yplace; i++) {
       temp[i] = img->pixels[newYsize -1 - i];
     }

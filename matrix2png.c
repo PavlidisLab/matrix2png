@@ -391,15 +391,15 @@ int main (int argc, char **argv) {
   } else {
     if (bkgColorInput != NULL) {
       string2color(bkgColorInput, &bkgColor);
-      if (bkgColor == NULL) die("Illegal background color chosen");
+      if (bkgColor == 0) die("Illegal background color chosen");
     }
     if (minColorInput != NULL) {
       string2color(minColorInput, &minColor);
-      if (minColor == NULL) die("Illegal mincolor chosen");
+      if (minColor == 0) die("Illegal mincolor chosen");
     }
     if (maxColorInput != NULL) {
       string2color(maxColorInput, &maxColor);
-      if (maxColor == NULL) die("Illegal maxcolor chosen");
+      if (maxColor == 0) die("Illegal maxcolor chosen");
     }
   }
 
@@ -491,7 +491,7 @@ int main (int argc, char **argv) {
 
   /* output */
   gdImagePng(img, stdout);
-  fflush(stdout);
+
   /* clean up */
   gdImageDestroy(img);
   /*  free_rdb_matrix(rdbdataMatrix); */
