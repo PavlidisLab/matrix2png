@@ -1,9 +1,9 @@
 /********************************************************************
  * FILE: utils.h
- * AUTHOR: William Noble Grundy , Paul Pavlidis (minor)
- * CREATE DATE: 9-8-97, 2/2001
- * PROJECT: MHMM
- * COPYRIGHT: 1997-1999, Regents of the University of California
+ * AUTHOR: William Stafford Noble
+ * CREATE DATE: 9-8-97
+ * PROJECT: shared
+ * COPYRIGHT: 1997-2001, Columbia University
  * DESCRIPTION: Various useful generic utilities.
  ********************************************************************/
 #ifndef UTILS_H
@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#ifndef linux
+#include <ieeefp.h>
+#endif
 
 #define FALSE 0
 #define TRUE 1
@@ -30,6 +33,12 @@ extern VERBOSE_T verbosity;
 extern int  getopt(int, char* const *, const char* );
 extern char* optarg;
 extern int  opterr, optind, optopt;
+
+/***********************************************************************
+ * Return the value to replace the missing value.
+ ***********************************************************************/
+double NaN
+  (void);
 
 /********************************************************************
  * double myclock

@@ -23,8 +23,8 @@ struct string_list_t {
 /*************************************************************************
  * Allocate dynamic memory for a string list.
  *************************************************************************/
-#define DEFAULT_MAX_STRINGS 1000
-#define DEFAULT_STRING_LENGTH  50
+#define DEFAULT_MAX_STRINGS 10
+#define DEFAULT_STRING_LENGTH  10
 #define DEFAULT_LINE_LENGTH 5000 /* max length of a line read from a file */
 STRING_LIST_T* new_string_list
   ()
@@ -84,14 +84,13 @@ static void resize_string_list
    STRING_LIST_T* a_list)
 {
   int i_string;
-
+      
   if (new_length > a_list->longest_string) {
-    a_list->longest_string = new_length + 1;
-
+    a_list->longest_string = new_length + 2; /* I don't know why, but the extra byte is needed on i86 solaris. -- PP */
     for (i_string = 0; i_string < a_list->max_strings; i_string++) {
       a_list->strings[i_string] 
 	= (char*)myrealloc(a_list->strings[i_string], 
-			    a_list->longest_string * sizeof(char));
+			   a_list->longest_string * sizeof(char) ); 
     }
   }
 }						    
@@ -144,12 +143,12 @@ void add_string
   /* Reallocate space if there isn't any. */
   if (a_list->num_strings >= a_list->max_strings) {
     a_list->strings = (char**)myrealloc(a_list->strings, 
-					 (a_list->max_strings 
-					  + DEFAULT_MAX_STRINGS)
-					 * sizeof(char*));
+					(a_list->max_strings 
+					 + DEFAULT_MAX_STRINGS)
+					* sizeof(char*));
     for (i_string = 0; i_string < DEFAULT_MAX_STRINGS; i_string++) {
 	a_list->strings[a_list->max_strings + i_string] 
-	    = (char*)mycalloc(a_list->longest_string + 1, sizeof(char));
+	  = (char*)mycalloc(a_list->longest_string + 1, sizeof(char));
     }
     a_list->max_strings += DEFAULT_MAX_STRINGS;
   }

@@ -77,7 +77,7 @@ CONFIG_CLEAN_FILES =
 PROGRAMS =  $(bin_PROGRAMS)
 
 
-DEFS =  -DPACKAGE=\"matrix2png\" -DVERSION=\"0.92\" -DHAVE_LIBGD=1 -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TIME_H=1 -DHAVE_SYS_VA_LIST_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1  -I. -I$(srcdir) 
+DEFS =  -DPACKAGE=\"matrix2png\" -DVERSION=\"0.92\" -DHAVE_LIBGD=1 -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TIME_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1  -I. -I$(srcdir) 
 CPPFLAGS = 
 LDFLAGS = 
 LIBS = -lz -lpng -lm -lgd 
@@ -98,7 +98,7 @@ mkinstalldirs
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gnutar
+TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/addextras.P .deps/array.P .deps/cmdparse.P \
 .deps/colormap.P .deps/colors.P .deps/colorscalebar.P .deps/locations.P \
