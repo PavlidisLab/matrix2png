@@ -1,3 +1,4 @@
+# Generated automatically from Makefile.in by configure.
 # Makefile.in generated automatically by automake 1.4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
@@ -11,11 +12,10 @@
 # PARTICULAR PURPOSE.
 
 
-SHELL = /bin/bash
+SHELL = /bin/sh
 
 srcdir = .
 top_srcdir = .
-
 prefix = ..
 exec_prefix = ${prefix}
 
@@ -48,7 +48,7 @@ AUTOHEADER = autoheader
 INSTALL = ./install-sh -c
 INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = ${INSTALL} -m 644
-INSTALL_SCRIPT = ${INSTALL}
+INSTALL_SCRIPT = ${INSTALL_PROGRAM}
 transform = s,x,x,
 
 NORMAL_INSTALL = :
@@ -57,7 +57,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-AWK = gawk
+AWK = nawk
 CC = gcc
 LN_S = ln -s
 MAKEINFO = makeinfo
@@ -79,7 +79,7 @@ CONFIG_CLEAN_FILES =
 PROGRAMS =  $(bin_PROGRAMS)
 
 
-DEFS = -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE=\"matrix2png\" -DVERSION=\"0.95\" -DHAVE_LIBGD=1 -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_VPRINTF=1 -DHAVE_DOPRNT=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1  -I. -I$(srcdir) 
+DEFS =  -DPACKAGE=\"matrix2png\" -DVERSION=\"0.95\" -DHAVE_LIBGD=1 -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TIME_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1  -I. -I$(srcdir) 
 CPPFLAGS = 
 LDFLAGS = 
 LIBS = -lz -lpng -lm -lgd 
