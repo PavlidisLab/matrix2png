@@ -203,7 +203,6 @@ gdImagePtr rawmatrix2img (
       value = matrix[i][j];
 
       if (isnan(value)) {
-	fprintf(stderr, "m\n");
 	colorcode = MISSING;
       } else if (discreteMap != NULL) {
 	if (value > discreteMap->count || value < 0) {
