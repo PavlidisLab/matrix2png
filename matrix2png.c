@@ -436,7 +436,11 @@ int main (int argc, char **argv) {
   DEBUG_CODE(1, fprintf(stderr, "Getting raw matrix\n"););
   if ( numtodo > 0) {
     int i;
+    int numactualrows = get_num_cols(dataMatrix);
     MATRIX_T* temp = allocate_matrix(numtodo, get_num_cols(dataMatrix));
+    if (numtodo > numactualrows) {
+      numtodo = numactualrows;
+    }
     for (i=0; i<numtodo; i++) {
       temp->rows[i] = get_matrix_row(i, dataMatrix);
     }

@@ -1248,7 +1248,7 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, dou
   myassert(TRUE, outliers >= 0.0 && outliers <= 100.0, "Invalid outliers value %f", outliers);
 
   if (outliers) {
-    // do this by concatenating the rows of the matrix
+    // do this by concatenating the rows of the matrix - is there a better way?
     int index_dist;
     MTYPE* concatenated_data = (MTYPE*)mymalloc(sizeof(MTYPE)*num_rows*num_cols);
     for (i=0; i<num_rows; i++) {
