@@ -2,26 +2,18 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(matrix2png.c)
 AM_INIT_AUTOMAKE(matrix2png, 1.0.4)
 
-AC_PREFIX_DEFAULT(..)
-
 #AC_INIT(text2png.c)
 #AM_INIT_AUTOMAKE(text2png, 0.9)
 
 dnl Checks for programs.
-AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_INSTALL
-AC_PROG_LN_S
 
 dnl Checks for libraries.
-dnl Replace `main' with a function in -lm:
-AC_CHECK_LIB(m, sin)
-dnl Replace `main' with a function in -lpng:
-AC_CHECK_LIB(png, main)
-dnl Replace `main' with a function in -lz:
-AC_CHECK_LIB(z, main)
-dnl Replace `main' with a function in -lgd:
-AC_CHECK_LIB(gd, gdImageCreate)
+AC_CHECK_LIB(m, sin, , AC_MSG_FAILURE([You need to have libm installed and findable by the configure script]))
+AC_CHECK_LIB(png, main, , AC_MSG_FAILURE([You need to have libpng installed and findable by the configure script]))
+AC_CHECK_LIB(z, main, , AC_MSG_FAILURE([You need to have zlib installed and findable by the configure script]))
+AC_CHECK_LIB(gd, gdImageCreate, , AC_MSG_FAILURE([You need to have libgd installed and findable by the configure script]))
 
 dnl Messes up enlargeCanvas...
 AC_CHECK_FUNCS(gdImageSetClip)

@@ -18,7 +18,7 @@ SHELL = /bin/sh
 srcdir = .
 top_srcdir = .
 
-prefix = ..
+prefix = /usr/local
 exec_prefix = ${prefix}
 
 bindir = ${exec_prefix}/bin
@@ -68,7 +68,6 @@ AWK = gawk
 CC = gcc
 DEPDIR = .deps
 INSTALL_STRIP_PROGRAM = ${SHELL} $(install_sh) -c -s
-LN_S = ln -s
 PACKAGE = matrix2png
 STRIP = 
 VERSION = 1.0.4
@@ -77,6 +76,7 @@ am__quote =
 install_sh = /users/pavlidis/netapps/projects/plotkit/src/install-sh
 
 bin_PROGRAMS = matrix2png
+
 matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c \
 	utils.c text2png.c rdb-matrix.c addextras.c colors.c \
 	colormap.c colordiscrete.c \
@@ -112,7 +112,7 @@ matrix2png_LDADD = $(LDADD)
 matrix2png_DEPENDENCIES =
 matrix2png_LDFLAGS =
 
-DEFS = -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE=\"matrix2png\" -DVERSION=\"1.0.4\" -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DHAVE_LIBGD=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_STDIO_H=1 -DHAVE_ASSERT_H=1 -DHAVE_STRING_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1 
+DEFS = -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE=\"matrix2png\" -DVERSION=\"1.0.4\" -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DHAVE_LIBGD=1 -DHAVE_GDIMAGESETCLIP=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_STDIO_H=1 -DHAVE_ASSERT_H=1 -DHAVE_STRING_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1 
 DEFAULT_INCLUDES =  -I. -I$(srcdir)
 CPPFLAGS = 
 LDFLAGS = 
@@ -225,7 +225,7 @@ distclean-depend:
 	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' \
 	$(CCDEPMODE) $(depcomp) \
 	$(COMPILE) -c `cygpath -w $<`
-CCDEPMODE = depmode=none
+CCDEPMODE = depmode=gcc3
 uninstall-info-am:
 
 ETAGS = etags

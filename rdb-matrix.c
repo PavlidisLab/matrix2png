@@ -418,7 +418,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   char*     corner_string;      /* Upper left corner of matrix. */
   STRING_LIST_T* row_names;     /* Row names in the matrix. */
   STRING_LIST_T* col_names;     /* Column names in the matrix. */
-  char      one_row[MAX_ROW];   /* One row of the matrix. */
+  //  char      one_row[MAX_ROW];   /* One row of the matrix. */
   int       i_row;              /* Index of the current row. */
   int       i_column;           /* Index of the current column. */
   int       num_rows;           /* Total number of rows. */
@@ -435,9 +435,10 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   int length;
   int count = -1;
   int i_read = 0;
-  int foo = rowstoread;
-  foo*=2;
-  
+  char* one_row = (char*)malloc(sizeof(char)*MAX_ROW);
+  int foo = rowstoread; // todo, this is to avoid compiler complaints. Get rid of rowstoread.
+    foo*=2;
+
   if (infile == NULL) {
     die("Attempted to read matrix from null file.");
   }
@@ -628,7 +629,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   free_array(this_row);
   free_string_list(row_names);
   free_string_list(col_names);
-
+  free(one_row);
   return(return_value);
 
 }

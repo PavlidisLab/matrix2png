@@ -68,7 +68,6 @@ AWK = @AWK@
 CC = @CC@
 DEPDIR = @DEPDIR@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-LN_S = @LN_S@
 PACKAGE = @PACKAGE@
 STRIP = @STRIP@
 VERSION = @VERSION@
@@ -77,6 +76,7 @@ am__quote = @am__quote@
 install_sh = @install_sh@
 
 bin_PROGRAMS = matrix2png
+
 matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c \
 	utils.c text2png.c rdb-matrix.c addextras.c colors.c \
 	colormap.c colordiscrete.c \
