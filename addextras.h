@@ -17,7 +17,6 @@
  * addScaleBar
  *****************************************************************************/
 void addScaleBar(gdImagePtr img, 
-		 USED_T* usedRegion, 
 		 MATRIXINFO_T* matrixInfo,
 		 int numcolors);
 
@@ -27,7 +26,6 @@ void addScaleBar(gdImagePtr img,
  *****************************************************************************/
 void addRowLabels(gdImagePtr img, 
 		  STRING_LIST_T* rowLabels, 
-		  USED_T* usedRegion, 
 		  MATRIXINFO_T* matrixInfo);
 
 
@@ -36,7 +34,6 @@ void addRowLabels(gdImagePtr img,
  *****************************************************************************/
 void addColLabels(gdImagePtr img, 
 		  STRING_LIST_T* colLabels, 
-		  USED_T* usedRegion, 
 		  MATRIXINFO_T* matrixInfo);
 
 
@@ -51,7 +48,6 @@ gdImagePtr addHighlight(gdImagePtr img,
 			int firsty, 
 			int lasty,
 			REGION_T *region);
-
 
 
 /*****************************************************************************

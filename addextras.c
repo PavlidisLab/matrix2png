@@ -23,7 +23,7 @@
 /*****************************************************************************
  * addScaleBar
  *****************************************************************************/
-void addScaleBar(gdImagePtr img, USED_T* usedRegion, MATRIXINFO_T* matrixInfo, int numcolors)
+void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo, int numcolors)
 {
   int x, y, xoffset, yoffset; /* the offsets are where the actual scale bar starts, exclusive of labels */
   int featureWidth, featureHeight;
@@ -50,7 +50,7 @@ void addScaleBar(gdImagePtr img, USED_T* usedRegion, MATRIXINFO_T* matrixInfo, i
   placeFeature(img,
 	       "topleft", TRUE,
 	       &x, &y, /* these will contain the positions for the _entire_ scale bar, including labels */
-	       usedRegion,
+	       matrixInfo->usedRegion,
 	       featureWidth, featureHeight,
 	       &xtotaloffset, &ytotaloffset
 	       );
@@ -71,7 +71,7 @@ void addScaleBar(gdImagePtr img, USED_T* usedRegion, MATRIXINFO_T* matrixInfo, i
  * addRowLabels
  *****************************************************************************/
 void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels, 
-		  USED_T* usedRegion, MATRIXINFO_T* matrixInfo)
+		  MATRIXINFO_T* matrixInfo)
 {
   int textWidth;
   int textHeight;
@@ -95,7 +95,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   calcTextDimensions(rowLabels, matrixInfo->numrows, FALSE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
   DEBUG_CODE(1, fprintf(stderr, "Adding row labels %d %d\n", textWidth, textHeight););
 
-  placeFeature(img, "rightmiddle", TRUE, &initX, &initY, usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
+  placeFeature(img, "rightmiddle", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
 
   matrixInfo->ulx += xoffset;
   matrixInfo->uly += yoffset;
@@ -111,7 +111,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
  * addColLabels
  *****************************************************************************/
 void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels, 
-		  USED_T* usedRegion, MATRIXINFO_T* matrixInfo)
+		  MATRIXINFO_T* matrixInfo)
 {
   int textWidth;
   int textHeight;
@@ -133,7 +133,7 @@ void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels,
   DEBUG_CODE(1, if(linespacing<0) die("Linespacing is < 0"););
 
   calcTextDimensions(colLabels, matrixInfo->numcols, TRUE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
-  placeFeature(img, "topleft", TRUE, &initX, &initY, usedRegion, textWidth, textHeight + TEXTPADDING*2, &xoffset, &yoffset); /* what's with the x2? */
+  placeFeature(img, "topleft", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth, textHeight + TEXTPADDING*2, &xoffset, &yoffset); /* what's with the x2? */
   DEBUG_CODE(1, fprintf(stderr, "Adding col labels %d %d %d %d\n", textWidth, textHeight, initX, initY););
 
   matrixInfo->ulx += xoffset;

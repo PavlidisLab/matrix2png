@@ -78,7 +78,11 @@ RDB_MATRIX_T* read_rdb_matrix
  ***********************************************************************/
 RDB_MATRIX_T* read_rdb_matrix_wmissing
   (BOOLEAN_T format_line,
-   FILE* infile);
+   FILE* infile,
+   int rowstoread, 
+   int colstoread,
+   int startrow,
+   int startcol);
 
 
 /***********************************************************************

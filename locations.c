@@ -415,9 +415,11 @@ void enlargeCanvas(gdImagePtr img,
 		   int Yplace)
 {
   int i;
-  if (newXsize < gdImageSX(img) || newYsize < gdImageSY(img)) die("Can't make image smaller");
-  if (Xplace > newXsize || Yplace > newYsize) die("Can't place old image in resized version at given coordinates - off the canvas");
-  if (Xplace + gdImageSX(img) > newXsize || Yplace + gdImageSY(img) > newYsize) die ("New image isn't big enough place old image there");
+  if (newXsize < gdImageSX(img) || newYsize < gdImageSY(img)) die("enlargeCanvas: Can't make image smaller");
+  if (Xplace > newXsize || Yplace > newYsize) die("enlargeCanvas: Can't place old image in resized version at given coordinates - off the canvas");
+  if (Xplace + gdImageSX(img) > newXsize || Yplace + gdImageSY(img) > newYsize)
+    die ("enlargeCanvas: New image (%d x %d) isn't going to be big enough to place old image at (%d, %d): current size is %d x %d.", 
+										     newXsize, newYsize, Xplace, Yplace, gdImageSX(img), gdImageSY(img) );
 
   /* realloc, memmove, memcopy as needed */
   if (newYsize > gdImageSY(img)) {

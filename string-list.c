@@ -139,7 +139,6 @@ void add_string
   int i_string;
   check_null_list(a_list);
 
-
   /* Reallocate space if there isn't any. */
   if (a_list->num_strings >= a_list->max_strings) {
     a_list->strings = (char**)myrealloc(a_list->strings, 

@@ -384,10 +384,21 @@ RDB_MATRIX_T* read_rdb_matrix
   return(return_value);
 }
 
+/* Read from an rdb file, allowing missing values, and permitting data
+   storage to start from various points in the file. startrow and
+   startcol are indexes (min 0) of the row and column to start reading
+   from. 
+ */
+
 #define BUFSIZE 100
 RDB_MATRIX_T* read_rdb_matrix_wmissing
   (BOOLEAN_T format_line,
-   FILE* infile)
+   FILE* infile,
+   int rowstoread, 
+   int colstoread,
+   int startrow,
+   int startcol
+   )
 {
   MATRIX_T* matrix;             /* The matrix to be read. */
   char*     corner_string;      /* Upper left corner of matrix. */
@@ -408,6 +419,8 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   int this_char;
   int num_missing;
   int length;
+  int count = -1;
+  int i_read = 0;
 
   if (infile == NULL) {
     die("Attempted to read matrix from null file.");
@@ -424,7 +437,6 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 
   /* Keep reading till we get past the comments. */
   while (is_comment(one_row)) {
-    /* fprintf(stderr, "Skipping: %s", one_row); */
     read_one_row(infile, MAX_ROW, one_row);
   }
     
@@ -437,6 +449,10 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   for (string_ptr = strtok(NULL, "\t"); string_ptr != NULL;
        string_ptr = strtok(NULL, "\t")) {
 
+    count++;
+    if (startcol > 0 && count < startcol)
+      continue;
+
     /* Remove EOL. */
     if (string_ptr[strlen(string_ptr) - 1] == '\n') {
       string_ptr[strlen(string_ptr) - 1] = '\0';
@@ -447,10 +463,13 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
       string_ptr[strlen(string_ptr) - 1] = '\0';
     }
 
-    /* Store string if it is non-empty. */
+    /* Store string if it is non-empty. (fixme: what if it is empty?) */
     if (strcmp(string_ptr, "") != 0) {
       add_string(string_ptr, col_names);
     }
+
+    if (colstoread > 0 && get_num_strings(col_names) >= colstoread)
+      break;
   }
 
   num_cols = get_num_strings(col_names);
@@ -465,13 +484,17 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   if (format_line) {
     read_one_row(infile, MAX_ROW, one_row);
   }
-  
-  /* Read the matrix. */
-  for (i_row = 0; ; i_row++) {
 
-    /* Read the next line, stopping if it's empty. */
-    if (fgets(one_row, MAX_ROW, infile) == NULL) {
+  /* Read the matrix. */
+  for (i_row = 0;  ; i_row++) {
+
+    /* Read the next line, stopping if it's empty. Or if we've read enough rows. */
+    if (fgets(one_row, MAX_ROW, infile) == NULL || (rowstoread >= 0 && i_row >= rowstoread)) {
       break;
+    }
+
+    if (startrow > 0 && i_row < startrow) {
+      continue;
     }
 
     // read the row name
@@ -492,7 +515,8 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
     this_char = 0;
     i_column = 0;
     length = strlen(one_row);
-    while (i_char < length) {
+    i_read = 0;
+    while (i_char < length && !(colstoread > 0 && i_read >= colstoread )) {
       if (one_row[i_char] == '\t' || i_char == length - 2) {
 	if (
 	    (one_row[i_char-1] == '\t') || // tab tab something.
@@ -500,29 +524,36 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 	    (one_row[i_char-1] == ' ' && (one_row[i_char-2] == '\t' || i_char == length-2)) // tab spc (tab|nl)
 	    )
 	  {
-	    set_array_item(i_column, NaN(), this_row);
-	    num_missing++;
+	    if (!(startcol >= 0 && i_column < startcol)) { // only if we've reached the required column.
+	      set_array_item(i_read, NaN(), this_row);
+	      num_missing++;
+	      i_read++;
+	    }
 	  }
 	else // not a missing dataum, just do the ususal thing
 	  {
-	    string[this_char] = '\0';
-	    num_scanned = sscanf(string, MSCAN, &one_value);
-	    set_array_item(i_column, one_value, this_row);
+
+	    if (!(startcol >= 0 && i_column < startcol)) { // only if we've reached the required column.
+	      string[this_char] = '\0';
+	      num_scanned = sscanf(string, MSCAN, &one_value);
+	      set_array_item(i_read, one_value, this_row);
+	      i_read++;
+	    }
+
 	  }
 	this_char = 0;
 	i_column++;
-      } else {
+      } else { // keep reading.
 	string[this_char] = one_row[i_char];
 	this_char++;
       }
       i_char++; // advance in string.
     }
-
     /* Add this row to the matrix. */
     grow_matrix(this_row, matrix);
   }
   DEBUG_CODE(1, fprintf(stderr, "%d missing values\n", num_missing););
-  num_rows = i_row - 1;
+  num_rows = get_num_strings(row_names);
 
   /* Assemble it all into an RDB matrix. */
   return_value = allocate_rdb_matrix(num_rows, num_cols, matrix);

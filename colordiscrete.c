@@ -20,7 +20,6 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
   int num_scanned;
   int one_value;
   color_T color;
-  //  char* default_color_string = DEFAULT_DISCRETE_STRING;
   DISCRETEMAP_T* return_value;
 
   return_value = allocateDiscreteMap();

@@ -31,21 +31,22 @@
 #define DEFAULTXPIXSIZE 2
 #define DEFAULTYPIXSIZE 2
 
-/* data structure for storing the coordinates of the matrix image */
+/* data structure for storing the details of the matrix image */
 typedef struct matrixinfo_t {
   int ulx; /* upper left x etc */
   int uly;
   int lrx;
   int lry;
-  int numrows; // how many rows we will show
-  int numcols; // how many cols we will show
-  int numactualrows; // how many rows are actually in the data set
-  int numactualcols; // how many cols are actually in the data set
+  int numrows; 
+  int numcols; 
   int xblocksize;
   int yblocksize;
   double minval;
   double maxval;
   double outliers;
+  int xminSize; // todo: not needed
+  int yminSize; // todo: not needed
+  USED_T* usedRegion;
   BOOLEAN_T dividers;
   BOOLEAN_T circles;
 } MATRIXINFO_T;
@@ -69,10 +70,7 @@ gdImagePtr matrix2img (
 		     color_T missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap, /* optional color mapping */
 		     DISCRETEMAP_T* discreteMap,
-		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
-		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,
-		     USED_T* usedRegion,
 		     MATRIXINFO_T* matrixInfo,
 		     MTYPE** rawmatrix
 		     );
@@ -98,10 +96,7 @@ gdImagePtr rawmatrix2img (
 		     color_T missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap, /* optional color mapping */
 		     DISCRETEMAP_T* discreteMap,
-		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
-		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,
-		     USED_T* usedRegion,
 		     MATRIXINFO_T* matrixInfo
 		     );
 
