@@ -65,6 +65,7 @@ void checkScaleBarDims (
 void getTotalScaleBarDims(BOOLEAN_T addLabels,
 			  BOOLEAN_T includeMidVal,
 			  BOOLEAN_T vertical,
+			  BOOLEAN_T rotatelabels,
 			  int barLength,
 			  int barThickness,
 			  double scaleMin,
@@ -79,6 +80,7 @@ void labelScaleBar (
 		    gdImagePtr img,
 		    BOOLEAN_T includemiddleval,
 		    BOOLEAN_T vertical,
+		    BOOLEAN_T rotatelabels,
 		    int scaleBarxStart, /* all meas in pixels*/
 		    int scaleBaryStart,
 		    int scaleBarthickness,

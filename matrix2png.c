@@ -276,6 +276,7 @@ int main (int argc, char **argv) {
   int numactualcols = 0;
 
   /* command line options */
+  BOOLEAN_T discrete = FALSE;
   BOOLEAN_T doscalebar = FALSE;
   BOOLEAN_T dorownames = FALSE;
   BOOLEAN_T docolnames = FALSE;
@@ -338,13 +339,13 @@ int main (int argc, char **argv) {
   /* process command line */
   DO_STANDARD_COMMAND_LINE
     (1,
-     DATA_OPTN(1, data, <file> [required],
-	       dataFilename = _OPTION_);
+     DATA_OPTN(1, data, <file> (required),
+     	       dataFilename = _OPTION_);
      DATA_OPTN(1, desctext, <file>,
      	       descFilename = _OPTION_);
-     DATA_OPTN(1, range, : as min:max (default is data range),
+     DATA_OPTN(1, range, : values assigned to mincolor and maxcolor as min:max (default is data range),
      	       rangeInput = _OPTION_);
-     DATA_OPTN(1, con, : contrast (default = 1.0; applies only when using data range),
+     DATA_OPTN(1, con, : contrast (default = 1.0; applies only when not using -range option),
      	       contrast = atof(_OPTION_));
      DATA_OPTN(1, size, : pixel dimensions per value as  x:y (default = 2x2),
 	       pixsizeInput = _OPTION_);
@@ -352,41 +353,41 @@ int main (int argc, char **argv) {
 	       numcolors = atoi(_OPTION_));
      DATA_OPTN(1, minsize, : minimum image size as x:y pixels,
 	       minsizeInput = _OPTION_);
-     DATA_OPTN(1, mincolor, : color used at low values (name or r:g:b triplet) (default = blue),
+     DATA_OPTN(1, mincolor, : color used at lowest value (name or r:g:b triplet) (default = blue),
 	       minColorInput = _OPTION_);
-     DATA_OPTN(1, maxcolor, : color used at high values (name or r:g:b triplet) (default = red),
+     DATA_OPTN(1, maxcolor, : color used at highest value (name or r:g:b triplet) (default = red),
 	       maxColorInput = _OPTION_);
      DATA_OPTN(1, bkgcolor, : color used as background (name or r:g:b triplet) (default = white),
 	       bkgColorInput = _OPTION_);
      DATA_OPTN(1, missingcolor, : color used for missing values (name or r:g:b triplet) (default = grey),
 	       missingColorInput = _OPTION_);
-     DATA_OPTN(1, map, : color map choice: overrides min/max colors (default = 0 (none) ),
+     DATA_OPTN(1, map, : color choices from preset maps: overrides min/max colors and -b (default = 0 (none) ),
 	       colorMap = atoi(_OPTION_));
-     DATA_OPTN(1, discrete, <mapping file> : Use discretized mapping of values to colors as defined by <mapping file>,
+     SIMPLE_FLAG_OPTN(1, discrete, : Use discretized mapping of values to colors; use -dmap to assign a mapping file,
+     	       discrete);
+     DATA_OPTN(1, dmap, <mapping file> : Discrete color mapping file to use for discrete mapping (default = preset),
      	       discreteMappingFileName = _OPTION_);
-     DATA_OPTN(0, numtodo, : Number of rows to process (deprecated),
-	       numr = atoi(_OPTION_));
      DATA_OPTN(1, numr, : Number of rows to process starting from the top of the matrix by default,
 	       numr = atoi(_OPTION_));
      DATA_OPTN(1, numc, : Number of columns to process starting from the left edge of the matrix by default,
 	       numc = atoi(_OPTION_));
-     DATA_OPTN(1, outliers, : Trim this percent of outliers (only without the -range option),
-	       outliers = atof(_OPTION_));
-     DATA_OPTN(1, verbose, : Verbosity of the output 1|2|3|4|5 (default=2),
-	       verbosity = (VERBOSE_T)atoi(_OPTION_));
      DATA_OPTN(1, startrow, : Index of the first row to be processed; can combine with numr (default=1),
      	       startr = atoi(_OPTION_));
      DATA_OPTN(1, startcol, : Index of the first column to be processed; can combine with numc (default=1),
      	       startc = atoi(_OPTION_));
-     
-     SIMPLE_CFLAG_OPTN(1, b, passThroughBlack);
-     SIMPLE_CFLAG_OPTN(1, d, dodividers);
-     SIMPLE_CFLAG_OPTN(1, s, doscalebar);
-     SIMPLE_CFLAG_OPTN(1, r, dorownames);
-     SIMPLE_CFLAG_OPTN(1, c, docolnames);
-     SIMPLE_CFLAG_OPTN(1, f, skipformatline);
-     SIMPLE_CFLAG_OPTN(1, e, ellipses);
-     SIMPLE_CFLAG_OPTN(1, n, normalize);
+     DATA_OPTN(1, trim, : Trim this percent of data extremes when determining data range (only without the -range option),
+	       outliers = atof(_OPTION_));
+     DATA_OPTN(1, verbose, : Verbosity of the output 1|2|3|4|5 (default=2),
+	       verbosity = (VERBOSE_T)atoi(_OPTION_));
+     CFLAG_OPTN(1, z, Row-normalize the data to mean 0 and variance 1, normalize = TRUE); 
+     CFLAG_OPTN(1, b, Middle of color range is black, passThroughBlack = TRUE);
+     CFLAG_OPTN(1, d, Add cell dividers, dodividers = TRUE);
+     CFLAG_OPTN(1, s, Add scale bar, doscalebar = TRUE);
+     CFLAG_OPTN(1, r, Add row names, dorownames = TRUE);
+     CFLAG_OPTN(1, c, Add column names, docolnames = TRUE);
+     CFLAG_OPTN(1, f, Data file has a format line, skipformatline = TRUE); 
+     CFLAG_OPTN(1, e, Draw ellipses instead of rectangles, ellipses = TRUE); 
+     //     NON_SWITCH(1, \n datafile, dataFilename = _OPTION_);
      );
 
 
@@ -426,24 +427,6 @@ int main (int argc, char **argv) {
 
   if (outliers < 0.0 || outliers > 100.0) {
     die("Please select an outlier trimming value that is a valid percentage\n");
-  }
-
-  /* convert user-defined colors into corresponding colorV_T */
-  if (colorMap > 0) { 
-    DEBUG_CODE(1, fprintf(stderr, "Using color map %d\n", colorMap););
-  } else if (discreteMappingFileName != NULL) {
-    // read the mapping file
-    if (open_file(discreteMappingFileName, "r", FALSE, "discrete", "discrete", &discreteMappingFile) == 0) exit(1);
-    discreteMap = readDiscreteMap(discreteMappingFile);
-  } else {
-    if (minColorInput != NULL) {
-      string2color(minColorInput, minColor);
-      if (minColor == 0) die("Illegal mincolor chosen");
-    }
-    if (maxColorInput != NULL) {
-      string2color(maxColorInput, maxColor);
-      if (maxColor == 0) die("Illegal maxcolor chosen");
-    }
   }
 
   if (bkgColorInput != NULL) {
@@ -496,6 +479,29 @@ int main (int argc, char **argv) {
 
   //  if (numc < 0 || numc > numactualcols)
   //    numc = numactualcols;
+
+
+  /* convert user-defined colors into corresponding colorV_T */
+  if (colorMap > 0) { 
+    DEBUG_CODE(1, fprintf(stderr, "Using color map %d\n", colorMap););
+  } else if (discrete == TRUE) {
+    // read the mapping file
+    if (discreteMappingFileName != NULL) {
+      if (open_file(discreteMappingFileName, "r", FALSE, "discrete", "discrete", &discreteMappingFile) == 0) exit(1);
+      discreteMap = readDiscreteMap(discreteMappingFile);
+    } else {
+      discreteMap = readDiscreteMap(NULL);
+    }
+  } else {
+    if (minColorInput != NULL) {
+      string2color(minColorInput, minColor);
+      if (minColor == 0) die("Illegal mincolor chosen");
+    }
+    if (maxColorInput != NULL) {
+      string2color(maxColorInput, maxColor);
+      if (maxColor == 0) die("Illegal maxcolor chosen");
+    }
+  }
 
   if (normalize) {
     zero_mean_matrix_rows(dataMatrix);

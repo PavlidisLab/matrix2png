@@ -10,52 +10,87 @@
 #include "utils.h"
 #include "colordiscrete.h"
 #include "colors.h"
+#include "string-list.h"
 #include <stdio.h>
 #include <string.h>
 
+/* read a discrete map file */
 DISCRETEMAP_T* readDiscreteMap(FILE* file) 
 {
   char one_row[MAX_DROW];
   char* string_ptr;
   int num_scanned;
   int one_value;
+  char colorbuf[MAX_DROW];
+
   DISCRETEMAP_T* return_value;
   return_value = allocateDiscreteMap();
 
-  while(1) {
-    if (fgets(one_row, MAX_DROW, file) == NULL) {
-      break;
-    }
-
-    if (return_value->maxcount <= return_value->count) {
-      growDiscreteMap(return_value);
-    }
-
-    string_ptr = strtok(one_row, "\t");
-    if (strcmp(string_ptr, DEFAULT_DISCRETE_STRING) == 0) {
-      string_ptr = strtok(NULL, "\t\n\r");
-      if (string_ptr == NULL)	die("No color read for discrete map \n");
-      string2color(string_ptr, return_value->default_colorcode);
-    } else {
-      num_scanned = sscanf(string_ptr, "%d", &one_value);
-      if (num_scanned == 0) {
-	die("Missing or invalid value in the discrete map file");
+  if (file == NULL) {
+    int i;
+    char buf[10];
+    color_T colorary[DEFAULT_DISCRETE_MAPSIZE] = {red, blue, green, magenta, cyan, yellow, violet, orange};
+    for (i=0; i< DEFAULT_DISCRETE_MAPSIZE; i++) { // this is a total hack. Just assign values 'at random'
+      if (return_value->maxcount <= return_value->count) {
+	growDiscreteMap(return_value);
       }
-      //      return_value->values[return_value->count] = one_value; // not needed yet.
-      string_ptr = (char*)strtok(NULL, "\t\n\r");
-      if (string_ptr == NULL)	die("No color read for discrete map\n");
-      string2color(string_ptr, return_value->colors[return_value->count]);
+      return_value->colors[return_value->count]->namedcolor = colorary[i];
+      sprintf(buf, "%d", return_value->count + 1);
+      DEBUG_CODE(1, fprintf(stderr, "No label so got %s\n", buf););
+      add_string(buf, return_value->labels); // use the integer value
       return_value->count++;
     }
-  }
-  if (return_value->count > MAXCOLORS) {
-    // because one color may correspond to the same color, this isn't really accurate, but it is simple.
-    die("Too many colors chosen in discrete map"); // this isn't really possible since the number of colors in the palette is small.
+  } else {
+    while(1) {
+      if (fgets(one_row, MAX_DROW, file) == NULL) {
+	break;
+      }
+      
+      if (return_value->maxcount <= return_value->count) {
+	growDiscreteMap(return_value);
+      }
+      
+      string_ptr = strtok(one_row, "\t"); // the value
+      if (string_ptr == NULL) die("No value read from discrete map file\n");
+      
+      if (strcmp(string_ptr, DEFAULT_DISCRETE_STRING) == 0) {
+	string_ptr = strtok(NULL, "\t\n\r"); // the color
+	if (string_ptr == NULL)	die("No color read for discrete map \n");
+	string2color(string_ptr, return_value->default_colorcode);
+      } else {
+	num_scanned = sscanf(string_ptr, "%d", &one_value);
+	if (num_scanned == 0) {
+	  die("Missing or invalid value in the discrete map file");
+	}
+	//      return_value->values[return_value->count] = one_value; // not needed yet.
+	
+	string_ptr = strtok(NULL, "\t\n\r"); // the color
+	if (string_ptr == NULL)	die("No color read for discrete map\n");
+	DEBUG_CODE(1, fprintf(stderr, "Got %s\n", string_ptr););
+	strcpy(colorbuf, string_ptr);
+	string_ptr = strtok(NULL, "\t\n\r"); // the label
+	if (string_ptr != NULL) {
+	  add_string(string_ptr, return_value->labels); // use the label
+	  DEBUG_CODE(1, fprintf(stderr, "got %s\n", string_ptr););
+	} else {
+	  char buf[10];
+	  sprintf(buf, "%d", return_value->count + 1);
+	  DEBUG_CODE(1, fprintf(stderr, "No label so got %s\n", buf););
+	  add_string(buf, return_value->labels); // use the integer value
+	}
+      }
+      string2color(colorbuf, return_value->colors[return_value->count]);
+      return_value->count++;
+    }
+    if (return_value->count > MAXCOLORS) {
+      // because one color may correspond to the same color, this isn't really accurate, but it is simple.
+      die("Too many colors chosen in discrete map"); // this isn't really possible since the number of colors in the palette is small.
+    }
   }
   return(return_value);
 }
 
-
+/* allocate memory and initialize a discrete mapping data structure */
 DISCRETEMAP_T* allocateDiscreteMap(void)
 {
   int i;
@@ -65,6 +100,7 @@ DISCRETEMAP_T* allocateDiscreteMap(void)
   for (i=0; i<DMAP_INITIAL_COUNT; i++) {
     return_value->colors[i] = initColorVByName((color_T)0);
   }
+  return_value->labels = new_string_list();
   return_value->default_colorcode = initColorVByName((color_T)0);
   string2color(DEFAULT_DISCRETE_COLOR, return_value->default_colorcode);
   return_value->count = 0;
@@ -78,6 +114,7 @@ void freeDiscreteMap(DISCRETEMAP_T* dmap) {
   for (i=0; i<dmap->count; i++) {
     free(dmap->colors[i]);
   }
+  free_string_list(dmap->labels);
   free(dmap->default_colorcode);
   free(dmap->colors);
   free(dmap);

@@ -35,7 +35,7 @@ void checkScaleBarDims (
     width = length;
     height = thickness;
   }
-
+  
   if (numColors <= 0)  die("Attempt to draw scalebar with no colors allocated\n");
   if (width < 1 || height < 1)  die("Attempt to draw scalebar with insufficient thickness or length\n");
   if (xStart < 0 || yStart <0 || xStart > gdImageSX(img) || yStart > gdImageSY(img) ) die("Attempt to draw scalebar outside of image\n");
@@ -52,6 +52,7 @@ void checkScaleBarDims (
 void getTotalScaleBarDims(BOOLEAN_T addLabels,
 			  BOOLEAN_T includeMidVal,
 			  BOOLEAN_T vertical,
+			  BOOLEAN_T rotatelabels,
 			  int barLength,
 			  int barThickness,
 			  double scaleMin,
@@ -68,6 +69,8 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
   sprintf(leftLabel, LABELFORMAT, scaleMin);
   sprintf(rightLabel, LABELFORMAT, scaleMax);
   sprintf(middleLabel, LABELFORMAT, (scaleMax - scaleMin )/ 2);
+
+  if(1 == rotatelabels){}
 
   if (vertical) {
     if (addLabels) {
@@ -97,10 +100,31 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
     }
   } else { /* horizontal */
     if (addLabels) {
-      *width = barLength + CHARWIDTH*strlen(leftLabel)/2 + CHARWIDTH*strlen(rightLabel)/2;
-      *height = barThickness + LABELHEIGHT + PADDING*2;
-      *widthoffset = CHARWIDTH*strlen(leftLabel)/2;
-      *heightoffset = LABELHEIGHT + PADDING;
+      if (rotatelabels) {
+	int maxlength;
+	/* figure out maximum string length */
+	if (includeMidVal) {
+	  if (strlen(leftLabel) >= strlen(rightLabel) && strlen(leftLabel) >=  strlen(middleLabel)) 
+	    maxlength = strlen(leftLabel);
+	  else if (strlen(rightLabel) >= strlen(leftLabel) && strlen(rightLabel) >=  strlen(middleLabel)) 
+	    maxlength = strlen(rightLabel);
+	  else maxlength = strlen(middleLabel);
+	} else {
+	  if (strlen(leftLabel) >= strlen(rightLabel))
+	    maxlength = strlen(leftLabel);
+	  else
+	    maxlength = strlen(rightLabel);
+	}
+	*width = barLength;
+	*height = barThickness + maxlength*CHARWIDTH + PADDING*2;
+	*widthoffset = LABELHEIGHT;
+	*heightoffset = maxlength*CHARWIDTH + PADDING;
+      } else {
+	*width = barLength + CHARWIDTH*strlen(leftLabel)/2 + CHARWIDTH*strlen(rightLabel)/2;
+	*height = barThickness + LABELHEIGHT + PADDING*2;
+	*widthoffset = CHARWIDTH*strlen(leftLabel)/2;
+	*heightoffset = LABELHEIGHT + PADDING;
+      }
     } else {
       *width = barLength + PADDING*2;
       *height = barThickness + PADDING*2;
@@ -109,7 +133,7 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
     }
   }
 
-  DEBUG_CODE(1, fprintf(stderr, "Total scale bar dimensions will be %d by %d, labels is %d, vertical is %d\n", *width, *height, (int)addLabels, (int)vertical););
+  DEBUG_CODE(1, fprintf(stderr, "Total scale bar dimensions will be %d wide by %d high, labels is %d, vertical is %d, rotatelabels is %d\n", *width, *height, (int)addLabels, (int)vertical, (int)rotatelabels););
 } /* getTotalScaleBarDims */
 
 
@@ -169,6 +193,7 @@ void labelScaleBar (
 		    gdImagePtr img,
 		    BOOLEAN_T includemiddleval,
 		    BOOLEAN_T vertical,
+		    BOOLEAN_T rotatelabels,
 		    int scaleBarxStart, /* all meas in pixels*/
 		    int scaleBaryStart,
 		    int scaleBarthickness,
@@ -203,38 +228,48 @@ void labelScaleBar (
   /* note that the casts to unsigned char* are just to avoid compiler warnings */
   if (vertical) {
     /* bottom label */
-    gdImageString(img, LABELFONT, scaleBarxStart, scaleBaryStart + scaleBarlength + PADDING, 
+    gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength - LABELHEIGHT, 
 		  (unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
 
     /* top label */
-    gdImageString(img, LABELFONT, scaleBarxStart, scaleBaryStart - LABELHEIGHT - PADDING,
+    gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + LABELHEIGHT,
 		   (unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
 
     /* middle label */
     if (includemiddleval) {
-      gdImageString(img, LABELFONT, scaleBarxStart - CHARWIDTH*strlen(middleLabel) - PADDING, scaleBaryStart + scaleBarlength/2 - LABELHEIGHT,
+      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength/2 - LABELHEIGHT,
 		     (unsigned char*)middleLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
     }
   } else {
     /* left label */
-    DEBUG_CODE(1, fprintf(stderr, "Adding left label to %d, %d\n",  (int)(scaleBarxStart -  CHARWIDTH*strlen(leftLabel)/2), (int)(scaleBaryStart - LABELHEIGHT) ););
-    gdImageString(img, LABELFONT, scaleBarxStart -  CHARWIDTH*strlen(leftLabel)/2, scaleBaryStart - LABELHEIGHT, 
-		   (unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
-    /* right label */
-    gdImageString(img, LABELFONT, scaleBarxStart + scaleBarlength -  CHARWIDTH*strlen(rightLabel)/2, scaleBaryStart - LABELHEIGHT,
-		   (unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
-    
-    /* middle label */
-    if (includemiddleval) {
-      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarlength/2 - CHARWIDTH*strlen(middleLabel)/2, scaleBaryStart - LABELHEIGHT,
-		     (unsigned char*)middleLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+
+    if (rotatelabels) {
+      gdImageStringUp(img, LABELFONT, scaleBarxStart, scaleBaryStart - LABELHEIGHT, 
+		      (unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      /* right label */
+      gdImageStringUp(img, LABELFONT, scaleBarxStart + scaleBarlength - LABELHEIGHT, scaleBaryStart - LABELHEIGHT,
+		      (unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+      
+      /* middle label */
+      if (includemiddleval) {
+	gdImageStringUp(img, LABELFONT, scaleBarxStart + scaleBarlength/2 - LABELHEIGHT/2, scaleBaryStart - LABELHEIGHT,
+			(unsigned char*)middleLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+      }
+    } else {
+      gdImageString(img, LABELFONT, scaleBarxStart -  CHARWIDTH*strlen(leftLabel)/2, scaleBaryStart - LABELHEIGHT, 
+		    (unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+      /* right label */
+      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarlength -  CHARWIDTH*strlen(rightLabel)/2, scaleBaryStart - LABELHEIGHT,
+		    (unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+      
+      /* middle label */
+      if (includemiddleval) {
+	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarlength/2 - CHARWIDTH*strlen(middleLabel)/2, scaleBaryStart - LABELHEIGHT,
+		      (unsigned char*)middleLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
+      }
     }
   }
-  
-
 } /* labelScaleBar */
-
-
 
 
 

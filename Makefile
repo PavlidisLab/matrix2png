@@ -69,8 +69,8 @@ matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c 	utils.c text2p
 
 
 #INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN  -Wall -W -Werror
-#INCLUDES = -DTINYTEXT -DMATRIXMAIN  -DDEBUG -DBOUNDS_CHECK -Wall -W -Werror
-INCLUDES = -DTINYTEXT -DMATRIXMAIN -Wall -W -Werror
+INCLUDES = -DTINYTEXT -DMATRIXMAIN  -DDEBUG -DBOUNDS_CHECK -Wall -W -Werror
+#INCLUDES = -DTINYTEXT -DMATRIXMAIN -Wall -W -Werror
 ETAGS_ARGS = ./*.h ./*.c /usr/local/include/gd.h 
 TAGS_DEPENDENCIES = /usr/local/include/gd.h
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4

@@ -30,9 +30,12 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo, int numcolors)
   int barWidth, barHeight;
   int xtotaloffset, ytotaloffset;
 
-  BOOLEAN_T vertical = FALSE;
+  //BOOLEAN_T vertical = FALSE;
+  BOOLEAN_T vertical = TRUE;
   BOOLEAN_T includeMidVal = FALSE;
-  
+  //  BOOLEAN_T includeMidVal = TRUE;
+  BOOLEAN_T rotateLabels = TRUE; // only applies if we aren't putting the scale bar vertically
+
   if (numcolors > DEFAULTSCALEBARLENGTH) {
     barWidth  = numcolors;
   } else {
@@ -44,7 +47,7 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo, int numcolors)
   //
 
 
-  getTotalScaleBarDims(TRUE, includeMidVal, vertical, barWidth, barHeight, 
+  getTotalScaleBarDims(TRUE, includeMidVal, vertical, rotateLabels, barWidth, barHeight, 
 		       matrixInfo->minval, matrixInfo->maxval, &featureWidth, &featureHeight, &xoffset, &yoffset);
 
   placeFeature(img,
@@ -62,7 +65,7 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo, int numcolors)
 
   DEBUG_CODE(1, fprintf(stderr, "Adding scale bar at %d %d, %d by %d\n", x, y, barWidth, barHeight););
   drawScaleBar(img, vertical, x+xoffset, y+yoffset, barHeight, barWidth );
-  labelScaleBar(img, includeMidVal, vertical, x+xoffset, y+yoffset,  barHeight, barWidth, matrixInfo->minval, matrixInfo->maxval);
+  labelScaleBar(img, includeMidVal, vertical, rotateLabels, x+xoffset, y+yoffset,  barHeight, barWidth, matrixInfo->minval, matrixInfo->maxval);
 
 } /* addScaleBar */
 

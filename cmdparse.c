@@ -16,7 +16,11 @@
 void parseValuePair (char* command, char* divider, double* firstVal, double* secondVal)
 {
   char *token;
-  token = strtok (command, divider);
+  int length = (int)strlen(command);
+  char buf[length];
+  strcpy(buf, command);
+  token = strtok (buf, divider);
+
   *firstVal = atof(token);
   token = strtok (NULL, divider);
   *secondVal = atof(token);
@@ -28,12 +32,16 @@ void parseValuePair (char* command, char* divider, double* firstVal, double* sec
 void parseValueSeries (char* command, char* divider, int* values, int maxToRead)
 {
   char *token;
+  int length = (int)strlen(command);
   int i = 0;
-  token = strtok (command, divider);
-  values[i] = atoi(token);
+  char buf[length];
+
+  strcpy(buf, command);
+  token = strtok(buf, divider);
+  values[i] = atoi(token); // should use scanf?
   if (maxToRead > 1) {
     for (++i; i<maxToRead; i++) {
-      token = strtok (NULL, divider);
+      token = strtok(NULL, divider);
       if(token == NULL) {
 	die("Command line parser: Failed to read a value from %s\n", command);
       }

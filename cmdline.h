@@ -1,7 +1,7 @@
 /********************************************************************
  * FILE: cmdline.h
- * AUTHOR: Timothy Bailey
- * PROJECT: MHMM (MEME)
+ * AUTHOR: Timothy Bailey; Modified by Paul Pavlidis, Columbia University
+ * PROJECT: Originally for MHMM (MEME)
  * COPYRIGHT: 1997, Regents of the University of California
  * DESCRIPTION: Generic command-line parsing macros.
  ********************************************************************/
@@ -57,11 +57,13 @@
       } \
     } \
     else if (__ACTION__ == 1 || __ACTION__ == 4) { \
-      (void) fputs("\t[-" #string "]" #desc "\n", stderr); \
+      (void) fputs(" -" #string "" #desc "\n", stderr); \
     } \
   }
 
-#define CFLAG_OPTN(X,char,stmt) \
+
+/* Paul changed this so you can have a description for cflags*/
+#define CFLAG_OPTN(X,char, desc, stmt) \
   if (X) { \
     if (__ACTION__ == 0 && _OPTION_[1] == (#char)[0]) { \
       __ACTION__ = 2; \
@@ -70,11 +72,9 @@
     if (__ACTION__ == 2 && _OPTION_[0] == (#char)[0]) { \
       {stmt;} \
       continue; \
-    } else if (__ACTION__ == 1) { \
-      (void) fputs(" [-" #char, stderr); \
+    } else if (__ACTION__ == 1 || __ACTION__ == 3) { \
+      (void) fputs(" -" #char " : " #desc "\n", stderr); \
       __ACTION__ = 3; \
-    } else if (__ACTION__ == 3) { \
-      (void) fputs(#char, stderr); \
     } else if (__ACTION__ == 5) { \
       __ACTION__ = 4; \
     } \
@@ -96,7 +96,7 @@
       if (__ACTION__ != 1) {stmt;} \
       continue; \
     } else if (__ACTION__ == 1 || __ACTION__ == 4) { \
-      (void) fputs(" [-" #string " " #desc "]\n", stderr); \
+      (void) fputs(" -" #string " " #desc "\n", stderr); \
     } \
   }
 
@@ -139,14 +139,14 @@
         if (__i__ >= argc) break; \
         _OPTION_ = argv[__i__]; \
       } \
-      if (__ACTION__ == 1) (void) fprintf(stderr, "Version: %s\n Usage: %s", VERSION, argv[0]); \
-      stmts; \
+      if (__ACTION__ == 1)  (void) fprintf(stderr, "Version: %s\nUsage:\n %s\n", VERSION, argv[0]); \
+      stmts;  \
       if (__ACTION__ == 1 || __ACTION__ == 4) { \
         (void) putc('\n', stderr); \
         exit(1); \
       } \
       if (__ACTION__ == 3) { \
-        (void) putc(']', stderr); \
+        (void) putc(' ', stderr); \
         __ACTION__ = 5; \
       } else { \
          __ACTION__ = 1; \

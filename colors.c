@@ -178,6 +178,8 @@ void string2color(char* string, colorV_T* colorVal)
     colorVal->namedcolor = yellow;
   } else if (!strcmp(string, "grey")) {
     colorVal->namedcolor = grey;
+  } else if (!strcmp(string, "gray")) {
+    colorVal->namedcolor = grey;
   } else if (!strcmp(string, "orange")) {
     colorVal->namedcolor = orange;
   } else if (!strcmp(string, "violet")) {
