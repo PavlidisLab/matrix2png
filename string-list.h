@@ -4,6 +4,7 @@
  * CREATE DATE: 12-22-98
  * PROJECT: PHYLO
  * DESCRIPTION: Data structure for manipulating a list of strings. 
+ * Copyright (c) Columbia University
  **************************************************************************/
 #ifndef STRING_LIST_H
 #define STRING_LIST_H

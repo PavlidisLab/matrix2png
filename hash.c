@@ -9,6 +9,10 @@
  * M.A. Weiss's DS&AlgAnalysis, chapter 5. Keys are copied into the
  * hash table, but values are just pointers to the original data, so
  * it is up the user to maintain these.
+ * 
+ * This is a very lame hash table implementation - todo: replace with
+ * something more robust.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 #include "string-list.h"
 #include "hash.h"
@@ -199,7 +203,6 @@ void rehash(HASHTABLE_T* hashtable) {
     }
   }
   
-  /* is there a nicer way of doing the following? */
   free(hashtable->table);
   free(hashtable->usage);
   free_string_list(hashtable->keys);

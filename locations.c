@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Locations in an image used to define placement of extra bits
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #include "locations.h"
@@ -405,52 +406,65 @@ void placeFeature(gdImagePtr img,
 
 
 /*****************************************************************************
- * Resize an image canvas to make it larger. Requires making a
- * copy. The old image is placed within the new image at Xplace,Yplace
- * (upper left). This directly manipulates the gd image structure!!
+ * Resize an image canvas to make it larger. The old image is placed
+ * within the new image at Xplace,Yplace (upper left). This directly
+ * manipulates the gd image structure!!
  *****************************************************************************/
 void enlargeCanvas(gdImagePtr img,
-		   int newXsize,
-		   int newYsize,
+		   int newXSize,
+		   int newYSize,
 		   int Xplace, /* where to move the old image to in the new image */
 		   int Yplace)
 {
+
+//#define OLDWAY
+#ifndef OLDWAY
+
   int i;
-  if (newXsize < gdImageSX(img) || newYsize < gdImageSY(img)) die("enlargeCanvas: Can't make image smaller");
-  if (Xplace > newXsize || Yplace > newYsize) die("enlargeCanvas: Can't place old image in resized version at given coordinates - off the canvas");
-  if (Xplace + gdImageSX(img) > newXsize || Yplace + gdImageSY(img) > newYsize)
+  int oldXSize = gdImageSX(img);
+  int oldYSize = gdImageSY(img);
+
+  if (newXSize < oldXSize || newYSize < oldYSize) die("enlargeCanvas: Can't make image smaller");
+  if (Xplace > newXSize || Yplace > newYSize) die("enlargeCanvas: Can't place old image in resized version at given coordinates - off the canvas");
+  if (Xplace + oldXSize > newXSize || Yplace + oldYSize > newYSize)
     die ("enlargeCanvas: New image (%d x %d) isn't going to be big enough to place old image at (%d, %d): current size is %d x %d.", 
-										     newXsize, newYsize, Xplace, Yplace, gdImageSX(img), gdImageSY(img) );
-  DEBUG_CODE(1, fprintf(stderr, "enlargeCanvas: Increase size to %d by %d, move to %d %d\n", newXsize, newYsize, Xplace, Yplace););
+										     newXSize, newYSize, Xplace, Yplace, gdImageSX(img), gdImageSY(img) );
+  DEBUG_CODE(1, fprintf(stderr, "enlargeCanvas: Increase size from %d by %d to %d by %d, move to %d %d\n", gdImageSX(img), gdImageSY(img), newXSize, newYSize, Xplace, Yplace););
 
-  /* realloc, memmove, memcopy as needed */
-  if (newYsize > gdImageSY(img)) {
-    /* add rows */
-    DEBUG_CODE(1, fprintf(stderr, "Realloc Y %d\n", newYsize););
-    img->pixels = (unsigned char**)myrealloc(img->pixels, newYsize*sizeof(unsigned char*));
+  // realloc, memmove, memcopy as needed
+  if (newYSize > oldYSize) {
+    // add rows 
+    DEBUG_CODE(1, fprintf(stderr, "Realloc Y to new size by adding rows %d\n", newYSize););
+    img->pixels = (unsigned char**)myrealloc(img->pixels, newYSize*sizeof(unsigned char*));
     DEBUG_CODE(1, if (img->pixels == NULL) die("Null pointer\n"););
-    for (i=gdImageSY(img); i<newYsize; i++) { /* assign new rows we need */
-      img->pixels[i] = (unsigned char*)mycalloc(newXsize, sizeof(unsigned char));
+    for (i=gdImageSY(img); i<newYSize; i++) { // assign new rows we need 
+       img->pixels[i] = (unsigned char*)mycalloc(newXSize, sizeof(unsigned char));
     }
   }
+  img->sy = newYSize;
 
-  if (newXsize > gdImageSX(img)) {
-    DEBUG_CODE(1, fprintf(stderr, "Realloc X %d\n", newXsize););
-    for (i=0; i< newYsize; i++) {
-      img->pixels[i] = (unsigned char*)myrealloc(img->pixels[i], newXsize*sizeof(unsigned char));
+  if (newXSize > oldXSize) {
+    DEBUG_CODE(1, fprintf(stderr, "Realloc X from %d to new size %d by adding columns\n", gdImageSX(img), newXSize););
+    for (i=0; i< gdImageSY(img); i++) {
+      img->pixels[i] = (unsigned char*)myrealloc(img->pixels[i], newXSize*sizeof(unsigned char));
     }
   }
+  img->sx = newXSize;
 
-  /* move existing data to the right as necessary */
-  if (Xplace != 0 || newXsize > Xplace + gdImageSX(img)) {
-    DEBUG_CODE(1, fprintf(stderr, "Memmove X %d\n", Xplace););
-    for (i=0; i<gdImageSY(img); i++) {
+#ifdef HAVE_GDIMAGESETCLIP
+  gdImageSetClip(img, 0, 0, newXSize, newYSize);
+#endif
+
+  // move existing data to the right as necessary 
+  if (Xplace != 0 || newXSize > Xplace + oldXSize) {
+    DEBUG_CODE(1, fprintf(stderr, "Memmove X to new place %d\n", Xplace););
+    for (i=0; i<oldYSize; i++) {
       if (Xplace != 0) {
-	memmove(&img->pixels[i][Xplace], &img->pixels[i][0], gdImageSX(img));
+	memmove(&img->pixels[i][Xplace], &img->pixels[i][0], oldXSize);
 	memset(&img->pixels[i][0], 0, Xplace-1); /* set beginning to zero */
       }
-      if (newXsize > Xplace + gdImageSX(img)) { /* set end to zero */
-	memset(&img->pixels[i][Xplace + gdImageSX(img)], 0, newXsize - (Xplace + gdImageSX(img)));
+      if (newXSize > Xplace + oldXSize) { /* set end to zero */
+	memset(&img->pixels[i][Xplace + oldXSize], 0, newXSize - (Xplace + oldXSize));
       }
     }
   }
@@ -458,40 +472,33 @@ void enlargeCanvas(gdImagePtr img,
   /* move existing row pointers down as necessary */
   if (Yplace != 0) {
     unsigned char** temp;
-    DEBUG_CODE(1, fprintf(stderr, "Memmove Y %d\n", Yplace););
+    DEBUG_CODE(1, fprintf(stderr, "Memmove Y to new place %d\n", Yplace););
     temp = (unsigned char**)mymalloc(sizeof(unsigned char*)*Yplace);
     for (i=0; i<Yplace; i++) {
-      temp[i] = img->pixels[newYsize -1 - i];
+      temp[i] = img->pixels[newYSize -1 - i];
     }
-    for (i=newYsize - 1; i - Yplace >= 0; i--) {
+    for (i=newYSize - 1; i - Yplace >= 0; i--) {
       img->pixels[i] = img->pixels[i-Yplace];
     }
-    /* erase the front rows (replace with previously allocated blank rows)*/
+    // erase the front rows (replace with previously allocated blank rows)
     for (i=0; i<Yplace; i++) {
       img->pixels[i] = temp[i];
     }
     free(temp);
   }
 
-  /* update the image size data */
-  img->sx = newXsize;
-  img->sy = newYsize;
 
-  /* Old way, about half as fast, and more memory, of resizing */
-  /*
-    newimage = gdImageCreate(newXsize, newYsize);
-    if (newimage == NULL) die("Failed to create new image");
-    copyPaletteToNew(newimage, img);
-    for (i = 0; i< gdImageSX(img); i++) {
-    for (j = 0; j < gdImageSY(img); j++) {
-    newimage->pixels[Yplace + j][Xplace + i] = img->pixels[j][i];
-    }
-    }
-    *img = *newimage;
-    */
+
+
+#else
+
+  /* Old way, about half as fast, and more memory, of resizing  -- color problems? */
+  gdImagePtr newimage = gdImageCreate(newXSize, newYSize);
+  gdImagePaletteCopy(newimage, img);
+  gdImageCopy(newimage, img, Xplace, Yplace, 0, 0, gdImageSX(img), gdImageSY(img));
+  *img = *newimage;
+
+#endif
   
 } /* enlargeCanvas */
-
-
-
 

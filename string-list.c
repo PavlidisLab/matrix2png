@@ -4,6 +4,7 @@
  * CREATE DATE: 12-22-98, 2/2001
  * PROJECT: PHYLO
  * DESCRIPTION: Data structure for manipulating a list of strings. 
+ * Copyright (c) Columbia University
  **************************************************************************/
 #include "string-list.h"
 #include "utils.h"

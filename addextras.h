@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Add annotations etc to a matrix image.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #ifndef ADDEXTRAS_H

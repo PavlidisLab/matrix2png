@@ -5,6 +5,7 @@
  * PROJECT: PLOTKIT
  * DESCRIPTION: A quadratic probing hashtable. Keys are strings, 
  * but contents can be anything.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #ifndef HASH_D

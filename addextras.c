@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Add annotations etc to a matrix image.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #include "addextras.h"
@@ -122,7 +123,6 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   matrixInfo->uly += yoffset;
   matrixInfo->lrx += xoffset;
   matrixInfo->lry += yoffset;
-
   stringlist2image(img, rowLabels, matrixInfo->numrows, FALSE, FALSE, TEXTPADDING, linespacing, initX, initY, font);
 
 } /* addRowLabels */
@@ -165,7 +165,6 @@ void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels,
   matrixInfo->lry += yoffset;
 
   stringlist2image(img, colLabels, matrixInfo->numcols, FALSE, TRUE, TEXTPADDING, linespacing, initX, initY, font);
-  
 } /* addColLabels */
 
 

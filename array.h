@@ -2,7 +2,8 @@
  * FILE: array.h
  * AUTHOR: William Noble Grundy
  * PROJECT: MHMM
- * COPYRIGHT: 1997, Regents of the University of California
+ * COPYRIGHT: 1997 Regents of the University of California
+ * Copyright 2002 (c) Columbia University
  * DESCRIPTION: Some simple array-handling routines.
  ********************************************************************/
 #ifndef ARRAY_H

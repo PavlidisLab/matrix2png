@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Functions for finding prime numbers. Needed for hashing.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 #include "utils.h"
 #include "primes.h"

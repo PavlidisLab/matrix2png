@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Functions for command line parsing along with cmdline.h
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #include <string.h>

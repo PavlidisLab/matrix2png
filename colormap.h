@@ -4,6 +4,7 @@
  * CREATE DATE: 5/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Allocation of colors according to predefined maps.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 #ifndef COLORMAP_H
 #define COLORMAP_H

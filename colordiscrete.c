@@ -4,6 +4,7 @@
  * CREATE DATE: 6/2002
  * PROJECT: PLOTKIT
  * DESCRIPTION: Functions relating to using discretized color maps.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #include "gd.h"
@@ -79,9 +80,9 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 	  DEBUG_CODE(1, fprintf(stderr, "Got %s\n", string_ptr););
 	  if (strlen(string_ptr) > DEFAULT_DISCRETE_LABEL_BUFSIZE)
 	    die("Default discrete label is too long. Need to increase defined DEFAULT_DISCRETE_LABEL_BUFSIZE");
-
 	  strcpy(return_value->defaultlabel, string_ptr);
 	}
+	return_value->default_used = TRUE;
 
 	string2color(colorbuf, return_value->default_colorcode);
       } else { // regular value.

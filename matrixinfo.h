@@ -1,3 +1,4 @@
+/* Copyright (c) Columbia University */
 #ifndef MATRIXINFO_H
 #define MATRIXINFO_H
 
@@ -41,6 +42,8 @@ typedef struct matrixinfo_t  {
   int lry;
   int numrows; 
   int numcols; 
+  int rowsToUse;
+  int colsToUse;
   int numColors;
   int xblocksize;
   int yblocksize;

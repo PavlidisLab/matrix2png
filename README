@@ -5,6 +5,8 @@
 #  PROJECT: PLOTKIT
 #****************************************************************************
 
+See INSTALL for installation instructions.
+
 
 This software makes us of 'gd', a graphics library for generating
 'png' format documents, written by Tom Boutell (www.boutell.com). As

@@ -1,7 +1,12 @@
 Basic Installation
 ==================
 
-   These are generic installation instructions.
+Note: You must have 'GD' installed on your system for matrix2png to
+build. Make sure that the configure script can find libgd and the gd
+header files. GD can be obtained from www.boutell.com. GD in turn
+requires libpng and zlib, which are standard on many systems.
+
+The following are generic installation instructions.
 
    The `configure' shell script attempts to guess correct values for
 various system-dependent variables used during compilation.  It uses

@@ -3,7 +3,10 @@
  * AUTHOR: William Noble Grundy, Paul Pavlidis
  * PROJECT: MHMM, prob-exp, matrix2png....etc.
  * COPYRIGHT: 1997-1999, Regents of the University of California
-
+ *
+ * (c) 2000-2003 Columbia University
+ *
+ *
  * DESCRIPTION: Some simple array-handling routines. This version
  * (modified by Paul) handles missing values for most functions (todo:
  * exceptions of log-space functions). In some cases it relies on the

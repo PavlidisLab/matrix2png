@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Functions to draw color scale bars on images.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 #ifndef CSB_H
 #define CSB_H
@@ -33,7 +34,7 @@
 #endif
 
 #define MAXLABELLENGTH 25
-#define LABELFORMAT "%.2f"
+#define LABELFORMAT "%.2g"
 #define CHARWIDTH (LABELFONT->w)
 #define LABELHEIGHT (LABELFONT->h)
 #define MINLABELWIDTH (CHARWIDTH*5)

@@ -4,6 +4,7 @@
  * CREATE DATE: 2-4-97
  * PROJECT: MHMM
  * COPYRIGHT: 1997-1999, Regents of the University of California
+ * Copyright (c) Columbia University
  * DESCRIPTION: Some simple matrix manipulation routines.
  **************************************************************************/
 #ifndef MATRIX_H

@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Color definitions and allocation, using 'gd' library.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #include "gd.h"
@@ -368,7 +369,7 @@ void copyPaletteToNew(gdImagePtr dst, gdImagePtr src)
 } /* copyPaletteToNew */
 
 
-/* initialize a colorV_T struct */
+/* initialize an empty colorV_T struct */
 colorV_T* initColorVByName (color_T named) {
   colorV_T* return_value;
   return_value = (colorV_T*)mymalloc(sizeof(colorV_T));

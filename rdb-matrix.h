@@ -4,6 +4,7 @@
  * CREATE DATE: 4/19/99, 2/2001
  * PROJECT: GENEX -> PLOTKIT
  * DESCRIPTION: A matrix data structure with labels on rows and columns.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 #ifndef RDB_MATRIX_H
 #define RDB_MATRIX_H

@@ -5,6 +5,7 @@
  * PROJECT: MHMM -> PLOTKIT
  * DESCRIPTION: Some simple matrix manipulation routines.
  * COPYRIGHT: 1997-1999, Regents of the University of California
+ * Copyright (c) Columbia University
  **************************************************************************/
 #include "matrix.h"
 #include "array.h"

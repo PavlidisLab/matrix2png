@@ -4,6 +4,7 @@
  * CREATE DATE: 4/19/99
  * PROJECT: GENEX -> PLOTKIT, etc.
  * DESCRIPTION: A matrix data structure with labels on rows and columns.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 #include "rdb-matrix.h"
 #include "string-list.h"
@@ -380,6 +381,8 @@ RDB_MATRIX_T* read_rdb_matrix
   }
   num_rows = i_row - 1;
 
+  DEBUG_CODE(1, fprintf(stderr, "Read from file: %d rows, %d cols\n", num_rows, num_cols););
+
   /* Assemble it all into an RDB matrix. */
   return_value = allocate_rdb_matrix(num_rows, num_cols, matrix);
   set_corner_string(corner_string, return_value);
@@ -432,7 +435,9 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   int length;
   int count = -1;
   int i_read = 0;
-
+  int foo = rowstoread;
+  foo*=2;
+  
   if (infile == NULL) {
     die("Attempted to read matrix from null file.");
   }
@@ -501,7 +506,8 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   for (i_row = 0;  ; i_row++) {
 
     /* Read the next line, stopping if it's empty. Or if we've read enough rows. */
-    if (fgets(one_row, MAX_ROW, infile) == NULL || (rowstoread >= 0 && i_row >= rowstoread)) {
+    //    if (fgets(one_row, MAX_ROW, infile) == NULL || (rowstoread >= 0 && i_row >= rowstoread)) {
+    if (fgets(one_row, MAX_ROW, infile) == NULL ) {
       break;
     }
     if (startrow > 0 && i_row < startrow) {
@@ -520,7 +526,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 
     // read the row name
     i_char = 0;
-    while (one_row[i_char] != '\t' && i_char < BUFSIZE - 1) {
+    while ( one_row[i_char] > 0 && one_row[i_char] != '\t' && i_char < BUFSIZE - 1) {
       string[i_char] = one_row[i_char];
       i_char++;
     }
@@ -540,7 +546,8 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
     i_column = 0;
     length = strlen(one_row);
     i_read = 0;
-    while (i_char <= length && !(colstoread > 0 && i_read >= colstoread )) { // note we purposely read just past the end.
+    //    while (i_char <= length && !(colstoread > 0 && i_read >= colstoread )) { // note we purposely read just past the end.
+    while (i_char <= length) { // note we purposely read just past the end.
       if (one_row[i_char] == '\t' || i_char == length) { // check for missing value.
 	if ((one_row[i_char] == '\t' && 
 	    ((one_row[i_char-1] == '\t') || // tab tab
@@ -607,6 +614,8 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   }
 
   num_rows = get_num_strings(row_names);
+
+  DEBUG_CODE(1, fprintf(stderr, "Read from file: %d rows, %d cols\n", num_rows, num_cols););
 
   /* Assemble it all into an RDB matrix. */
   return_value = allocate_rdb_matrix(num_rows, num_cols, matrix);

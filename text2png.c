@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Turn a text file into a png image
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #include "gd.h"
@@ -131,6 +132,7 @@ void stringlist2image (gdImagePtr img,
     textIntensity = chooseContrastingColor(img);
     textColor = gdImageColorClosest(img, textIntensity, textIntensity, textIntensity);
   }
+  DEBUG_CODE(1, fprintf(stderr, "Chose text color %d\n", textColor););
 
   if (vertical) {
     width+=initX; 
@@ -163,6 +165,7 @@ void stringlist2image (gdImagePtr img,
       word = strtok(NULL, DIVIDERCHARS);
     }
   }
+
 } /* stringlist2image */
 
 
@@ -233,8 +236,8 @@ int main (int argc, char **argv) {
     free_string_list(stringlist);
     die("Could not make image\n");
   }
-
   free_string_list(stringlist);
+
 
   return 0;
 }

@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Functions to make images from matrices
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #include <stdio.h>
@@ -123,11 +124,14 @@ gdImagePtr rawmatrix2img (
   /* create image to fit (1 pixel dividers)*/
   if (includeDividers) {
     xSize++;
-    height = matrixInfo->numrows * (ySize+1);
+    //    height = matrixInfo->numrows * (ySize+1);
+    height = matrixInfo->rowsToUse * (ySize+1);
   } else {
-    height = matrixInfo->numrows * ySize;
+    //    height = matrixInfo->numrows * ySize;
+    height = matrixInfo->rowsToUse * ySize;
   }
-  width = matrixInfo->numcols * xSize;
+  //  width = matrixInfo->numcols * xSize;
+  width = matrixInfo->colsToUse * xSize;
 
   featureWidth = width;
   featureHeight = height;
@@ -196,14 +200,16 @@ gdImagePtr rawmatrix2img (
 
   /* draw the image */
   y = initY;
-  for (i=0; i<matrixInfo->numrows; i++) {
+  //  for (i=0; i<matrixInfo->numrows; i++) {
+  for (i=0; i<matrixInfo->rowsToUse; i++) {
     x = initX;
     if(includeDividers && i>0) {
       gdImageLine(img, initX, y, initX + width, y, dividerColor);
       y++;
     }
 
-    for (j=0; j<matrixInfo->numcols; j++) {
+    //    for (j=0; j<matrixInfo->numcols; j++) {
+    for (j=0; j<matrixInfo->colsToUse; j++) {
 
       value = matrix[i][j];
 
@@ -317,7 +323,7 @@ int main (int argc, char **argv) {
   BOOLEAN_T passThroughBlack = FALSE;
   BOOLEAN_T skipformatline = FALSE; /* if selected, assumes that we ARE using RDB format */
   BOOLEAN_T ellipses = FALSE; /* draw ellipses or circles instead of rectangles */
-  BOOLEAN_T normalize = FALSE; /* normalize the rows N(0,1) */
+  BOOLEAN_T normalize = FALSE; /* normalize the rows */
 
   double contrast = DEFAULTCONTRAST;
   int numcolors = DEFAULTNUMCOLORS;
@@ -503,11 +509,11 @@ int main (int argc, char **argv) {
   if (docolnames)
     colnames = get_col_names(rdbdataMatrix);
 
-  //  if (numr < 0 || numr > numactualrows)
-  //    numr = numactualrows;    
-
-  //  if (numc < 0 || numc > numactualcols)
-  //    numc = numactualcols;
+  if (numr < 0 || numr > numactualrows)
+    numr = numactualrows;    
+  
+  if (numc < 0 || numc > numactualcols)
+    numc = numactualcols;
 
 
   /* convert user-defined colors into corresponding colorV_T */
@@ -582,6 +588,9 @@ int main (int argc, char **argv) {
   matrixInfo->usedRegion = usedRegion;
   matrixInfo->discreteMap = discreteMap;
   matrixInfo->numColors = numcolors;
+  matrixInfo->rowsToUse = numr;
+  matrixInfo->colsToUse = numc;
+
 
   DEBUG_CODE(1, dumpMatrixInfo(matrixInfo););
   
@@ -599,10 +608,11 @@ int main (int argc, char **argv) {
   
   /* add extra goodies: (the order matters because of primitive
      feature placement routine) */
-  if (dorownames) addRowLabels(img, rownames, matrixInfo);
-  if (dodesctext) addRowLabels(img, desctext, matrixInfo);
-  if (docolnames) addColLabels(img, colnames, matrixInfo);
-  if (doscalebar) addScaleBar(img, matrixInfo);
+    if (dorownames) addRowLabels(img, rownames, matrixInfo);
+    if (dodesctext) addRowLabels(img, desctext, matrixInfo);
+    if (docolnames) addColLabels(img, colnames, matrixInfo);
+    if (doscalebar) addScaleBar(img, matrixInfo);
+
 
   // enlarge the canvas if requested (todo: make this a function call)
   if (matrixInfo->xminSize > gdImageSX(img) || matrixInfo->yminSize > gdImageSY(img)) {
@@ -612,18 +622,17 @@ int main (int argc, char **argv) {
     int newyplace = matrixInfo->yminSize > gdImageSY(img) ? floor((matrixInfo->yminSize -  gdImageSY(img))/2) :  0;
     enlargeCanvas(img, newxsize, newysize, newxplace, newyplace);
   }
-
   /* output */
   gdImagePng(img, stdout);
 
   /* clean up */
-  gdImageDestroy(img);
-  /*  free_rdb_matrix(rdbdataMatrix); */
+  //  gdImageDestroy(img);
+  /*free_rdb_matrix(rdbdataMatrix); */
   free_matrix(dataMatrix);
   free(usedRegion);
   free(matrixInfo);
   free(rawmatrix);
-
+  
   // clean up color structs.
   free(minColor);
   free(maxColor);
@@ -631,7 +640,7 @@ int main (int argc, char **argv) {
   free(missingColor);
   if (discreteMap != NULL) {
     freeDiscreteMap(discreteMap);
-  }
+    }
   return(0);
 }
 #endif /* MATRIXMAIN */

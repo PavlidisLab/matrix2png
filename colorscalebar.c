@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Functions to draw color scale bars on images.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #include "gd.h"
@@ -102,6 +103,7 @@ void getTotalScaleBarDims(BOOLEAN_T addLabels,
     }
 
     if (SKIPDEFAULT == 0) {
+      DEBUG_CODE(1, fprintf(stderr, "Looking at default label: %s\n", matrixInfo->discreteMap->defaultlabel););
       if ((int)strlen(matrixInfo->discreteMap->defaultlabel) > maxlength)
 	maxlength = strlen(matrixInfo->discreteMap->defaultlabel);
     }
@@ -199,11 +201,11 @@ void drawScaleBar (
       if (matrixInfo->discreteMap != NULL) { /* in order entered */
 	gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + *blockLength, i + 1);
       } else { /* high values at the top */
-	gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + *blockLength, numColors + NUMRESERVEDCOLORS - 1 - i);
+	gdImageFilledRectangle(img, xStart, (int)y, xStart + thickness, (int)(y + *blockLength), numColors + NUMRESERVEDCOLORS - 1 - i);
       }
       y+= *blockLength;
     } else { /* high values at the right */
-      gdImageFilledRectangle(img, x, yStart, x + *blockLength, yStart + thickness, i);
+      gdImageFilledRectangle(img, (int)x, yStart, (int)(x + *blockLength), yStart + thickness, i);
       x+= *blockLength;
     }
   }
@@ -221,9 +223,9 @@ void drawScaleBar (
 
   /* draw a black box around the scale bar. */
   if (vertical) {
-    //    gdImageRectangle(img, xStart - 1, yStart - 1, x + thickness, y, 2);
+    gdImageRectangle(img, xStart - 1, yStart - 1, x + thickness, y, 2);
   }  else {
-    //    gdImageRectangle(img, xStart - 1, yStart - 1, x, y + thickness, 2);
+    gdImageRectangle(img, xStart - 1, yStart - 1, x, y + thickness, 2);
   }
 
 } /* drawScaleBar */

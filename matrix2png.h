@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Functions to make images from matrices
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #ifndef MATRIXPNG_H

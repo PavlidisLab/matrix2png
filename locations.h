@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Locations in an image used to define placement of extra bits
+ * Copyright (c) Columbia University
  *****************************************************************************/
  
 #ifndef LOCATIONS_H

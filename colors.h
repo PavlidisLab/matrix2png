@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Color definitions and allocation
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #ifndef COLORS_H

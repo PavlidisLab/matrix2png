@@ -4,6 +4,7 @@
  * CREATE DATE: 2/2001
  * PROJECT: PLOTKIT
  * DESCRIPTION: Turn a text file into a png image
+ * Copyright (c) Columbia University
  *****************************************************************************/
 
 #ifndef TEXT2IMAGE_H

@@ -4,6 +4,7 @@
  * CREATE DATE: 6/2002
  * PROJECT: PLOTKIT
  * DESCRIPTION: Functions relating to using discretized color maps.
+ * Copyright (c) Columbia University
  *****************************************************************************/
 #ifndef COLORDISCRETE_H
 #define COLORDISCRETE_H
