@@ -79,21 +79,25 @@ int get_num_strings
 /*************************************************************************
  * Make sure each string in the list is long enough.
  *************************************************************************/
-static void resize_string_list
+void resize_string_list
   (int            new_length,
-   STRING_LIST_T* a_list)
+   STRING_LIST_T* a_list,
+   int index)
 {
-  int i_string;
+  //  int i_string;
       
   if (new_length > a_list->longest_string) {
-    fprintf(stderr, "Resizing the string list to make room for strings of length %d (previous longest is %d)\n", new_length, a_list->longest_string );
+    ///    fprintf(stderr, "Resizing the string list to make room for strings of length %d (previous longest is %d)\n", new_length, a_list->longest_string );
     a_list->longest_string = new_length + 1;
-    for (i_string = 0; i_string < a_list->max_strings; i_string++) {
+  }
+  /*    for (i_string = 0; i_string < a_list->max_strings; i_string++) {
       a_list->strings[i_string] 
 	= (char*)myrealloc(a_list->strings[i_string], 
 			   a_list->longest_string * sizeof(char) ); 
-    }
-  }
+			   } */
+
+  a_list->strings[index] = (char*)myrealloc(a_list->strings[index], 
+			  (new_length + 1)* sizeof(char) ); 
 }						    
 
 
@@ -124,7 +128,7 @@ void set_nth_string
   get_nth_string(n, a_list);
 
   /* Make all the strings longer if this one is too long. */
-  resize_string_list((int)strlen(new_string), a_list);
+  resize_string_list((int)strlen(new_string), a_list, n);
 
   /* Copy the string into the list. */
   strcpy(a_list->strings[n], new_string);
@@ -145,10 +149,10 @@ void add_string
     die("Adding null string to string list.");
   }
 
-  fprintf(stderr, "Adding %s\n", a_string);
+  //  fprintf(stderr, "Adding %s\n", a_string);
   /* Reallocate space if there isn't any. */
   if (a_list->num_strings >= a_list->max_strings) {
-    fprintf(stderr, "need to add more space for more strings, we already have %d\n", a_list->num_strings);
+    //    fprintf(stderr, "need to add more space for more strings, we already have %d\n", a_list->num_strings);
     a_list->strings = (char**)myrealloc(a_list->strings, 
 					(a_list->max_strings 
 					 + DEFAULT_MAX_STRINGS)
@@ -161,7 +165,7 @@ void add_string
   }
 
   /* Make all the strings longer if this one is too long. */
-  resize_string_list((int)strlen(a_string), a_list);
+  resize_string_list((int)strlen(a_string), a_list, a_list->num_strings );
   /* Put the string in the list. */
   strcpy(a_list->strings[a_list->num_strings], a_string);
   (a_list->num_strings)++;

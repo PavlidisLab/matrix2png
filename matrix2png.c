@@ -458,8 +458,6 @@ int main (int argc, char **argv) {
     fprintf(stderr, "Warning: Specifying trimming with discrete mapping will probably yield undesirable results\n");
   }
 
-
-
   if (startr >= 1) {
     startr--;
   }

@@ -151,5 +151,9 @@ void free_string_list
 void right_justify_string_list
   (STRING_LIST_T* a_list);
 
+void resize_string_list
+  (int            new_length,
+   STRING_LIST_T* a_list,
+   int index);
 
 #endif
