@@ -20,6 +20,8 @@
 #include "cmdline.h"
 #include "cmdparse.h"
 #include "colors.h"
+#include "stringhash.h"
+#include "hash.h"
 
 /*****************************************************************************
  * chooseFont - convert command line flag into font name (gdFontPtr)
@@ -78,9 +80,58 @@ void calcTextDimensions (STRING_LIST_T* strings,
   }
 
   DEBUG_CODE(1,	fprintf(stderr, "%d is the longest string, so width is %d, %d strings\n", maxstring, *width, numstrings););
-
-  
 } /*calcTextDimensions */
+
+
+
+/*****************************************************************************
+ * calcTextDimensionsHash - calculate the space needed for the text,
+ * when we have a hash table.
+ *****************************************************************************/
+void calcTextDimensionsHash (HASHTABLE_T* strings,
+			     BOOLEAN_T vertical,
+			     int padding,
+			     int linespacing, /* extra linespacing */
+			     gdFontPtr font,
+			     int *width,
+			     int *height)
+{
+  int numstrings;
+  int maxstring;
+  int i;
+  int len;
+
+  numstrings = strings->num_items;
+  DEBUG_CODE(1, fprintf(stderr, "Getting string info for hash\n"););
+  maxstring = 0;
+  for (i=0; i<strings->table_size; i++) {
+    if (strlen(strings->keys[i]) > 0) {
+      len = strlen(find(strings, strings->keys[i]));
+      if (len > maxstring) {
+	maxstring = len;
+      }
+    }
+  }
+  DEBUG_CODE(1, fprintf(stderr, "Max string is %d\n", maxstring););
+
+  /* calculate width and height of the image. If vertical, the
+     gdImagedimensions are reversed from the usual */
+  *width = maxstring*font->w + 2*padding;
+  *height = numstrings*font->h + 2* padding + numstrings*linespacing;
+
+  if (*width > WARNINGSIZE || *height > WARNINGSIZE) {
+    fprintf(stderr, "Warning: Image is larger than %d pixels wide and/or high. It may not display properly in some web browsers\n", WARNINGSIZE);
+  }
+
+  if (vertical) {
+    int temp;
+    temp = *width;
+    *width = *height;
+    *height = temp;
+  }
+
+  DEBUG_CODE(1,	fprintf(stderr, "%d is the longest string, so width is %d, %d strings\n", maxstring, *width, numstrings););
+} /*calcTextDimensionsHash */
 
 
 /******************************************************************************
@@ -152,6 +203,84 @@ void stringlist2image (gdImagePtr img,
     }
   }
 } /* stringlist2image */
+
+
+
+/******************************************************************************
+ * stringHash2image - takes a string hash table, as well as the keys in a list structure.
+ *****************************************************************************/
+void stringHash2image (gdImagePtr img,
+		       STRING_LIST_T* strings,
+		       HASHTABLE_T* labelHash,
+		       BOOLEAN_T rightJustify,
+		       BOOLEAN_T vertical,		       
+		       int padding, /* extra pixels at start of text */
+		       int linespacing,
+		       int initX,
+		       int initY,
+		       gdFontPtr font)
+{
+  int numstrings;
+  int i;
+  char* string;
+  char* hashedstring;
+  int backgroundColor, textColor;
+  int width, height;
+
+  numstrings = get_num_strings(strings);
+
+  if (rightJustify){;}  /* avoid compiler warning. Not using this right now, and might be able to remove it */
+
+  /* this is already done in some situations */
+  calcTextDimensionsHash(labelHash, vertical, padding, linespacing, font, &width, &height);
+  
+  /* allocate image and colors if image is null; otherwise add to existing image */
+  if (img == NULL) {
+    img = gdImageCreate(width, height);
+    backgroundColor = gdImageColorAllocate(img, 255, 255, 255);
+    textColor = gdImageColorAllocate(img, 0, 0, 0);
+  } else {
+    int textIntensity;
+    textIntensity = chooseContrastingColor(img);
+    textColor = gdImageColorClosest(img, textIntensity, textIntensity, textIntensity);
+  }
+
+  if (vertical) {
+    width+=initX; 
+    height+=initY;
+  } else {
+    width+=initX; 
+    height+=initY;
+  }
+
+  /* draw the text. All the tokenizing business is because the gd
+     fonts don't render tabs as blanks */
+  for (i=0; i< numstrings; i++) {
+    char *word;
+    int currentpos;
+    if (vertical) {
+      currentpos = initY;
+    } else {
+      currentpos = initX;
+    }
+    string = get_nth_string(i, strings);
+    hashedstring = find(labelHash, string);
+    if (hashedstring == NULL) {
+      hashedstring = NOLABEL;
+    }
+    word = strtok(hashedstring, DIVIDERCHARS);
+    while (word != NULL) {
+      if (vertical) {
+	gdImageStringUp(img, font, initX + i*(linespacing + font->h), currentpos + height - padding, (unsigned char*)word, textColor);
+	currentpos += (strlen(word)+DIVIDERWIDTH) * font->h;
+      } else {
+	gdImageString(img, font, currentpos + padding, initY + i*(linespacing + font->h), (unsigned char*)word, textColor);
+	currentpos += (strlen(word)+DIVIDERWIDTH) * font->w;
+      }
+      word = strtok(NULL, DIVIDERCHARS);
+    }
+  }
+} /* stringHash2image */
 
 
 /*

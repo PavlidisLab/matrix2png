@@ -21,7 +21,9 @@
 #include "cmdline.h"
 #include "cmdparse.h"
 #include "addextras.h"
+#include "hash.h"
 #include <float.h>
+#include "stringhash.h"
 
 /* create a new matrixinfo struct */
 MATRIXINFO_T* newMatrixInfo(void) {
@@ -206,7 +208,6 @@ gdImagePtr rawmatrix2img (
       colorcode = (int)( (value - min) / stepsize) + NUMRESERVEDCOLORS;
 
       /* draw rectangle and advance to the next position */
-
       if (includeDividers) {
 	gdImageFilledRectangle(img, x, y, x+xSize, y+ySize-1, colorcode);
 	gdImageLine(img, x+xSize-1, y-1, x+xSize-1, y+ySize-1, dividerColor);
@@ -250,6 +251,7 @@ int main (int argc, char **argv) {
   RDB_MATRIX_T* rdbdataMatrix;
   USED_T* usedRegion; /* keep track of free space on the image canvas */
   MTYPE** rawmatrix = NULL;
+  HASHTABLE_T* descHash = NULL;
 
   /* command line options */
   BOOLEAN_T doscalebar = FALSE;
@@ -386,12 +388,22 @@ int main (int argc, char **argv) {
     colnames = get_col_names(rdbdataMatrix);
   }
 
-  /* read descriptive text if needed */
+  /* read descriptive text if needed. This should be two columns,
+     first with the gene name and second with the text. No
+     headings. */
   if (descFilename != NULL) {
+    if (!dorownames) {
+      die("You entered a description file name, but you didn't switch on the '-r' flag to display row names\n");
+    }
     dodesctext = TRUE;
     if (open_file(descFilename, "r", FALSE, "descriptions", "row descriptions", &descFile) == 0) exit (1);
-    desctext = read_string_list(descFile);
+    descHash = (HASHTABLE_T*)buildStringHash(descFile);
     fclose(descFile);
+
+    DEBUG_CODE(1,
+	       //	       printHash(descHash);
+	       );
+
   }
   
   /*******************************************************************
@@ -416,18 +428,19 @@ int main (int argc, char **argv) {
   /* add extra goodies: (the order matters because of primitive
      feature placement routine) */
   if (dorownames) addRowLabels(img, rownames, usedRegion, ypixSize, matrixInfo);
-  if (dodesctext) addRowLabels(img, desctext, usedRegion, ypixSize, matrixInfo);
+  if (dodesctext) addRowLabelsFromHash(img, rownames, descHash, usedRegion, ypixSize, matrixInfo);
+  //  if (dodesctext) addRowLabels(img, desctext, usedRegion, ypixSize, matrixInfo);
   if (docolnames) addColLabels(img, colnames, usedRegion, xpixSize, matrixInfo);
   if (doscalebar) addScaleBar(img, usedRegion, matrixInfo);
 
-  /* test: add highlight to some of the image */
+  /* TEST CODE: Add highlight to some of the image */
   DEBUG_CODE(0, 
   {
     int r = matrixInfo->numrows;
     int c = matrixInfo->numcols;
     gdImagePtr replacedRegion;
     REGION_T* region = newRegion();
-    replacedRegion = addHighlight(img, matrixInfo, c/2, c/2+20, r/2, r/2+30, region);
+    replacedRegion = (gdImagePtr)addHighlight(img, matrixInfo, c/2, c/2+20, r/2, r/2+30, region);
     
     /* replace the highlighted region */
     //    restoreRegion(img, replacedRegion, region);
@@ -435,19 +448,71 @@ int main (int argc, char **argv) {
     free(region);
   }
 	     );
+  /* end test code */
 
-  /* output */
+  /* output the image */
   gdImagePng(img, stdout);
 
-  /* clean up */
-  gdImageDestroy(img);
-  free_rdb_matrix(rdbdataMatrix);
-  free(usedRegion);
-  free(matrixInfo);
-  free(rawmatrix);
+
+
+  DEBUG_CODE(1,
+	     fprintf(stderr, "Done drawing\n");
+	     );
+
+  /* TEST CODE hash table testing */
+#ifdef DEBUG
+   {
+    char* names[] = {"dog", "cat", "mouse", "bird", "dragon"};
+    HTYPE values[] = {"hound", "kitty", "critter", "beast", "monster"};
+    int i;
+    int NUMITEMS = 5;
+    HASHTABLE_T* test;
+    test = buildtable(DEFAULT_TABLE_SIZE, NULL);
+    
+    if (test == NULL) {
+      die("Could not build hash table");
+    }
+
+    /*   insert, then find, each value */
+    for (i=0; i<NUMITEMS; i++) {
+      fprintf(stderr, "inserting %s, value %s\n", names[i], values[i]);
+      insert(test, names[i], values[i]);
+    }
+    fprintf(stderr, "Done inserting\n\n");
+
+    rehash(test);
+    rehash(test);
+
+    for (i=0; i<NUMITEMS; i++) {
+      HTYPE k;
+      k = find(test, names[i]);
+      if (k == NULL) {
+	fprintf(stderr, "Got a null value\n");
+      } else {
+	fprintf(stderr, "Found %s\n", k);
+      }
+    }
+    fprintf(stderr, "Done retrieving\n\n");
+    
+    /*   ideally, run until rehash is needed */
+   } /* end test code */
+#endif
+
+   
+   /******
+    * CLEAN UP
+    ******/
+   gdImageDestroy(img);
+   free_rdb_matrix(rdbdataMatrix);
+   free(usedRegion);
+   free(matrixInfo);
+   free(rawmatrix);
+   if (dodesctext) {
+     free_string_list(desctext);
+   }
+
 
   return 0;
-
 }
 #endif /* MATRIXMAIN */
 /*

@@ -16,6 +16,7 @@
 #include "string-list.h"
 #include "utils.h"
 #include "matrix.h"
+#include "hash.h"
 
 #define DEFAULTCONTRAST 1.0
 #define DEFAULTBKGCOLOR white

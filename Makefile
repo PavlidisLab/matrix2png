@@ -65,10 +65,10 @@ PACKAGE = matrix2png
 VERSION = 0.9
 
 bin_PROGRAMS = matrix2png
-matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c 	utils.c text2png.c rdb-matrix.c addextras.c colors.c 	colorscalebar.c locations.c cmdparse.c
+matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c		utils.c text2png.c rdb-matrix.c addextras.c colors.c			colorscalebar.c locations.c cmdparse.c hash.c primes.c			stringhash.c
 
 
-INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN
+INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN -DDEBUG -DSTRINGHASH
 ETAGS_ARGS = ./*.h ./*.c /usr/local/include/gd.h 
 TAGS_DEPENDENCIES = /usr/local/include/gd.h 
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -83,7 +83,7 @@ LDFLAGS =
 LIBS = -lz -lpng -lm -lgd 
 matrix2png_OBJECTS =  matrix2png.o string-list.o matrix.o array.o \
 utils.o text2png.o rdb-matrix.o addextras.o colors.o colorscalebar.o \
-locations.o cmdparse.o
+locations.o cmdparse.o hash.o primes.o stringhash.o
 matrix2png_LDADD = $(LDADD)
 matrix2png_DEPENDENCIES = 
 matrix2png_LDFLAGS = 
@@ -101,9 +101,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = gnutar
 GZIP_ENV = --best
 DEP_FILES =  .deps/addextras.P .deps/array.P .deps/cmdparse.P \
-.deps/colors.P .deps/colorscalebar.P .deps/locations.P .deps/matrix.P \
-.deps/matrix2png.P .deps/rdb-matrix.P .deps/string-list.P \
-.deps/text2png.P .deps/utils.P
+.deps/colors.P .deps/colorscalebar.P .deps/hash.P .deps/locations.P \
+.deps/matrix.P .deps/matrix2png.P .deps/primes.P .deps/rdb-matrix.P \
+.deps/string-list.P .deps/stringhash.P .deps/text2png.P .deps/utils.P
 SOURCES = $(matrix2png_SOURCES)
 OBJECTS = $(matrix2png_OBJECTS)
 
