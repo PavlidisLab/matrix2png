@@ -33,21 +33,25 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
   
   // The following are 'reasonable' settings. For discrete mappings, the text is always vertical for horizontal scale bars.
   BOOLEAN_T vertical = FALSE; // todo: make this user-settable
-  BOOLEAN_T includeMidVal = FALSE; // todo: make this user-settable.
-  BOOLEAN_T rotateLabels = FALSE; // only applies if we aren't putting the scale bar vertically : todo: make this user-settable.
+  BOOLEAN_T includeMidVal = FALSE; // todo: make this user-settable (?)
+  BOOLEAN_T rotateLabels = FALSE; // option only applies if scalebar is horizontal : todo: make this user-settable.
 
   DEBUG_CODE(1, fprintf(stderr, "--Adding scale bar\n"););
 
+  /* calclute the space needed for the color bar */
+  barWidth  = DEFAULTSCALEBARLENGTH;
   if (matrixInfo->numColors > DEFAULTSCALEBARLENGTH) {
-    barWidth  = matrixInfo->numColors;
-  } else {
-    barWidth  = DEFAULTSCALEBARLENGTH;
+    barWidth  = matrixInfo->numColors; // allot one pixel per color, please.
+  } else if (matrixInfo->discreteMap) { // allot one font width/height per pixel please
+    if (!vertical && matrixInfo->discreteMap->count * CHARWIDTH > DEFAULTSCALEBARLENGTH ) {
+      barWidth = matrixInfo->discreteMap->count * CHARWIDTH;
+    } else if (vertical && matrixInfo->discreteMap->count * LABELHEIGHT > DEFAULTSCALEBARLENGTH) {
+      barWidth = matrixInfo->discreteMap->count * LABELHEIGHT;
+    }
   }
   barHeight = DEFAULTSCALEBARHEIGHT;
 
-  /* todo: should check to see that the default width is enough. */
-  //
-
+  /* get the total size including labels and padding */
   getTotalScaleBarDims(TRUE, includeMidVal, vertical, rotateLabels, barWidth, barHeight, 
 			 matrixInfo, &featureWidth, &featureHeight, &xoffset, &yoffset);
 
@@ -73,7 +77,7 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
 
 
 /*****************************************************************************
- * addRowLabels
+ * addRowLabels - put row label text on a picture.
  *****************************************************************************/
 void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels, 
 		  MATRIXINFO_T* matrixInfo)
@@ -100,6 +104,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   calcTextDimensions(rowLabels, matrixInfo->numrows, FALSE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
   DEBUG_CODE(1, fprintf(stderr, "Adding row labels %d %d\n", textWidth, textHeight););
 
+  // todo: make location user-settable.
   placeFeature(img, "rightmiddle", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
 
   matrixInfo->ulx += xoffset;
@@ -138,6 +143,8 @@ void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels,
   DEBUG_CODE(1, if(linespacing<0) die("Linespacing is < 0"););
 
   calcTextDimensions(colLabels, matrixInfo->numcols, TRUE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
+
+  // todo: make location user-settable.
   placeFeature(img, "topleft", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth, textHeight + TEXTPADDING*2, &xoffset, &yoffset); /* what's with the x2? */
   DEBUG_CODE(1, fprintf(stderr, "Adding col labels %d %d %d %d\n", textWidth, textHeight, initX, initY););
 
@@ -152,7 +159,9 @@ void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels,
 
 
 /*****************************************************************************
- * addHighlight - highlight a region of the matrix, given matrix coords.
+ * addHighlight - highlight a region of the matrix, given matrix
+ * coords. (This was experimental and is not accessible to the
+ * user. todo: implement this as an option if anybody cares.
  *****************************************************************************/
 gdImagePtr addHighlight(gdImagePtr img, 
 			MATRIXINFO_T* matrixInfo, 
@@ -228,7 +237,7 @@ gdImagePtr addHighlight(gdImagePtr img,
 
 /*****************************************************************************
  * restoreRegion: used after highlighting a region, and we want to
- * restore it.
+ * restore it. See addHighlight.
  *****************************************************************************/
 void restoreRegion(gdImagePtr img, gdImagePtr cachedImg, REGION_T* regionInfo) 
 {

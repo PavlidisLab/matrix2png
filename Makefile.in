@@ -102,7 +102,7 @@ mkinstalldirs
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = tar
+TAR = gnutar
 GZIP_ENV = --best
 DEP_FILES =  .deps/addextras.P .deps/array.P .deps/cmdparse.P \
 .deps/colordiscrete.P .deps/colormap.P .deps/colors.P \
