@@ -16,7 +16,7 @@ SHELL = /bin/sh
 
 srcdir = .
 top_srcdir = .
-prefix = ..
+prefix = /usr/local
 exec_prefix = ${prefix}
 
 bindir = ${exec_prefix}/bin
@@ -62,7 +62,7 @@ CC = gcc
 LN_S = ln -s
 MAKEINFO = makeinfo
 PACKAGE = matrix2png
-VERSION = 1.0
+VERSION = 1.0.1
 
 bin_PROGRAMS = matrix2png
 matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c 	utils.c text2png.c rdb-matrix.c addextras.c colors.c 	colormap.c colordiscrete.c 	colorscalebar.c locations.c cmdparse.c hash.c primes.c
@@ -80,7 +80,7 @@ CONFIG_CLEAN_FILES =
 PROGRAMS =  $(bin_PROGRAMS)
 
 
-DEFS =  -DPACKAGE=\"matrix2png\" -DVERSION=\"1.0\" -DHAVE_LIBGD=1 -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TIME_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1  -I. -I$(srcdir) 
+DEFS =  -DPACKAGE=\"matrix2png\" -DVERSION=\"$(VERSION)\" -DHAVE_LIBGD=1 -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TIME_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1  -I. -I$(srcdir) 
 CPPFLAGS = 
 LDFLAGS = 
 LIBS = -lz -lpng -lm -lgd 
