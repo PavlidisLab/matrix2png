@@ -182,6 +182,14 @@ gdImagePtr rawmatrix2img (
   }
 
   range = max - min;
+  if (range == 0.0) {
+    if (verbosity > NORMAL_VERBOSE)
+      fprintf(stderr, "Warning: range of values in data is zero.\n");
+    range = 1; /* This just avoids getting a step size of zero. If all
+		  values in the data are equal, it results in all
+		  values showing up as the minimum value */
+  }
+  
   stepsize = range / matrixInfo->numColors;
   DEBUG_CODE(1, fprintf(stderr, "Min is %f, max is %f, Step size is %f\n", min, max, stepsize););
 

@@ -1280,7 +1280,17 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, dou
     if (verbosity > NORMAL_VERBOSE)
       fprintf(stderr, "Minimum value is %.2f; maximum values is %.2f\n", lmin, lmax);
   }
-
+  /*  cheap alternative, not satisfactory */
+  /*
+  if (outliers) {
+    MTYPE range = lmax - lmin;
+    MTYPE trimby = range * outliers / 100.0;
+    lmin += trimby;
+    lmax -= trimby;
+    if(verbosity > NORMAL_VERBOSE)
+      fprintf(stderr, "After trimming, minimum value is %.2f; maximum values is %.2f\n", lmin, lmax);
+  }
+    */
   *min = lmin;
   *max = lmax;
 }

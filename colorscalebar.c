@@ -192,9 +192,13 @@ void drawScaleBar (
   x = (double)xStart;
   y = (double)yStart;
 
-  for (i = NUMRESERVEDCOLORS + SKIPDEFAULT; i<numColors; i++) {
-    if (vertical) { /* high values at the top */
-      gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + *blockLength, numColors + NUMRESERVEDCOLORS + SKIPDEFAULT - 1 - i);
+  for (i = NUMRESERVEDCOLORS; i<numColors-1; i++) {
+    if (vertical) {
+      if (matrixInfo->discreteMap != NULL) { /* in order entered */
+	gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + *blockLength, i + 1);
+      } else { /* high values at the top */
+	gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + *blockLength, numColors + NUMRESERVEDCOLORS - 1 - i);
+      }
       y+= *blockLength;
     } else { /* high values at the right */
       gdImageFilledRectangle(img, x, yStart, x + *blockLength, yStart + thickness, i);
@@ -202,11 +206,22 @@ void drawScaleBar (
     }
   }
 
+  /* one more color for the default on discrete maps. */
+  if (!SKIPDEFAULT && matrixInfo->discreteMap != NULL ) {
+    if(vertical) {
+      gdImageFilledRectangle(img, xStart, y, xStart + thickness, y + *blockLength, DEFAULT_DISCRETE_COLOR_INDEX);
+      y+= *blockLength;
+    } else {
+      gdImageFilledRectangle(img, x, yStart,  x + *blockLength, yStart + thickness, DEFAULT_DISCRETE_COLOR_INDEX);
+      x+= *blockLength;
+    }
+  }
+
   /* draw a black box around the scale bar. */
   if (vertical) {
-    gdImageRectangle(img, xStart, yStart, x + thickness, y, 2);
+    //    gdImageRectangle(img, xStart - 1, yStart - 1, x + thickness, y, 2);
   }  else {
-    gdImageRectangle(img, xStart, yStart, x, y + thickness, 2);
+    //    gdImageRectangle(img, xStart - 1, yStart - 1, x, y + thickness, 2);
   }
 
 } /* drawScaleBar */
@@ -263,9 +278,9 @@ void labelScaleBar (
 	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength - LABELHEIGHT, 
 		      (unsigned char*)matrixInfo->discreteMap->defaultlabel,  gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
-      for (i=0; i<numvals; i++) {
+      for (i=0; i<numvals; i++) { /* go in order entered */
 	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + blocksize*i - 2,
-		      (unsigned char*)get_nth_string(numvals - i - 1, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
+		      (unsigned char*)get_nth_string(i, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
     } else { // horizontal
       if (SKIPDEFAULT == 0) { // default value at the left.
