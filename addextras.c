@@ -31,8 +31,10 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
   int xtotaloffset, ytotaloffset;
   double blocksize;
   
-  // The following are 'reasonable' settings. For discrete mappings, the text is always vertical for horizontal scale bars.
-  BOOLEAN_T vertical = FALSE; // todo: make this user-settable
+  // The following are 'reasonable' settings. For discrete mappings,
+  // the text is always vertical for horizontal scale bars. (but here
+  // we set the scale bar to be vertical for discrete.
+  BOOLEAN_T vertical = FALSE || matrixInfo->discreteMap != NULL; // todo: make this user-settable
   BOOLEAN_T includeMidVal = FALSE; // todo: make this user-settable (?)
   BOOLEAN_T rotateLabels = FALSE; // option only applies if scalebar is horizontal : todo: make this user-settable.
 
@@ -45,8 +47,8 @@ void addScaleBar(gdImagePtr img, MATRIXINFO_T* matrixInfo)
   } else if (matrixInfo->discreteMap) { // allot one font width/height per pixel please
     if (!vertical && matrixInfo->discreteMap->count * CHARWIDTH > DEFAULTSCALEBARLENGTH ) {
       barWidth = matrixInfo->discreteMap->count * CHARWIDTH;
-    } else if (vertical && matrixInfo->discreteMap->count * LABELHEIGHT > DEFAULTSCALEBARLENGTH) {
-      barWidth = matrixInfo->discreteMap->count * LABELHEIGHT;
+    } else if (vertical && matrixInfo->discreteMap->count * (LABELHEIGHT + 1) > DEFAULTSCALEBARLENGTH) {
+      barWidth = matrixInfo->discreteMap->count * (LABELHEIGHT + 1);
     }
   }
   barHeight = DEFAULTSCALEBARHEIGHT;

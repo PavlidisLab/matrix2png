@@ -230,10 +230,10 @@ void labelScaleBar (
     int numvals = matrixInfo->discreteMap->count;
     if (vertical) {
       // add the bottom label for default values
-      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength - LABELHEIGHT*1.5, 
+      gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + scaleBarlength - LABELHEIGHT, 
 		    (unsigned char*)matrixInfo->discreteMap->defaultlabel,  gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       for (i=0; i<numvals; i++) {
-	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + LABELHEIGHT/2 + blocksize*i, 
+	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarthickness + PADDING, scaleBaryStart + blocksize*i, 
 		      (unsigned char*)get_nth_string(numvals - i - 1, matrixInfo->discreteMap->labels), gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
       }
     } else { // horizontal
