@@ -38,7 +38,7 @@ void checkScaleBarDims (
     height = thickness;
   }
 
-  if (numColors <= 0)  die("Attempt to draw scalebar with insufficient colors allocated\n");
+  if (numColors <= 0)  die("Attempt to draw scalebar with no colors allocated\n");
   if (width < 1 || height < 1)  die("Attempt to draw scalebar with insufficient thickness or length\n");
   if (xStart < 0 || yStart <0 || xStart > gdImageSX(img) || yStart > gdImageSY(img) ) die("Attempt to draw scalebar outside of image\n");
   if (xStart + width > gdImageSX(img) || yStart+ height > gdImageSY(img)) die("Scalebar will exceed image bounds\n");

@@ -30,13 +30,6 @@ void addRowLabels(gdImagePtr img,
 		  int yBlockSize, 
 		  MATRIXINFO_T* matrixInfo);
 
-/*****************************************************************************
- * addRowLabelsFromHash - we can let the strings be out of order in
- * the description file
- *****************************************************************************/
-void addRowLabelsFromHash(gdImagePtr img, STRING_LIST_T* rowNames, HASHTABLE_T* labelHash, 
-			  USED_T* usedRegion, int yBlockSize, MATRIXINFO_T* matrixInfo);
-
 
 /*****************************************************************************
  * addColLabels

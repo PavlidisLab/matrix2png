@@ -18,7 +18,7 @@
 #include "utils.h"
 #include "text2png.h"
 #include "matrix2png.h"
-#include "hash.h"
+
 
 /*****************************************************************************
  * addScaleBar
@@ -35,6 +35,11 @@ void addScaleBar(gdImagePtr img, USED_T* usedRegion, MATRIXINFO_T* matrixInfo)
   
   barWidth =  DEFAULTSCALEBARLENGTH;
   barHeight = DEFAULTSCALEBARHEIGHT;
+
+  /* should check to see that the default width is enough. */
+  //
+
+
   getTotalScaleBarDims(TRUE, includeMidVal, vertical, barWidth, barHeight, 
 		       matrixInfo->minval, matrixInfo->maxval, &featureWidth, &featureHeight, &xoffset, &yoffset);
 
@@ -95,47 +100,6 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   stringlist2image(img, rowLabels, FALSE, FALSE, TEXTPADDING, linespacing, initX, initY, font);
 
 } /* addRowLabels */
-
-
-
-/*****************************************************************************
- * addRowLabelsFromHash
- *****************************************************************************/
-void addRowLabelsFromHash(gdImagePtr img, STRING_LIST_T* rowNames, HASHTABLE_T* labelHash, 
-		  USED_T* usedRegion, int yBlockSize, MATRIXINFO_T* matrixInfo)
-{
-  int textWidth;
-  int textHeight;
-  int linespacing, initX, initY;
-  int xoffset, yoffset;
-  gdFontPtr font = NULL;
-  /* make sure the text and the ysize are _exactly_ the same. Choose the appropriate font, up to large */
-  if (matrixInfo->dividers) {
-    yBlockSize++;
-  }
-  if (yBlockSize < gdFontTiny->h) die("Can't fit the row label text with this block size (must be at least %d)", (int)gdFontTiny->h);
-  else if (yBlockSize < gdFontSmall->h) font = gdFontTiny;
-  else if (yBlockSize < gdFontLarge->h) font = gdFontSmall;
-  else font = gdFontLarge;
-  
-  DEBUG_CODE(1, fprintf(stderr, "Max string is %d\n", max_string_length(rowNames));); /* this needs to be fixed */
-  linespacing = yBlockSize - font->h;
-  DEBUG_CODE(1, if(linespacing<0) die("Linespacing is < 0"););
-
-  calcTextDimensionsHash(labelHash, FALSE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
-  DEBUG_CODE(1, fprintf(stderr, "Adding row labels %d %d\n", textWidth, textHeight););
-
-  placeFeature(img, "rightmiddle", TRUE, &initX, &initY, usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
-
-  matrixInfo->ulx += xoffset;
-  matrixInfo->uly += yoffset;
-  matrixInfo->lrx += xoffset;
-  matrixInfo->lry += yoffset;
-
-  stringHash2image(img, rowNames, labelHash, FALSE, FALSE, TEXTPADDING, linespacing, initX, initY, font);
-
-} /* addRowLabelsFromHash */
-
 
 
 /*****************************************************************************

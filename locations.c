@@ -131,7 +131,7 @@ void string2looseloc(char* string, looseloc_T* loc)
   } else if (!strcmp(string, "rightmiddle")) {
     *loc = rightmiddle;
   } else {
-    *loc = NULL;
+    *loc = 0;
   }
 
 } /* string2looseloc */

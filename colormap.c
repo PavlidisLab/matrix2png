@@ -58,7 +58,7 @@ void allocateColorMap (
   }
 
   /* get background color */
-  color2rgb(backgroundColor, &backgroundRed, &backgroundGreen, &backgroundBlue);  
+  color2rgb(backgroundColor, &backgroundRed, &backgroundGreen, &backgroundBlue);
   
   /* allocate the background color, index 0 */
   checkColor(gdImageColorAllocate(img, backgroundRed, backgroundGreen, backgroundBlue));

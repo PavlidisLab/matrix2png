@@ -16,7 +16,6 @@
 #include "string-list.h"
 #include "utils.h"
 #include "matrix.h"
-#include "hash.h"
 
 #define DEFAULTCONTRAST 1.0
 #define DEFAULTBKGCOLOR white
@@ -64,7 +63,7 @@ gdImagePtr matrix2img (
 		     color_T minColor,
 		     color_T maxColor,
 		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
-		     int colorMap,
+		     int colorMap, /* optional color mapping */
 		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,
@@ -91,7 +90,7 @@ gdImagePtr rawmatrix2img (
 		     color_T minColor,
 		     color_T maxColor,
 		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
-		     int colorMap,
+		     int colorMap, /* optional color mapping */
 		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,

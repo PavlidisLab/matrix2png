@@ -171,10 +171,10 @@ void string2color(char* string, color_T* colorVal)
     *colorVal = orange;
   } else if (!strcmp(string, "violet")) {
     *colorVal = violet;
-
-
+  } else if (!strcmp(string, "darkred")) {
+    *colorVal = darkred;
   } else {
-    *colorVal = NULL;
+    *colorVal = 0;
   }
 
 } /* string2color */
@@ -185,7 +185,6 @@ void string2color(char* string, color_T* colorVal)
  * Return the rgb components of a color_T.
  **********************************************************/
 void color2rgb(color_T colorVal, int* r, int* g, int* b) {
-
   switch ( colorVal ) {
   case white:
     *r = 255;    *g = 255;    *b = 255;
@@ -194,7 +193,7 @@ void color2rgb(color_T colorVal, int* r, int* g, int* b) {
     *r = 255;    *g = 0;    *b = 0;
     break;
   case yellow:
-    *r = 255;    *g = 255;    *b = 0;
+    *r = 255;    *g = 255;    *b = 128;
     break;
   case green:
     *r = 0;    *g = 255;    *b = 0;
@@ -215,12 +214,14 @@ void color2rgb(color_T colorVal, int* r, int* g, int* b) {
     *r = 128;   *g = 128;   *b = 128;
     break;
   case orange:
-    *r = 255;   *g = 150;   *b = 60;
+    *r = 255;   *g = 128;   *b = 0;
     break;
   case violet:
     *r = 128;   *g = 0;   *b = 255;
     break;
-
+  case darkred:
+    *r = 128; *g = 0; *b = 0;
+    break;
   default:
     colorError(invalid);
     break;
@@ -246,10 +247,19 @@ void makeColors (gdImagePtr img,
   int colorReturn; /* return value from gdImageCollorAllocate */
   int i; /* counter */ 
   for (i=0; i<numColors;i++) {
+    /* clip */
+    if (r > 255) {
+      r = 255;
+    }
+    if (g > 255) {
+      g = 255;
+    }
+    if (b > 255) {
+      b = 255;
+    }
     colorReturn = gdImageColorAllocate(img, r, g, b);
     checkColor(colorReturn);
     DEBUG_CODE( 1, fprintf(stderr, "Allocated %f %f %f\n", r, g, b); );
-    
     r+=redStepSize;
     g+=greenStepSize;
     b+=blueStepSize;
@@ -322,7 +332,7 @@ void colorError(colorerrorcode_T colorerrorcode)
     die("Illegal color range: min and max colors must not be the same\n");
     break;
   case toomany:
-    die("Illegal number of colors: Value must be <= %d \n", MAXCOLORS);
+    die("Illegal number of colors: Value must be <= %d (one color is reserved for background)\n", MAXCOLORS);
     break;
   case toofew:
     die("Illegal number of colors: too few\n");

@@ -36,7 +36,7 @@
 #define CHARWIDTH (LABELFONT->w)
 #define LABELHEIGHT (LABELFONT->h)
 #define MINLABELWIDTH (CHARWIDTH*5)
-#define DEFAULTSCALEBARLENGTH 50
+#define DEFAULTSCALEBARLENGTH 150
 #define DEFAULTSCALEBARHEIGHT 8
 #define PADDING 3 /* pixel padding for some text features */
 
