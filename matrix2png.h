@@ -16,6 +16,7 @@
 #include "string-list.h"
 #include "utils.h"
 #include "matrix.h"
+#include "colordiscrete.h"
 
 #define DEFAULTCONTRAST 1.0
 #define DEFAULTBKGCOLOR white
@@ -60,14 +61,14 @@ gdImagePtr matrix2img (
 		     BOOLEAN_T useDataRange, /* let the data define the range of values depicted. If false, must set minVal and maxVal */
 		     BOOLEAN_T includeDividers, /* add a 1-pixel grey border between each block */
 		     BOOLEAN_T passThroughBlack, /* use black as the middle value in the map? */
-		     int xSize, /* x dimension of each block */
-		     int ySize, /* y dimension of each block */
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped Only used if useDataRange is false */
 		     color_T minColor,
 		     color_T maxColor,
 		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
+		     color_T missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap, /* optional color mapping */
+		     DISCRETEMAP_T* discreteMap,
 		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,
@@ -87,14 +88,16 @@ gdImagePtr rawmatrix2img (
 		     BOOLEAN_T useDataRange, /* let the data define the range of values depicted. If false, must set minVal and maxVal */
 		     BOOLEAN_T includeDividers, /* add a 1-pixel grey border between each block */
 		     BOOLEAN_T passThroughBlack, /* use black as the middle value in the map? */
-		     int xSize, /* x dimension of each block */
-		     int ySize, /* y dimension of each block */
+		     //		     int xSize, /* x dimension of each block */
+		     //		     int ySize, /* y dimension of each block */
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped  Only used if useDataRange is false*/
 		     color_T minColor,
 		     color_T maxColor,
 		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
+		     color_T missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap, /* optional color mapping */
+		     DISCRETEMAP_T* discreteMap,
 		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,

@@ -139,7 +139,7 @@
         if (__i__ >= argc) break; \
         _OPTION_ = argv[__i__]; \
       } \
-      if (__ACTION__ == 1) (void) fprintf(stderr, "Usage: %s", argv[0]); \
+      if (__ACTION__ == 1) (void) fprintf(stderr, "Version: %s\n Usage: %s", VERSION, argv[0]); \
       stmts; \
       if (__ACTION__ == 1 || __ACTION__ == 4) { \
         (void) putc('\n', stderr); \

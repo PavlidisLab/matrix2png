@@ -263,7 +263,6 @@ RDB_MATRIX_T* read_rdb_matrix
     
   /* Store the name of the first column. */
   string_ptr = strtok(one_row, "\t");
-
   copy_string(&corner_string, string_ptr);
 
   /* Store the names of the columns. */
@@ -272,6 +271,11 @@ RDB_MATRIX_T* read_rdb_matrix
 
     /* Remove EOL. */
     if (string_ptr[strlen(string_ptr) - 1] == '\n') {
+      string_ptr[strlen(string_ptr) - 1] = '\0';
+    }
+
+    /* clean up any stray dos linefeed */
+    if (string_ptr[strlen(string_ptr) - 1] == '\r') {
       string_ptr[strlen(string_ptr) - 1] = '\0';
     }
 
@@ -304,36 +308,62 @@ RDB_MATRIX_T* read_rdb_matrix
 
     /* Read the row name and store it. */
     string_ptr = strtok(one_row, "\t");
+
+    /* clean up any stray dos linefeeds */
+    if (string_ptr[strlen(string_ptr) - 1] == '\r') {
+      string_ptr[strlen(string_ptr) - 1] = '\0';
+    }
     add_string(string_ptr, row_names);
 
     /* Read the row. */
-    for (i_column = 0; i_column < num_cols; i_column++) {
+    for (i_column = 0; i_column < num_cols+1; i_column++) {
+      
+      /* This is an important check: if the number of
+	 headings is too few, we won't read in all of the data, which
+	 is almost not what is wanted. So check to see that there is
+	 no data there. Typically this is caused by a missing corner string. (PP)*/
+      if (i_column == num_cols) {
+	string_ptr = strtok(NULL, "\t");
+	if (string_ptr != NULL) {
+	  die("Data unexpectedly found past end of headings: (%d,%d). Check that all columns in the file have a heading, including the 'corner'.\n", 
+	      i_row, i_column);
+	} else {
+	  // good, we're done
+	  break;
+	}
+      }
 
       /* Read the first value. */
       string_ptr = strtok(NULL, "\t");
 
-      /* Make sure we read the number properly. */
+      /* Make sure we got a valid string. */
       if (string_ptr == NULL) {
-	die("Error reading rdb matrix at position (%d,%d). ", i_row, i_column);
-      }
+	die("No entry found at (%d,%d).", i_row, i_column);
+      } else {
 
       /* Paul found this is quite a bit faster than sscanf (but not as
          safe, and ignores MSCAN): */
 #ifdef QUICKBUTCARELESS
-      one_value = strtod(string_ptr, NULL); 
-      num_scanned = 1; /* avoid compiler warning */
+	one_value = strtod(string_ptr, NULL); 
+	num_scanned = 1; /* avoid compiler warning */
 #else
-      /* Bill's original code. sscanf is slow but gives a useful return value */
-      num_scanned = sscanf(string_ptr, MSCAN, &one_value);
-      if ((num_scanned == 0) || (num_scanned == EOF)) {
-	die("Error reading rdb matrix at position (%d,%d).", i_row, i_column);
-      }
+	/* Bill's original code. sscanf is slow but gives a useful return value */
+	num_scanned = sscanf(string_ptr, MSCAN, &one_value);
+	if (num_scanned == EOF) {
+	  die("Premature end-of-file at (%d,%d).", i_row, i_column);
+	}
+	
+	if (num_scanned == 0) {
+	  if (strcmp(ATYPENAME, "double") != 0) {
+	    die("Missing values are only permitted in arrays of type double.\n");
+	  }
+	  one_value = NaN();
+	}
 #endif
-
+      }
       /* Store the value. */
       set_array_item(i_column, one_value, this_row);
     }
-
     /* Add this row to the matrix. */
     grow_matrix(this_row, matrix);
   }
@@ -353,6 +383,163 @@ RDB_MATRIX_T* read_rdb_matrix
 
   return(return_value);
 }
+
+#define BUFSIZE 100
+RDB_MATRIX_T* read_rdb_matrix_wmissing
+  (BOOLEAN_T format_line,
+   FILE* infile)
+{
+  MATRIX_T* matrix;             /* The matrix to be read. */
+  char*     corner_string;      /* Upper left corner of matrix. */
+  STRING_LIST_T* row_names;     /* Row names in the matrix. */
+  STRING_LIST_T* col_names;     /* Column names in the matrix. */
+  char      one_row[MAX_ROW];   /* One row of the matrix. */
+  int       i_row;              /* Index of the current row. */
+  int       i_column;           /* Index of the current column. */
+  int       num_rows;           /* Total number of rows. */
+  int       num_cols;           /* Total number of rows. */
+  int       num_scanned;        /* Error indicator for fscanf function. */
+  char      string[BUFSIZE];
+  char*     string_ptr;
+  MTYPE     one_value;          /* One value read from the file. */
+  ARRAY_T*  this_row = NULL;    /* One row of the matrix. */
+  RDB_MATRIX_T* return_value;   /* The RDB matrix being created. */
+  int i_char;
+  int this_char;
+  int num_missing;
+  int length;
+
+  if (infile == NULL) {
+    die("Attempted to read matrix from null file.");
+  }
+
+  /* Create the row names and column names lists. */
+  row_names = new_string_list();
+  col_names = new_string_list();
+
+  // get rid of comments
+
+  /* Read the first row. */
+  read_one_row(infile, MAX_ROW, one_row);
+
+  /* Keep reading till we get past the comments. */
+  while (is_comment(one_row)) {
+    /* fprintf(stderr, "Skipping: %s", one_row); */
+    read_one_row(infile, MAX_ROW, one_row);
+  }
+    
+  /* Store the name of the first column. */
+  string_ptr = strtok(one_row, "\t");
+  copy_string(&corner_string, string_ptr);
+
+
+  /* Store the names of the columns. */
+  for (string_ptr = strtok(NULL, "\t"); string_ptr != NULL;
+       string_ptr = strtok(NULL, "\t")) {
+
+    /* Remove EOL. */
+    if (string_ptr[strlen(string_ptr) - 1] == '\n') {
+      string_ptr[strlen(string_ptr) - 1] = '\0';
+    }
+
+    /* clean up any stray dos linefeed */
+    if (string_ptr[strlen(string_ptr) - 1] == '\r') {
+      string_ptr[strlen(string_ptr) - 1] = '\0';
+    }
+
+    /* Store string if it is non-empty. */
+    if (strcmp(string_ptr, "") != 0) {
+      add_string(string_ptr, col_names);
+    }
+  }
+
+  num_cols = get_num_strings(col_names);
+
+  /* Allocate the matrix. */
+  matrix = allocate_matrix(0, num_cols);
+
+  /* Allocate one row. */
+  this_row = allocate_array(num_cols);
+
+  /* Skip the format line, if necessary. */
+  if (format_line) {
+    read_one_row(infile, MAX_ROW, one_row);
+  }
+  
+  /* Read the matrix. */
+  for (i_row = 0; ; i_row++) {
+
+    /* Read the next line, stopping if it's empty. */
+    if (fgets(one_row, MAX_ROW, infile) == NULL) {
+      break;
+    }
+
+    // read the row name
+    i_char = 0;
+    while (one_row[i_char] != '\t' && i_char < BUFSIZE - 1) {
+      string[i_char] = one_row[i_char];
+      i_char++;
+    }
+    string[i_char] = '\0';
+    i_char++; // go past the tab we just encountered.
+
+    /* clean up any stray dos linefeeds  and add it to the list.*/
+    if (string[strlen(string) - 1] == '\r') {
+      string[strlen(string) - 1] = '\0';
+    }
+    add_string(string, row_names);
+
+    this_char = 0;
+    i_column = 0;
+    length = strlen(one_row);
+    while (i_char < length) {
+      if (one_row[i_char] == '\t' || i_char == length - 2) {
+	if (
+	    (one_row[i_char-1] == '\t') || // tab tab something.
+	    (one_row[i_char-1] == '-' && (one_row[i_char-2] == '\t' || i_char == length-2)) || // tab - (tab|nl)
+	    (one_row[i_char-1] == ' ' && (one_row[i_char-2] == '\t' || i_char == length-2)) // tab spc (tab|nl)
+	    )
+	  {
+	    set_array_item(i_column, NaN(), this_row);
+	    num_missing++;
+	  }
+	else // not a missing dataum, just do the ususal thing
+	  {
+	    string[this_char] = '\0';
+	    num_scanned = sscanf(string, MSCAN, &one_value);
+	    set_array_item(i_column, one_value, this_row);
+	  }
+	this_char = 0;
+	i_column++;
+      } else {
+	string[this_char] = one_row[i_char];
+	this_char++;
+      }
+      i_char++; // advance in string.
+    }
+
+    /* Add this row to the matrix. */
+    grow_matrix(this_row, matrix);
+  }
+  DEBUG_CODE(1, fprintf(stderr, "%d missing values\n", num_missing););
+  num_rows = i_row - 1;
+
+  /* Assemble it all into an RDB matrix. */
+  return_value = allocate_rdb_matrix(num_rows, num_cols, matrix);
+  set_corner_string(corner_string, return_value);
+  set_row_names(row_names, return_value);
+  set_col_names(col_names, return_value);
+
+  /* Free local dynamic memory. */
+  myfree(corner_string);
+  free_array(this_row);
+  free_string_list(row_names);
+  free_string_list(col_names);
+
+  return(return_value);
+
+}
+
 
 /***********************************************************************
  * Write a named array to a file.

@@ -25,6 +25,7 @@ char *twocolorarray[] = {"green", "yellow", "red", NULL};
 void allocateColorMap (
 		       gdImagePtr img,
 		       color_T backgroundColor,
+		       color_T missingColor,
 		       int colorMap,
 		       int numColors
 		       )
@@ -36,6 +37,9 @@ void allocateColorMap (
   int backgroundRed = 0;
   int backgroundGreen = 0;
   int backgroundBlue = 0;
+  int missingRed = 0;
+  int missingGreen = 0;
+  int missingBlue = 0;
   int endRed = 0;
   int endGreen = 0;
   int endBlue = 0;
@@ -62,9 +66,10 @@ void allocateColorMap (
     gdImageColorDeallocate(img, i);
   }
 
-  /* get background color */
+  /* get background color and missing value color */
   color2rgb(backgroundColor, &backgroundRed, &backgroundGreen, &backgroundBlue);
-  
+  color2rgb(missingColor, &missingRed, &missingGreen, &missingBlue);  
+
   /* allocate the background color, index 0 */
   checkColor(gdImageColorAllocate(img, backgroundRed, backgroundGreen, backgroundBlue));
 
@@ -76,7 +81,10 @@ void allocateColorMap (
 
   /* Allocate grey, index 3 */
   checkColor(gdImageColorAllocate(img, 128, 128, 128));
-  
+
+  /* allocate the missing value color, index 4 */
+  checkColor(gdImageColorAllocate(img, missingRed, missingGreen, missingBlue));
+
   i=0;
   while (colorMapList[i] != NULL) {
     nummapcols++;

@@ -28,7 +28,6 @@ void addScaleBar(gdImagePtr img,
 void addRowLabels(gdImagePtr img, 
 		  STRING_LIST_T* rowLabels, 
 		  USED_T* usedRegion, 
-		  int yBlockSize, 
 		  MATRIXINFO_T* matrixInfo);
 
 
@@ -38,7 +37,6 @@ void addRowLabels(gdImagePtr img,
 void addColLabels(gdImagePtr img, 
 		  STRING_LIST_T* colLabels, 
 		  USED_T* usedRegion, 
-		  int xBlockSize, 
 		  MATRIXINFO_T* matrixInfo);
 
 

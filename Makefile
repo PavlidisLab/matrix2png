@@ -45,7 +45,7 @@ AUTOCONF = autoconf
 AUTOMAKE = automake
 AUTOHEADER = autoheader
 
-INSTALL = /usr/bin/install -c
+INSTALL = ./install-sh -c
 INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_SCRIPT = ${INSTALL_PROGRAM}
@@ -57,18 +57,19 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-AWK = gawk
+AWK = nawk
 CC = gcc
 LN_S = ln -s
 MAKEINFO = makeinfo
 PACKAGE = matrix2png
-VERSION = 0.92
+VERSION = 0.94
 
 bin_PROGRAMS = matrix2png
-matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c		utils.c text2png.c rdb-matrix.c addextras.c colors.c			colorscalebar.c locations.c cmdparse.c 	colormap.c
+matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c 	utils.c text2png.c rdb-matrix.c addextras.c colors.c 	colormap.c colordiscrete.c 	colorscalebar.c locations.c cmdparse.c 
 
 
-INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN -DSTRINGHASH
+#INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN -DSTRINGHASH
+INCLUDES = -DTINYTEXT -DMATRIXMAIN -DSTRINGHASH -DDEBUG
 ETAGS_ARGS = ./*.h ./*.c /usr/local/include/gd.h 
 TAGS_DEPENDENCIES = /usr/local/include/gd.h
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -77,13 +78,13 @@ CONFIG_CLEAN_FILES =
 PROGRAMS =  $(bin_PROGRAMS)
 
 
-DEFS =  -DPACKAGE=\"matrix2png\" -DVERSION=\"0.92\" -DHAVE_LIBGD=1 -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TIME_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1  -I. -I$(srcdir) 
+DEFS =  -DPACKAGE=\"matrix2png\" -DVERSION=\"0.94\" -DHAVE_LIBGD=1 -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TIME_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1  -I. -I$(srcdir) 
 CPPFLAGS = 
 LDFLAGS = 
 LIBS = -lz -lpng -lm -lgd 
 matrix2png_OBJECTS =  matrix2png.o string-list.o matrix.o array.o \
-utils.o text2png.o rdb-matrix.o addextras.o colors.o colorscalebar.o \
-locations.o cmdparse.o colormap.o
+utils.o text2png.o rdb-matrix.o addextras.o colors.o colormap.o \
+colordiscrete.o colorscalebar.o locations.o cmdparse.o
 matrix2png_LDADD = $(LDADD)
 matrix2png_DEPENDENCIES = 
 matrix2png_LDFLAGS = 
@@ -101,9 +102,10 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/addextras.P .deps/array.P .deps/cmdparse.P \
-.deps/colormap.P .deps/colors.P .deps/colorscalebar.P .deps/locations.P \
-.deps/matrix.P .deps/matrix2png.P .deps/rdb-matrix.P \
-.deps/string-list.P .deps/text2png.P .deps/utils.P
+.deps/colordiscrete.P .deps/colormap.P .deps/colors.P \
+.deps/colorscalebar.P .deps/locations.P .deps/matrix.P \
+.deps/matrix2png.P .deps/rdb-matrix.P .deps/string-list.P \
+.deps/text2png.P .deps/utils.P
 SOURCES = $(matrix2png_SOURCES)
 OBJECTS = $(matrix2png_OBJECTS)
 
@@ -245,7 +247,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

@@ -72,6 +72,15 @@ RDB_MATRIX_T* read_rdb_matrix
   (BOOLEAN_T format_line,
    FILE* infile);
 
+
+/***********************************************************************
+ * Read an RDB file into a matrix, allowing missing values.
+ ***********************************************************************/
+RDB_MATRIX_T* read_rdb_matrix_wmissing
+  (BOOLEAN_T format_line,
+   FILE* infile);
+
+
 /***********************************************************************
  * Write a labeled matrix in RDB format.
  ***********************************************************************/

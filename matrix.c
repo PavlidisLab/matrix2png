@@ -72,10 +72,8 @@ void grow_matrix
       == NULL) {
     die("Error allocating matrix rows.\n");
   }
-
   /* Allocate the new row. */
   matrix->rows[num_rows] = allocate_array(num_cols);
-
   /* Copy the data. */
   copy_array(one_row, matrix->rows[num_rows]);
 

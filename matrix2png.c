@@ -11,6 +11,7 @@
 #include "matrix2png.h"
 #include "gd.h"
 #include "locations.h"
+#include "colordiscrete.h"
 #include "colors.h"
 #include "colormap.h"
 #include "string-list.h"
@@ -29,6 +30,10 @@ MATRIXINFO_T* newMatrixInfo(void) {
   return (MATRIXINFO_T*)mymalloc(sizeof(MATRIXINFO_T));
 } /* newMatrixInfo */
 
+/* dump the info about a matrix */
+void dumpMatrixInfo(MATRIXINFO_T* matrixInfo) {
+  fprintf(stderr, "%d %d\n", matrixInfo->numactualrows,matrixInfo->numactualcols);
+}
 
 /* hands raw matrix to rawmatrix2img for processing */
 gdImagePtr matrix2img (
@@ -37,14 +42,14 @@ gdImagePtr matrix2img (
 		     BOOLEAN_T useDataRange, /* let the data define the range of values depicted. If false, must set minVal and maxVal */
 		     BOOLEAN_T includeDividers, /* add a 1-pixel grey border between each block */
 		     BOOLEAN_T passThroughBlack, /* use black as the middle value in the map? */
-		     int xSize, /* x dimension of each block */
-		     int ySize, /* y dimension of each block */
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped Only used if useDataRange is false */
 		     color_T minColor,
 		     color_T maxColor,
 		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
+		     color_T missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap,
+		     DISCRETEMAP_T* discreteMap,
 		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numcolors,
@@ -53,16 +58,9 @@ gdImagePtr matrix2img (
 		     MTYPE** rawmatrix
 		     )
 {
-
   MTYPE* rawrow;
   ARRAY_T* row;
-  //  int numrows;
-  //  int numcols;
   int i;
-
-  //  numrows = get_num_rows(matrix);
-  //  numcols = get_num_cols(matrix);
-
   if (rawmatrix != NULL) {
     die("Attempt to pass raw matrix to matrix2img with  non-NULL value\n");
   } else {
@@ -76,13 +74,10 @@ gdImagePtr matrix2img (
     rawmatrix[i] = rawrow;
   }
   
-  //  if (numrows == 0) die("No rows in matrix");
-  //  if (numcols == 0) die("No cols in matrix");
-
   return rawmatrix2img(rawmatrix, contrast, useDataRange, 
 		       includeDividers, passThroughBlack,
-		       xSize, ySize, minVal, maxVal,
-		       minColor, maxColor, backgroundColor, colorMap, xMinSize, yMinSize, numcolors, usedRegion, matrixInfo);
+		       minVal, maxVal,
+		       minColor, maxColor, backgroundColor, missingColor, colorMap, discreteMap, xMinSize, yMinSize, numcolors, usedRegion, matrixInfo);
   
 } /* matrix2img */
 
@@ -91,20 +86,20 @@ gdImagePtr matrix2img (
 /* Given a raw 2-d array structure make image */
 gdImagePtr rawmatrix2img (
 		     MTYPE** matrix,
-		     //		     int numrows,
-		     //		     int numcols,
 		     double contrast,
 		     BOOLEAN_T useDataRange, /* let the data define the range of values depicted. If false, must set minVal and maxVal */
 		     BOOLEAN_T includeDividers, /* add a 1-pixel grey border between each block */
 		     BOOLEAN_T passThroughBlack, /* use black as the middle value in the map? */
-		     int xSize, /* x dimension of each block */
-		     int ySize, /* y dimension of each block */
+		     //		     int xSize, /* x dimension of each block */
+		     //		     int ySize, /* y dimension of each block */
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped  Only used if useDataRange is false*/
 		     color_T minColor,
 		     color_T maxColor,
 		     color_T backgroundColor, /* used for extra parts of the image - try white or black */
+		     color_T missingColor, /* used for extra parts of the image - try white or black */
 		     int colorMap,
+		     DISCRETEMAP_T* discreteMap,
 		     int xMinSize, /* minimum x diminsion of entire image. Set to -1 to ignore */
 		     int yMinSize, /* minimum y diminsion of entire image. Set to -1 to ignore */
 		     int numColors,
@@ -124,6 +119,8 @@ gdImagePtr rawmatrix2img (
   int xoffset, yoffset;
   int featureWidth, featureHeight;
   int dividerColor = 0;
+  int xSize = matrixInfo->xblocksize;
+  int ySize = matrixInfo->yblocksize;
 
   /* create image to fit (1 pixel dividers)*/
   if (includeDividers) {
@@ -145,9 +142,11 @@ gdImagePtr rawmatrix2img (
 
   /* allocate the colors */
   if (colorMap) {
-    allocateColorMap(img, backgroundColor, colorMap, numColors);
+    allocateColorMap(img, backgroundColor, missingColor, colorMap, numColors);
+  } else if (discreteMap != NULL) {
+    allocateColorsDiscrete(img, discreteMap, backgroundColor, missingColor);
   } else {
-    allocateColors(img, backgroundColor, minColor, maxColor, passThroughBlack, numColors);
+    allocateColors(img, backgroundColor, minColor, maxColor, missingColor, passThroughBlack, numColors);
   }
 
   if (includeDividers) {
@@ -202,18 +201,29 @@ gdImagePtr rawmatrix2img (
     for (j=0; j<matrixInfo->numcols; j++) {
 
       value = matrix[i][j];
-      
-      /* clip color if necessary */
-      if (!useDataRange || contrast != 1.0 || matrixInfo->outliers) {
-	if (value > max) {
-	  value = max;
-	} else if (value < min) {
-	  value = min;
-	}
-      }
 
-      /* assign color */
-      colorcode = (int)( (value - min) / stepsize) + NUMRESERVEDCOLORS;
+      if (isnan(value)) {
+	fprintf(stderr, "m\n");
+	colorcode = MISSING;
+      } else if (discreteMap != NULL) {
+	if (value > discreteMap->count || value < 0) {
+	  colorcode = DEFAULT_DISCRETE_COLOR_INDEX;
+	  fprintf(stderr, "default: %d %f\n", colorcode, value);
+	} else {
+	  colorcode = (int)value+NUMRESERVEDCOLORS;
+	  fprintf(stderr, "%d %d\n", colorcode, (int)value);
+	}
+      } else {
+ 	/* clip color if necessary */
+	if (!useDataRange || contrast != 1.0 || matrixInfo->outliers) {
+	  if (value > max) {
+ 	    value = max;
+ 	  } else if (value < min) {
+ 	    value = min;
+ 	  }
+ 	}
+ 	colorcode = (int)( (value - min) / stepsize) + NUMRESERVEDCOLORS;
+      }
 
       /* draw rectangle and advance to the next position */
       if (matrixInfo->circles) {
@@ -265,8 +275,9 @@ int main (int argc, char **argv) {
   gdImagePtr img;
   FILE* pngout;
   char* dataFilename = NULL;
-  FILE* dataFile;
-  FILE* discreteMappingFile;
+  FILE* dataFile = NULL;
+  char* discreteMappingFileName = NULL;
+  FILE* discreteMappingFile = NULL;
   MATRIX_T* dataMatrix;
   RDB_MATRIX_T* rdbdataMatrix;
   USED_T* usedRegion; /* keep track of free space on the image canvas */
@@ -308,10 +319,13 @@ int main (int argc, char **argv) {
   char* minColorInput = NULL;
   char* maxColorInput = NULL;
   char* bkgColorInput = NULL;
+  char* missingColorInput = NULL;
   color_T minColor = blue;
   color_T maxColor = red;
   color_T bkgColor = white;
-  
+  color_T missingColor = grey;
+  DISCRETEMAP_T* discreteMap = NULL;
+
   /* how big each square in the image is */
   int xpixSize = DEFAULTXPIXSIZE;
   int ypixSize = DEFAULTYPIXSIZE;
@@ -353,24 +367,26 @@ int main (int argc, char **argv) {
 	       maxColorInput = _OPTION_);
      DATA_OPTN(1, bkgcolor, : color used as background (default = white),
 	       bkgColorInput = _OPTION_);
+     DATA_OPTN(1, missingcolor, : color used for missing values (default = grey),
+	       missingColorInput = _OPTION_);
      DATA_OPTN(1, map, : color map choice: overrides min/max colors (default = 0 (none) ),
 	       colorMap = atoi(_OPTION_));
      DATA_OPTN(1, discrete, <mapping file> : Use discretized mapping of values to colors as defined by <mapping file>,
-	       discreteMappingFile = _OPTION_);
+     	       discreteMappingFileName = _OPTION_);
+     DATA_OPTN(1, numtodo, : Number of rows to process (deprecated),
+	       numr = atoi(_OPTION_));
      DATA_OPTN(1, numr, : Number of rows to process starting from the top of the matrix by default,
 	       numr = atoi(_OPTION_));
      DATA_OPTN(1, numc, : Number of columns to process starting from the left edge of the matrix by default,
 	       numc = atoi(_OPTION_));
-     DATA_OPTN(1, numtodo, : Number of rows to process (deprecated),
-	       numr = atoi(_OPTION_));
      DATA_OPTN(1, outliers, : Trim this percent of outliers (only without the -range option),
 	       outliers = atof(_OPTION_));
      DATA_OPTN(1, verbose, : Verbosity of the output 1|2|3|4|5 (default=2),
 	       verbosity = (VERBOSE_T)atoi(_OPTION_));
-     DATA_OPTN(1, startrow, : Index of the first row to be processed; can combine with numr (default=1),
-	       startrow = atoi(_OPTION_));
-     DATA_OPTN(1, startcol, : Index of the first column to be processed; can combine with numc (default=1),
-	       startrow = atoi(_OPTION_));
+     DATA_OPTN(0, startrow, : Index of the first row to be processed; can combine with numr (default=1),
+     	       startrow = atoi(_OPTION_));
+     DATA_OPTN(0, startcol, : Index of the first column to be processed; can combine with numc (default=1),
+     	       startrow = atoi(_OPTION_));
      
      SIMPLE_CFLAG_OPTN(1, b, passThroughBlack);
      SIMPLE_CFLAG_OPTN(1, d, dodividers);
@@ -385,7 +401,6 @@ int main (int argc, char **argv) {
 
   if (numcolors < MINCOLORS || numcolors > MAXCOLORS) 
     die("Illegal number of colors, must be between %d and %d", MINCOLORS, MAXCOLORS);
-
 
   if (minsizeInput != NULL) {
     double parseval1, parseval2;
@@ -425,6 +440,10 @@ int main (int argc, char **argv) {
   /* convert user-defined colors into corresponding color_T */
   if (colorMap > 0) { 
     DEBUG_CODE(1, fprintf(stderr, "Using color map %d\n", colorMap););
+  } else if (discreteMappingFileName != NULL) {
+    // read the mapping file
+    if (open_file(discreteMappingFileName, "r", FALSE, "discrete", "discrete", &discreteMappingFile) == 0) exit(1);
+    discreteMap = readDiscreteMap(discreteMappingFile);
   } else {
     if (minColorInput != NULL) {
       string2color(minColorInput, &minColor);
@@ -435,9 +454,15 @@ int main (int argc, char **argv) {
       if (maxColor == 0) die("Illegal maxcolor chosen");
     }
   }
+
+
   if (bkgColorInput != NULL) {
     string2color(bkgColorInput, &bkgColor);
     if (bkgColor == 0) die("Illegal background color chosen");
+  }
+  if (missingColorInput != NULL) {
+    string2color(missingColorInput, &missingColor);
+    if (missingColor == 0) die("Illegal missing color chosen");
   }
 
   /* read data */
@@ -446,7 +471,8 @@ int main (int argc, char **argv) {
     rdbdataMatrix = read_rdb_matrix(skipformatline, stdin);
   } else {
     if (open_file(dataFilename, "r", FALSE, "data", "the data", &dataFile) == 0) exit(1);
-    rdbdataMatrix = read_rdb_matrix(skipformatline, dataFile);
+    //rdbdataMatrix = read_rdb_matrix(skipformatline, dataFile);
+    rdbdataMatrix = read_rdb_matrix_wmissing(skipformatline, dataFile);
     fclose(dataFile);
   }
   dataMatrix = get_raw_matrix(rdbdataMatrix);
@@ -505,23 +531,27 @@ int main (int argc, char **argv) {
   matrixInfo->numactualcols = numactualcols;
   matrixInfo->numrows = numr;
   matrixInfo->numcols = numc;
+
+  DEBUG_CODE(1, dumpMatrixInfo(matrixInfo););
   
   DEBUG_CODE(1, fprintf(stderr, "Building image\n"););
   /* make the image as specified */
   img = matrix2img(dataMatrix, contrast, useDataRange, dodividers, passThroughBlack,
-		   xpixSize, ypixSize, min, max,
+		   min, max,
 		   minColor,
 		   maxColor,
 		   bkgColor,
+		   missingColor,
 		   colorMap,
+		   discreteMap,
 		   xminSize, yminSize,
 		   numcolors, usedRegion, matrixInfo, rawmatrix);
   
   /* add extra goodies: (the order matters because of primitive
      feature placement routine) */
-  if (dorownames) addRowLabels(img, rownames, usedRegion, ypixSize, matrixInfo);
-  if (dodesctext) addRowLabels(img, desctext, usedRegion, ypixSize, matrixInfo);
-  if (docolnames) addColLabels(img, colnames, usedRegion, xpixSize, matrixInfo);
+  if (dorownames) addRowLabels(img, rownames, usedRegion, matrixInfo);
+  if (dodesctext) addRowLabels(img, desctext, usedRegion, matrixInfo);
+  if (docolnames) addColLabels(img, colnames, usedRegion, matrixInfo);
   if (doscalebar) addScaleBar(img, usedRegion, matrixInfo, numcolors);
 
   /* test: add highlight to some of the image */

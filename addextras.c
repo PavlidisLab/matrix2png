@@ -71,7 +71,7 @@ void addScaleBar(gdImagePtr img, USED_T* usedRegion, MATRIXINFO_T* matrixInfo, i
  * addRowLabels
  *****************************************************************************/
 void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels, 
-		  USED_T* usedRegion, int yBlockSize, MATRIXINFO_T* matrixInfo)
+		  USED_T* usedRegion, MATRIXINFO_T* matrixInfo)
 {
   int textWidth;
   int textHeight;
@@ -79,6 +79,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   int xoffset, yoffset;
   gdFontPtr font = NULL;
   /* make sure the text and the ysize are _exactly_ the same. Choose the appropriate font, up to large */
+  int yBlockSize = matrixInfo->yblocksize;
   if (matrixInfo->dividers) {
     yBlockSize++;
   }
@@ -110,7 +111,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
  * addColLabels
  *****************************************************************************/
 void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels, 
-		  USED_T* usedRegion, int xBlockSize, MATRIXINFO_T* matrixInfo)
+		  USED_T* usedRegion, MATRIXINFO_T* matrixInfo)
 {
   int textWidth;
   int textHeight;
@@ -118,6 +119,7 @@ void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels,
   int xoffset, yoffset;
   gdFontPtr font = NULL;
   /* make sure the text and the ysize are _exactly_ the same. Choose the appropriate font, up to large */
+  int xBlockSize = matrixInfo->xblocksize;
   if (matrixInfo->dividers) {
     xBlockSize++;
   }

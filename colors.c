@@ -21,6 +21,7 @@ void allocateColors (
 		     color_T backgroundColor,
 		     color_T minColor,
 		     color_T maxColor,
+		     color_T missingColor,
 		     BOOLEAN_T passThroughBlack,
 		     int numColors
 		     )
@@ -35,6 +36,9 @@ void allocateColors (
   int endRed = 0;
   int endGreen = 0;
   int endBlue = 0;
+  int missingRed = 0;
+  int missingGreen = 0;
+  int missingBlue = 0;
 
   double r, g, b; /* color components */
 
@@ -75,10 +79,10 @@ void allocateColors (
   color2rgb(minColor, &startRed, &startGreen, &startBlue);
   color2rgb(maxColor, &endRed, &endGreen, &endBlue);
   color2rgb(backgroundColor, &backgroundRed, &backgroundGreen, &backgroundBlue);
-
+  color2rgb(missingColor, &missingRed, &missingGreen, &missingBlue);
   
-  /* the following three calls take care of the 'reserved' colors that
-     we need to have around. White and black could get allocated twice
+  /* the following calls take care of the 'reserved' colors that
+     we need to have around. Some colors could get allocated twice
      this way */
 
   /* allocate the background color, index 0 */
@@ -92,6 +96,9 @@ void allocateColors (
 
   /* Allocate grey, index 3 */
   checkColor(gdImageColorAllocate(img, 128, 128, 128));
+
+  /* allocate the missing value color, index 4 */
+  checkColor(gdImageColorAllocate(img, missingRed, missingGreen, missingBlue));
 
   /* allocate the rest of the colors */
   if (passThroughBlack) {
@@ -177,6 +184,7 @@ void string2color(char* string, color_T* colorVal)
     *colorVal = darkgreen;
   } else {
     *colorVal = 0;
+    colorError(invalid);
   }
 
 } /* string2color */
@@ -213,6 +221,9 @@ void color2rgb(color_T colorVal, int* r, int* g, int* b) {
     *r = 0;    *g = 0;    *b = 0;
     break;
   case grey:
+    *r = 128;   *g = 128;   *b = 128;
+    break;
+  case gray:
     *r = 128;   *g = 128;   *b = 128;
     break;
   case orange:
