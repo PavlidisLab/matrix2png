@@ -33,9 +33,9 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 
   if (file == NULL) { // define the default map.
     int i;
-    color_T colorary[] = DEFAULT_DISCRETE_MAPARY; // see colordiscrete.h for definition.
+    color_T (colorary)[] = DEFAULT_DISCRETE_MAPARY; // see colordiscrete.h for definition.
 
-    for (i=0; colorary[i] != NULL; i++) {
+    for (i=0; colorary[i] > 0; i++) {
       if (return_value->maxcount <= return_value->count) {
 	growDiscreteMap(return_value);
       }

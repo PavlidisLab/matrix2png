@@ -15,6 +15,7 @@
 #include "primes.h"
 #include "utils.h"
 #include <stdio.h>
+#include <string.h>
 
 /* create a filled table. The data can be any type; the keys are a
    string-list; the data are in an array. If the data is NULL: we

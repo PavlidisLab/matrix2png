@@ -25,7 +25,7 @@
  *  look okay. Don't use black and white because these are reasonbly
  *  likely to be background values. Grey is also not used.
  */
-#define DEFAULT_DISCRETE_MAPARY {red, blue, green, magenta, cyan, yellow, violet, orange, darkred, darkblue, darkgreen, NULL}
+#define DEFAULT_DISCRETE_MAPARY {red, blue, green, magenta, cyan, yellow, violet, orange, darkred, darkblue, darkgreen, (color_T)0}
 
 DISCRETEMAP_T* readDiscreteMap(FILE* file);
 DISCRETEMAP_T* allocateDiscreteMap(void);
