@@ -41,7 +41,9 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
       }
       return_value->colors[return_value->count]->namedcolor = colorary[i];
       return_value->values[return_value->count] = i;
+      return_value->consecints[return_value->count] = return_value->count; // we need this...
       sprintf(buf, "%d", return_value->count + 1);
+      insert(return_value->mapping, buf, &(return_value->consecints[return_value->count]));
       DEBUG_CODE(1, fprintf(stderr, "No label so got %s\n", buf););
       add_string(buf, return_value->labels); // use the integer value
       return_value->count++;
