@@ -268,7 +268,7 @@ int main (int argc, char **argv) {
   BOOLEAN_T dodesctext = FALSE;
   BOOLEAN_T useDataRange = TRUE;
   BOOLEAN_T passThroughBlack = FALSE;
-  
+  BOOLEAN_T skipformatline = FALSE; /* if selected, assumes that we ARE using RDB format */
   double contrast = DEFAULTCONTRAST;
   int numcolors = DEFAULTNUMCOLORS;
   int colorMap = DEFAULTCOLORMAP;
@@ -339,6 +339,7 @@ int main (int argc, char **argv) {
      SIMPLE_CFLAG_OPTN(1, s, doscalebar);
      SIMPLE_CFLAG_OPTN(1, r, dorownames);
      SIMPLE_CFLAG_OPTN(1, c, docolnames);
+     SIMPLE_CFLAG_OPTN(1, f, skipformatline);
      );
 
 
@@ -395,7 +396,7 @@ int main (int argc, char **argv) {
   /* read data */
   DEBUG_CODE(1, fprintf(stderr, "Reading data\n"););
   if (open_file(dataFilename, "r", FALSE, "data", "the data", &dataFile) == 0) exit(1);
-  rdbdataMatrix = read_rdb_matrix(1, dataFile);
+  rdbdataMatrix = read_rdb_matrix(skipformatline, dataFile);
   dataMatrix = get_raw_matrix(rdbdataMatrix);
   fclose(dataFile);
   DEBUG_CODE(1, fprintf(stderr, "Done reading\n"););
