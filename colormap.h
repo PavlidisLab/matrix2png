@@ -12,12 +12,7 @@
 #include "colors.h"
 #include "matrix2png.h"
 
-/* color map definitions: these are the colors which we pass through, evenly spaced. */
-/* black body color map (black, darkred, orange, yellow, white) */
-/* spectrum (red, orange, yellow, green, blue, violet) */
-//#define blackbody {"black", "darkred", "orange", "yellow", "white"}
-//#define spectrum {"black", "red", "orange", "yellow", "violet"};
-//#define NUMMAPCOLS 5
+#define MAXCOLORMAP 15 // how may color maps we have defined.
 
 /*****************************************************************************
  * 

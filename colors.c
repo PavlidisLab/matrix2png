@@ -184,6 +184,8 @@ void string2color(char* string, colorV_T* colorVal)
     colorVal->namedcolor = darkred;
   } else if (!strcmp(string, "darkgreen")) {
     colorVal->namedcolor = darkgreen;
+  } else if (!strcmp(string, "darkblue")) {
+    colorVal->namedcolor = darkblue;
   } else {
     colorVal->namedcolor = 0;
     colorError(invalid);
@@ -241,6 +243,9 @@ void color2rgb(colorV_T* colorVal, int* r, int* g, int* b) {
       break;
     case darkgreen:
       *r = 0; *g = 128; *b = 0;
+      break;
+    case darkblue:
+      *r = 0; *g = 0; *b = 128;
       break;
     default:
       colorError(invalid);

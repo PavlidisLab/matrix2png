@@ -491,15 +491,17 @@ int main (int argc, char **argv) {
 
 
   /* convert user-defined colors into corresponding colorV_T */
-  if (colorMap > 0) { 
+  if (colorMap != 0) {
     DEBUG_CODE(1, fprintf(stderr, "Using color map %d\n", colorMap););
+    if (abs(colorMap > MAXCOLORMAP) )
+      die ("Invalid color map: only values up to %d are defined", (int)MAXCOLORMAP);
   } else if (discrete == TRUE) {
     // read the mapping file
     if (discreteMappingFileName != NULL) {
       if (open_file(discreteMappingFileName, "r", FALSE, "discrete", "discrete", &discreteMappingFile) == 0) exit(1);
-      discreteMap = readDiscreteMap(discreteMappingFile);
+       discreteMap = readDiscreteMap(discreteMappingFile);
     } else {
-      discreteMap = readDiscreteMap(NULL);
+       discreteMap = readDiscreteMap(NULL);
     }
     numcolors = discreteMap->count+1;
     DEBUG_CODE(1, fprintf(stderr, "There are %d colors including the default\n", numcolors););

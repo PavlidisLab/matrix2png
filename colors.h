@@ -44,6 +44,7 @@ typedef enum {white=1,
 	      violet,
 	      darkred,
 	      darkgreen,
+	      darkblue
 } color_T;
 
 
