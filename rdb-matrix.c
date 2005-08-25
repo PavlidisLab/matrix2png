@@ -213,20 +213,36 @@ static void read_one_row
    int   length,
    char* one_row)
 {
-  char*     fgets_result;       /* Error indicator for 'fgets' function. */
-  int len;
+  //  char*     fgets_result;       /* Error indicator for 'fgets' function. */
+  int len = 0;
+  if (length > 0) { ;} // avoid compiler warning...
+  
+  while(len <= MAX_ROW - 2) {
+    char next = fgetc(infile);
+    if (next == '\n' || next == '\r' || next == EOF) { 
+      one_row[len++] = '\n'; 
+      one_row[len] = '\0';  
+      break;
+    }
+    one_row[len++] = next;
+  }
+  
+  //  fgets_result = fgets(one_row, length, infile);
 
-  fgets_result = fgets(one_row, length, infile);
-
-  if (fgets_result == NULL) 
-    die("Error during reading from the file.");
+  //  if (fgets_result == NULL) 
+  //    die("Error during reading from the file.");
 
   len = strlen(one_row);
 
   DEBUG_CODE(1, fprintf(stderr, "Length %d, ends with 0%o\n", len, one_row[len - 1] ););
  
-  if (one_row[len - 1] != '\n') 
-    die ("Empty file; or matrix lines too long.");
+  if (one_row[len - 1] != '\n' && one_row[len - 1] != '\r') {
+    if (len == MAX_ROW) {
+      die("Matrix row length too long!");
+    } else {
+      die("Error reading from file, did not find EOL %s", one_row);
+    }
+  }
   
 }
 
@@ -314,7 +330,8 @@ RDB_MATRIX_T* read_rdb_matrix
   for (i_row = 0; ; i_row++) {
 
     /* Read the next line, stopping if it's empty. */
-    if (fgets(one_row, MAX_ROW, infile) == NULL) {
+    read_one_row(infile, MAX_ROW, one_row);
+    if (strlen(one_row) == 0) {
       break;
     }
 
@@ -508,9 +525,11 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 
     /* Read the next line, stopping if it's empty. Or if we've read enough rows. */
     //    if (fgets(one_row, MAX_ROW, infile) == NULL || (rowstoread >= 0 && i_row >= rowstoread)) {
-    if (fgets(one_row, MAX_ROW, infile) == NULL ) {
+    read_one_row(infile, MAX_ROW, one_row);
+    if (strlen(one_row) == 0 || (strlen(one_row) == 1 && one_row[0] == '\n') ) {
       break;
     }
+
     if (startrow > 0 && i_row < startrow) {
       continue;
     }
@@ -547,7 +566,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
     i_column = 0;
     length = strlen(one_row);
     i_read = 0;
-    //    while (i_char <= length && !(colstoread > 0 && i_read >= colstoread )) { // note we purposely read just past the end.
+
     while (i_char <= length) { // note we purposely read just past the end.
       if (one_row[i_char] == '\t' || i_char == length) { // check for missing value.
 	if ((one_row[i_char] == '\t' && 
@@ -569,7 +588,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 					  it is caught by the
 					  following case. */
 
-		//		die("More data than column headings: Check data file format for correct header including 'corner string'.");
+		//		die("More data than column headings: Check data file format for correct header including 'corner string'.\nExpected %d columns, found at least %d", num_cols, i_read);
 	      } else {
 		set_array_item(i_read, NaN(), this_row);
 		num_missing++;
@@ -583,7 +602,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 	      string[this_char] = '\0';
 	      num_scanned = sscanf(string, MSCAN, &one_value);
 	      if(i_read >= num_cols) {
-		die("More data than column headings: Check data file format for correct header including 'corner string'.");
+		die("More data than column headings: Check data file format for correct header including 'corner string' (Expected %d columns based on header, read %d).", num_cols, i_read);
 	      } else {
 		set_array_item(i_read, one_value, this_row);
 		i_read++;
@@ -601,7 +620,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 
     /* Make sure we got enough values (counting missing values */
     if (!(colstoread > 0 && i_read < colstoread) && i_read < get_num_strings(col_names)) {
-      die("Line %d didn't have enough fields in it. Expected %d based on header, found only %d. If a missing value was intended, it must be properly indicated (see documentation).",
+      die("Line %d didn't have enough fields in it. Expected %d based on header, found only %d. If missing values were intended, it must be properly indicated (see documentation).",
 	  i_row,
 	  colstoread > 0 ? colstoread : get_num_strings(col_names), 
 	  i_read );

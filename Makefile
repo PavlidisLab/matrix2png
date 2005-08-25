@@ -38,10 +38,10 @@ pkglibdir = $(libdir)/matrix2png
 pkgincludedir = $(includedir)/matrix2png
 top_builddir = .
 
-ACLOCAL = ${SHELL} /users/pavlidis/netapps/projects/plotkit/src/missing --run aclocal-1.6
-AUTOCONF = ${SHELL} /users/pavlidis/netapps/projects/plotkit/src/missing --run autoconf
-AUTOMAKE = ${SHELL} /users/pavlidis/netapps/projects/plotkit/src/missing --run automake-1.6
-AUTOHEADER = ${SHELL} /users/pavlidis/netapps/projects/plotkit/src/missing --run autoheader
+ACLOCAL = ${SHELL} /users/pavlidis/projects/plotkit/src/missing --run aclocal-1.6
+AUTOCONF = ${SHELL} /users/pavlidis/projects/plotkit/src/missing --run autoconf
+AUTOMAKE = ${SHELL} /users/pavlidis/projects/plotkit/src/missing --run automake-1.6
+AUTOHEADER = ${SHELL} /users/pavlidis/projects/plotkit/src/missing --run autoheader
 
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = /usr/bin/install -c
@@ -63,7 +63,7 @@ POST_UNINSTALL = :
 EXEEXT = 
 OBJEXT = o
 PATH_SEPARATOR = :
-AMTAR = ${SHELL} /users/pavlidis/netapps/projects/plotkit/src/missing --run tar
+AMTAR = ${SHELL} /users/pavlidis/projects/plotkit/src/missing --run tar
 AWK = gawk
 CC = gcc
 DEPDIR = .deps
@@ -73,7 +73,7 @@ STRIP =
 VERSION = 1.0.5
 am__include = include
 am__quote = 
-install_sh = /users/pavlidis/netapps/projects/plotkit/src/install-sh
+install_sh = /users/pavlidis/projects/plotkit/src/install-sh
 
 bin_PROGRAMS = matrix2png
 
@@ -90,8 +90,8 @@ matrix2png_SOURCES = matrix2png.c string-list.c matrix.c array.c \
 
 #INCLUDES = -DTINYTEXT -DQUICKBUTCARELESS -DMATRIXMAIN  -Wall -W -Werror
 #INCLUDES = -DTINYTEXT -DMATRIXMAIN  -DDEBUG -DBOUNDS_CHECK -Wall -W -Werror
-#INCLUDES = -DSMALLTEXT -DMATRIXMAIN  -DDEBUG -DBOUNDS_CHECK -Wall -W -Werror
 #INCLUDES = -DSMALLTEXT -DMATRIXMAIN
+#INCLUDES = -DSMALLTEXT -DMATRIXMAIN  -DDEBUG -DBOUNDS_CHECK -Wall -W -Werror
 INCLUDES = -DSMALLTEXT -DMATRIXMAIN -Wall -W -Werror
 ETAGS_ARGS = ./*.h ./*.c 
 subdir = .
@@ -112,7 +112,7 @@ matrix2png_LDADD = $(LDADD)
 matrix2png_DEPENDENCIES =
 matrix2png_LDFLAGS =
 
-DEFS = -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE=\"matrix2png\" -DVERSION=\"1.0.5\" -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DHAVE_LIBGD=1 -DHAVE_GDIMAGESETCLIP=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_STDIO_H=1 -DHAVE_ASSERT_H=1 -DHAVE_STRING_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1 
+DEFS = -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE=\"matrix2png\" -DVERSION=\"1.0.5\" -DHAVE_LIBM=1 -DHAVE_LIBPNG=1 -DHAVE_LIBZ=1 -DHAVE_LIBGD=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_STDIO_H=1 -DHAVE_ASSERT_H=1 -DHAVE_STRING_H=1 -DHAVE_VPRINTF=1 -DHAVE_STRSTR=1 -DHAVE_STRTOD=1 
 DEFAULT_INCLUDES =  -I. -I$(srcdir)
 CPPFLAGS = 
 LDFLAGS = 
