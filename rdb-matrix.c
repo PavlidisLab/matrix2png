@@ -219,13 +219,17 @@ static void read_one_row
   
   while(len <= MAX_ROW - 2) {
     char next = fgetc(infile);
-    if (next == '\n' || next == '\r' || next == EOF) { 
+    if (next == '\n' || next == EOF) {
       one_row[len++] = '\n'; 
-      one_row[len] = '\0';  
+      one_row[len++] = '\0';  
       break;
+    } else if (next == '\r') {
+      continue;
     }
     one_row[len++] = next;
-  }
+   }
+
+  //  fprintf(stdout, one_row);
   
   //  fgets_result = fgets(one_row, length, infile);
 
