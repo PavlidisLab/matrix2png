@@ -421,7 +421,7 @@ int main (int argc, char **argv) {
 	       outliers = atof(_OPTION_));
      DATA_OPTN(1, verbose, : Verbosity of the output 1|2|3|4|5 (default=2),
 	       verbosity = (VERBOSE_T)atoi(_OPTION_));
-     DATA_OPTN(1, title [title], : Add a title, titleText = (_OPTION_));
+     DATA_OPTN(1, title, <title>: Add a title, titleText = (_OPTION_));
 
      CFLAG_OPTN(1, z, Row-normalize the data to mean 0 and variance 1, normalize = TRUE); 
      CFLAG_OPTN(1, b, Middle of color range is black, passThroughBlack = TRUE);

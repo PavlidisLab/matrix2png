@@ -238,7 +238,7 @@ static void read_one_row
 
   len = strlen(one_row);
 
-  DEBUG_CODE(1, fprintf(stderr, "Length %d, ends with 0%o\n", len, one_row[len - 1] ););
+  DEBUG_CODE(1, fprintf(stderr, "Length %d, ends with 0%o\n", len, one_row[len - 1]););
  
   if (one_row[len - 1] != '\n' && one_row[len - 1] != '\r') {
     if (len == MAX_ROW) {
@@ -530,7 +530,9 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
     /* Read the next line, stopping if it's empty. Or if we've read enough rows. */
     //    if (fgets(one_row, MAX_ROW, infile) == NULL || (rowstoread >= 0 && i_row >= rowstoread)) {
     read_one_row(infile, MAX_ROW, one_row);
+
     if (strlen(one_row) == 0 || (strlen(one_row) == 1 && one_row[0] == '\n') ) {
+      DEBUG_CODE(1, fprintf(stderr, "Line is empty.\n"););
       break;
     }
 

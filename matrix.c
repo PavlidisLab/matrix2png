@@ -1257,17 +1257,21 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, dou
     MTYPE* concatenated_data = (MTYPE*)mymalloc(sizeof(MTYPE)*num_rows*num_cols);
     for (i=0; i<num_rows; i++) {
       for(j=0; j< num_cols;j++) {
+	if (isnan(matrix[i][j])) { // don't include NaN in computation of range.
+	  continue;
+	}
 	concatenated_data[d] = matrix[i][j];
 	d++;
       }
     }
-    qsort(concatenated_data, num_rows * num_cols, sizeof(MTYPE), simple_compare);
+    myassert(TRUE, d > 0, "No data found!!");
+    qsort(concatenated_data, d, sizeof(MTYPE), simple_compare);
 
-    index_dist = (int)ceil(((double)num_rows * (double)num_cols * outliers/100.0));
+    index_dist = (int)ceil(((double)d * outliers/100.0));
     lmin = concatenated_data[index_dist];
-    lmax = concatenated_data[num_rows * num_cols - index_dist - 1];
+    lmax = concatenated_data[d - index_dist - 1];
     if(verbosity > NORMAL_VERBOSE)
-      fprintf(stderr, "Minimum value is %.2f; maximum values is %.2f; trimming outliers below %.2f and above %.2f\n", concatenated_data[0], concatenated_data[num_rows*num_cols -1], lmin, lmax);
+      fprintf(stderr, "Minimum value is %.2f; maximum value is %.2f; trimming outliers below %.2f and above %.2f\n", concatenated_data[0], concatenated_data[d -1], lmin, lmax);
     free(concatenated_data);
   } else {
     for (i=0; i<num_rows; i++) {

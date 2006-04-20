@@ -180,8 +180,6 @@ void freeDiscreteMap(DISCRETEMAP_T* dmap) {
  *****************************************************************************/
 void growDiscreteMap(DISCRETEMAP_T* dmap) {
 
-  die("Cannot exceed %d items in discrete map", DMAP_INITIAL_COUNT);
-
   int newsize = dmap->count + DMAP_INITIAL_COUNT;
   int i;
   DEBUG_CODE(1, fprintf(stderr, "Growing map\n"););
