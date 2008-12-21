@@ -41,7 +41,7 @@ HASHTABLE_T* createHashTable(STRING_LIST_T* keys,
 
   for (i = 0; i < num_keys; i++) {
     if (data == NULL) {
-      insert(return_val, get_nth_string(i, keys), (void*)i);
+      insert(return_val, get_nth_string(i, keys), (void*)(ulong)i);
     } else {
       DEBUG_CODE(1, fprintf(stderr, "Inserting %s\n", (char*)data[i]););
       insert(return_val, get_nth_string(i, keys), (void*)data[i]);
