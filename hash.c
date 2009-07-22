@@ -30,7 +30,7 @@ HASHTABLE_T* createHashTable(STRING_LIST_T* keys,
 			     ) 
 {
   HASHTABLE_T* return_val = NULL;
-  int i;
+  long i;
   int num_keys;
 
   num_keys = get_num_strings(keys);
