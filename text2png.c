@@ -108,7 +108,7 @@ void stringlist2image (gdImagePtr img,
   int numstrings;
   int i;
   char* string;
-  int backgroundColor, textColor;
+  int backgroundColor, textColor, maxString, len;
   int width, height;
 
   numstrings = get_num_strings(strings);
@@ -117,7 +117,6 @@ void stringlist2image (gdImagePtr img,
   } else if (numstrings > numtodo) {
     numstrings = numtodo;
   }
-  if (rightJustify){;}  /* avoid compiler warning. Not using this right now, and might be able to remove it */
 
   /* this is already done in some situations */
   calcTextDimensions(strings, numtodo, vertical, padding, linespacing, font, &width, &height);
@@ -135,11 +134,21 @@ void stringlist2image (gdImagePtr img,
   DEBUG_CODE(1, fprintf(stderr, "Chose text color %d\n", textColor););
 
   if (vertical) {
-    width+=initX; 
-    height+=initY;
+    width+=initY; 
   } else {
     width+=initX; 
     height+=initY;
+  }
+
+  /* prepare for padding; get the longest string length. We do this instead of max_string_length as that isn't accurate */
+  maxString = 0;
+  if (rightJustify) {
+    for(i=0; i<numstrings; i++) {
+      len = strlen(get_nth_string(i, strings));
+      if (len > maxString) {
+	maxString = len;
+      }
+    }
   }
 
   /* draw the text. All the tokenizing business is because the gd
@@ -155,6 +164,14 @@ void stringlist2image (gdImagePtr img,
     string = get_nth_string(i, strings);
     word = strtok(string, DIVIDERCHARS);
     while (word != NULL) {
+
+      if (rightJustify) {
+	len = strlen(word);
+	if (len < maxString) {
+	  word = leftPadString(word, maxString - len);
+	}
+      }
+
       if (vertical) {
 	gdImageStringUp(img, font, initX + i*(linespacing + font->h), currentpos + height - padding, (unsigned char*)word, textColor);
 	currentpos += (strlen(word)+DIVIDERWIDTH) * font->h;
@@ -167,6 +184,24 @@ void stringlist2image (gdImagePtr img,
   }
 
 } /* stringlist2image */
+
+char* leftPadString(char* string, size_t paddingSize){
+  size_t lenstring = strlen(string);
+  char* padded = (char*)malloc(lenstring + paddingSize + 1);
+  size_t i;
+  
+  if (paddingSize == 0) {
+    return string;
+  }
+
+  for(i = 0; i < paddingSize; i++) {
+    padded[i] = ' ';
+  }
+
+  strcpy(&(padded[i]), string);
+  /*  DEBUG_CODE(1, fprintf(stderr, "%d %s\n", (int)paddingSize, padded););*/
+  return padded;
+}
 
 
 /*

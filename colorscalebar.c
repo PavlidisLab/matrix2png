@@ -354,7 +354,6 @@ void labelScaleBar (
 	gdImageString(img, LABELFONT, scaleBarxStart -  CHARWIDTH*strlen(leftLabel)/2, scaleBaryStart - LABELHEIGHT, 
 		      (unsigned char*)leftLabel, gdImageColorClosest(img, textIntensity,  textIntensity,  textIntensity) );
 	/* right label */
-	DEBUG_CODE(1, fprintf(stderr, "Putting right scale bar label at x=%d, bar length is %d, label has length %d, scale starts at %d\n", scaleBarxStart + scaleBarlength -  CHARWIDTH*strlen(rightLabel)/2, scaleBarlength, CHARWIDTH*strlen(rightLabel), scaleBarxStart););
 	gdImageString(img, LABELFONT, scaleBarxStart + scaleBarlength -  CHARWIDTH*strlen(rightLabel)/2, scaleBaryStart - LABELHEIGHT,
 		      (unsigned char*)rightLabel, gdImageColorClosest(img, textIntensity, textIntensity, textIntensity) );
 	

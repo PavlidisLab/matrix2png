@@ -57,6 +57,9 @@ void stringlist2image (gdImagePtr img,
  *****************************************************************************/
 gdFontPtr chooseFont (char* cmdlineflag);
 
+/* Add spaces to the beginning of a string */
+char* leftPadString(char* string, size_t paddingSize);
+
 #endif /*TEXT2IMAGE_H*/
 
 

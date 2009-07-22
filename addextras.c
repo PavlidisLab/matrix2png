@@ -115,14 +115,17 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   calcTextDimensions(rowLabels, matrixInfo->rowsToUse, FALSE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
   DEBUG_CODE(1, fprintf(stderr, "Adding row labels %d %d\n", textWidth, textHeight););
 
-  // todo: make location user-settable.
-  placeFeature(img, "rightmiddle", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
+  if (matrixInfo->rowLabelsLeft) {
+    placeFeature(img, "leftmiddle", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
+  } else {
+    placeFeature(img, "rightmiddle", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
+  }
 
   matrixInfo->ulx += xoffset;
   matrixInfo->uly += yoffset;
   matrixInfo->lrx += xoffset;
   matrixInfo->lry += yoffset;
-  stringlist2image(img, rowLabels, matrixInfo->rowsToUse, FALSE, FALSE, TEXTPADDING, linespacing, initX, initY, font);
+  stringlist2image(img, rowLabels, matrixInfo->rowsToUse, matrixInfo->rowLabelsLeft /* justify right? */, FALSE, TEXTPADDING, linespacing, initX, initY, font);
 
 } /* addRowLabels */
 
@@ -154,16 +157,25 @@ void addColLabels(gdImagePtr img, STRING_LIST_T* colLabels,
 
   calcTextDimensions(colLabels, matrixInfo->numcols, TRUE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
 
-  // todo: make location user-settable.
-  placeFeature(img, "topleft", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth, textHeight + TEXTPADDING*2, &xoffset, &yoffset); /* what's with the x2? */
-  DEBUG_CODE(1, fprintf(stderr, "Adding col labels %d %d %d %d\n", textWidth, textHeight, initX, initY););
+  if (matrixInfo->colLabelsBottom) {
+    placeFeature(img, "bottomleft", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth, textHeight + TEXTPADDING*2, &xoffset, &yoffset);
+  } else {
+    placeFeature(img, "topleft", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth, textHeight + TEXTPADDING*2, &xoffset, &yoffset);
+  }
+
+  if (matrixInfo->rowLabelsLeft) {
+    /* increase initX by offset used for row labels. */
+    initX += matrixInfo->ulx;
+  }
+
+  DEBUG_CODE(1, fprintf(stderr, "Adding col labels width=%d height=%d startX=%d startY=%d\n", textWidth, textHeight, initX, initY););
 
   matrixInfo->ulx += xoffset;
   matrixInfo->uly += yoffset;
   matrixInfo->lrx += xoffset;
   matrixInfo->lry += yoffset;
 
-  stringlist2image(img, colLabels, matrixInfo->numcols, FALSE, TRUE, TEXTPADDING, linespacing, initX, initY, font);
+  stringlist2image(img, colLabels, matrixInfo->numcols, matrixInfo->colLabelsBottom, TRUE, TEXTPADDING, linespacing, initX, initY, font);
 } /* addColLabels */
 
 

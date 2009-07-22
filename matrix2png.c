@@ -325,6 +325,8 @@ int main (int argc, char **argv) {
   BOOLEAN_T ellipses = FALSE; /* draw ellipses or circles instead of rectangles */
   BOOLEAN_T normalize = FALSE; /* normalize the rows */
   BOOLEAN_T logTransform = FALSE;
+  BOOLEAN_T colLabelsBottom = FALSE; /* Put column labels below the picture */
+  BOOLEAN_T rowLabelsLeft = FALSE;
 
   double contrast = DEFAULTCONTRAST;
   int numcolors = DEFAULTNUMCOLORS;
@@ -432,9 +434,10 @@ int main (int argc, char **argv) {
      CFLAG_OPTN(1, f, Data file has a format line, skipformatline = TRUE); 
      CFLAG_OPTN(1, e, Draw ellipses instead of rectangles, ellipses = TRUE); 
      CFLAG_OPTN(1, l, Log transform the data (base 2), logTransform = TRUE); 
+     CFLAG_OPTN(1, u, Put the column labels under the picture instead of above (you must also set -c, or this is ignored), colLabelsBottom = TRUE);
+     CFLAG_OPTN(1, g, Put the row labels to the left instead of the right (you must also set -r, or this is ignored), rowLabelsLeft = TRUE);
      //     NON_SWITCH(1, \n datafile, dataFilename = _OPTION_);
      );
-
 
   if (numcolors < MINCOLORS || numcolors > MAXCOLORS) 
     die("Illegal number of colors, must be a value from %d to %d", MINCOLORS, MAXCOLORS);
@@ -608,7 +611,8 @@ int main (int argc, char **argv) {
   matrixInfo->numColors = numcolors;
   matrixInfo->rowsToUse = numr;
   matrixInfo->colsToUse = numc;
-
+  matrixInfo->rowLabelsLeft = rowLabelsLeft;
+  matrixInfo->colLabelsBottom = colLabelsBottom;
 
   DEBUG_CODE(1, dumpMatrixInfo(matrixInfo););
   
