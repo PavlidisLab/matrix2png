@@ -13,7 +13,7 @@
 #include "colors.h"
 #include "matrix2png.h"
 
-#define MAXCOLORMAP 15 // how may color maps we have defined.
+#define MAXCOLORMAP 16 // how may color maps we have defined.
 
 /*****************************************************************************
  * 
