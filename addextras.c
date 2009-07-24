@@ -100,6 +100,9 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   gdFontPtr font = NULL;
   /* make sure the text and the ysize are _exactly_ the same. Choose the appropriate font, up to large */
   int yBlockSize = matrixInfo->yblocksize;
+
+  DEBUG_CODE(1, fprintf(stderr, "--- add row labels\n"););
+
   if (matrixInfo->dividers) {
     yBlockSize++;
   }
@@ -113,10 +116,14 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   DEBUG_CODE(1, if(linespacing<0) die("Linespacing is < 0"););
 
   calcTextDimensions(rowLabels, matrixInfo->rowsToUse, FALSE, 0, linespacing, font, &textWidth, &textHeight); /* we do this again, in stringlist2image */
-  DEBUG_CODE(1, fprintf(stderr, "Adding row labels %d %d\n", textWidth, textHeight););
+  DEBUG_CODE(1, fprintf(stderr, "Adding row labels with text width=%d height=%d\n", textWidth, textHeight););
 
   if (matrixInfo->rowLabelsLeft) {
     placeFeature(img, "leftmiddle", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
+
+    /* repaint the text background, as for some reason we get 1 pixel of garbage exposed (roundoff?). Color index 0 is always the background. */
+    gdImageFilledRectangle(img, initX, initY, textWidth + TEXTPADDING, textHeight, 0);
+    
   } else {
     placeFeature(img, "rightmiddle", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
   }
@@ -127,6 +134,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   matrixInfo->lry += yoffset;
   stringlist2image(img, rowLabels, matrixInfo->rowsToUse, matrixInfo->rowLabelsLeft /* justify right? */, FALSE, TEXTPADDING, linespacing, initX, initY, font);
 
+  DEBUG_CODE(1, fprintf(stderr, "--- finished row labels\n"););
 } /* addRowLabels */
 
 
