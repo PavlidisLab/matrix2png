@@ -504,10 +504,11 @@ const char* date_and_time
   FILE *           date_stream;
   static char      the_date[HOST_LENGTH];
   static BOOLEAN_T first_time = TRUE;
+  char*          fgets_result;
 
   if (first_time) {
     date_stream = (FILE *)popen("date", "r"); /* SGI needs cast. */
-    fgets(the_date, HOST_LENGTH, date_stream);
+    fgets_result = fgets(the_date, HOST_LENGTH, date_stream);
     pclose(date_stream);
   }
 

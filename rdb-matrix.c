@@ -607,7 +607,7 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 	    if (!(startcol >= 0 && i_column < startcol)) { // only if we've reached the required column.
 	      string[this_char] = '\0';
 	      num_scanned = sscanf(string, MSCAN, &one_value);
-	      if(i_read == num_cols) {
+	      if(i_read == num_cols && colstoread < 0) {
 		die("Problem reading row %d: Possible illegal character? Make sure the file is ASCII", i_row + 1);
 	      } if(i_read > num_cols) {
 		die("More data than column headings at row %d: Check data file format for correct header including 'corner string' (Expected %d columns based on header, read %d).", i_row + 1, num_cols, i_read);

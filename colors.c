@@ -23,6 +23,7 @@ void allocateColors (
 		     gdImagePtr img,
 		     colorV_T* backgroundColor,
 		     colorV_T* minColor,
+		     colorV_T* midColor,
 		     colorV_T* maxColor,
 		     colorV_T* missingColor,
 		     BOOLEAN_T passThroughBlack,
@@ -39,6 +40,9 @@ void allocateColors (
   int endRed = 0;
   int endGreen = 0;
   int endBlue = 0;
+  int midRed = 0;
+  int midGreen =0;
+  int midBlue = 0;
   int missingRed = 0;
   int missingGreen = 0;
   int missingBlue = 0;
@@ -57,7 +61,7 @@ void allocateColors (
     colorError(norange);
   }
 
-  if (passThroughBlack) {
+  if (passThroughBlack || midColor != NULL) {
     if (numColors < PASSTHROUGHBLACKMINCOLORS) {
       colorError(toofew);
     }
@@ -79,6 +83,10 @@ void allocateColors (
   /* get rgb values for our key colors */
   color2rgb(minColor, &startRed, &startGreen, &startBlue);
   color2rgb(maxColor, &endRed, &endGreen, &endBlue);
+
+  if (midColor != NULL) {
+    color2rgb(midColor, &midRed, &midGreen, &midBlue);
+  }
   color2rgb(backgroundColor, &backgroundRed, &backgroundGreen, &backgroundBlue);
   color2rgb(missingColor, &missingRed, &missingGreen, &missingBlue);
   
@@ -104,7 +112,7 @@ void allocateColors (
   checkColor(gdImageColorAllocate(img, missingRed, missingGreen, missingBlue));
 
   /* allocate the rest of the colors */
-  if (passThroughBlack) {
+  if (passThroughBlack) { //gets priority over other options.
     /* first head to black from the start color. */
     r = startRed;
     g = startGreen;
@@ -123,6 +131,27 @@ void allocateColors (
     redStepSize = 2*getStepSize(0, endRed, numColors);
     greenStepSize = 2*getStepSize(0, endGreen, numColors);
     blueStepSize = 2*getStepSize(0, endBlue, numColors);
+    DEBUG_CODE(1, fprintf(stderr, "Red step size: %f Green step size: %f Blue step size: %f\n", redStepSize, greenStepSize, blueStepSize); );
+    makeColors(img, r, g, b, redStepSize, greenStepSize, blueStepSize, numColors/2 + 1);
+  } else if (midColor != NULL) {
+    fprintf(stderr, "yay\n");
+    /* first head to midcolor from start. */
+    r = startRed;
+    g = startGreen;
+    b = startBlue;
+    redStepSize = 2*getStepSize(startRed, midRed, numColors);
+    greenStepSize = 2*getStepSize(startGreen, midGreen, numColors);
+    blueStepSize = 2*getStepSize(startBlue, midBlue, numColors);
+    DEBUG_CODE(1, fprintf(stderr, "Red step size: %f Green step size: %f Blue step size: %f\n", redStepSize, greenStepSize, blueStepSize); );
+    makeColors(img, r, g, b, redStepSize, greenStepSize, blueStepSize, numColors/2);
+
+    /* then head up from mid to the end color */
+    r = midRed;
+    g = midGreen;
+    b = midBlue;
+    redStepSize = 2*getStepSize(midRed, endRed, numColors);
+    greenStepSize = 2*getStepSize(midGreen, endGreen, numColors);
+    blueStepSize = 2*getStepSize(midBlue, endBlue, numColors);
     DEBUG_CODE(1, fprintf(stderr, "Red step size: %f Green step size: %f Blue step size: %f\n", redStepSize, greenStepSize, blueStepSize); );
     makeColors(img, r, g, b, redStepSize, greenStepSize, blueStepSize, numColors/2 + 1);
   } else { /* don't pass through black */

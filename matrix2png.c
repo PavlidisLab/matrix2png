@@ -54,6 +54,7 @@ gdImagePtr matrix2img (
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped Only used if useDataRange is false */
 		     colorV_T* minColor,
+		     colorV_T* midColor,
 		     colorV_T* maxColor,
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
@@ -81,7 +82,7 @@ gdImagePtr matrix2img (
   return rawmatrix2img(rawmatrix, contrast, useDataRange, 
 		       includeDividers, passThroughBlack,
 		       minVal, maxVal,
-		       minColor, maxColor, backgroundColor, missingColor, colorMap, matrixInfo);
+		       minColor, midColor, maxColor, backgroundColor, missingColor, colorMap, matrixInfo);
   
 } /* matrix2img */
 
@@ -97,6 +98,7 @@ gdImagePtr rawmatrix2img (
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped  Only used if useDataRange is false*/
 		     colorV_T* minColor,
+		     colorV_T* midColor,
 		     colorV_T* maxColor,
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
@@ -148,7 +150,7 @@ gdImagePtr rawmatrix2img (
   } else if (matrixInfo->discreteMap != NULL) {
     allocateColorsDiscrete(img, matrixInfo->discreteMap, backgroundColor, missingColor);
   } else {
-    allocateColors(img, backgroundColor, minColor, maxColor, missingColor, passThroughBlack, matrixInfo->numColors);
+    allocateColors(img, backgroundColor, minColor, midColor, maxColor, missingColor, passThroughBlack, matrixInfo->numColors);
   }
 
   if (includeDividers) {
@@ -351,10 +353,12 @@ int main (int argc, char **argv) {
 
   /* user-defined colors */
   char* minColorInput = NULL;
+  char* midColorInput = NULL;
   char* maxColorInput = NULL;
   char* bkgColorInput = NULL;
   char* missingColorInput = NULL;
   colorV_T* minColor = NULL;
+  colorV_T* midColor = NULL;
   colorV_T* maxColor = NULL;
   colorV_T* bkgColor = NULL;
   colorV_T* missingColor = NULL;
@@ -399,6 +403,8 @@ int main (int argc, char **argv) {
 	       minsizeInput = _OPTION_);
      DATA_OPTN(1, mincolor, : color used at lowest value (name or r:g:b triplet) (default = blue),
 	       minColorInput = _OPTION_);
+     DATA_OPTN(1, midcolor, : color used in the middle (name or r:g:b triplet) (ignored if -b is used),
+	       midColorInput = _OPTION_);
      DATA_OPTN(1, maxcolor, : color used at highest value (name or r:g:b triplet) (default = red),
 	       maxColorInput = _OPTION_);
      DATA_OPTN(1, bkgcolor, : color used as background (name or r:g:b triplet) (default = white),
@@ -439,8 +445,9 @@ int main (int argc, char **argv) {
      //     NON_SWITCH(1, \n datafile, dataFilename = _OPTION_);
      );
 
-  if (numcolors < MINCOLORS || numcolors > MAXCOLORS) 
+  if (numcolors < MINCOLORS || numcolors > MAXCOLORS) {
     die("Illegal number of colors, must be a value from %d to %d", MINCOLORS, MAXCOLORS);
+  }
 
   if (minsizeInput != NULL) {
     double parseval1, parseval2;
@@ -528,6 +535,7 @@ int main (int argc, char **argv) {
 
   /* convert user-defined colors into corresponding colorV_T */
   minColor = initColorVByName(blue);
+  midColor = initColorVByName(black);
   maxColor = initColorVByName(red);
   bkgColor = initColorVByName(white);
   missingColor = initColorVByName(grey);
@@ -556,6 +564,9 @@ int main (int argc, char **argv) {
   } else {
     if (minColorInput != NULL) {
       string2color(minColorInput, minColor);
+    }
+    if (midColorInput != NULL) {
+      string2color(midColorInput, midColor);
     }
     if (maxColorInput != NULL) {
       string2color(maxColorInput, maxColor);
@@ -621,6 +632,7 @@ int main (int argc, char **argv) {
   img = matrix2img(dataMatrix, contrast, useDataRange, dodividers, passThroughBlack,
 		   min, max,
 		   minColor,
+		   midColor,
 		   maxColor,
 		   bkgColor,
 		   missingColor,
@@ -657,6 +669,7 @@ int main (int argc, char **argv) {
   
   // clean up color structs.
   free(minColor);
+  free(midColor);
   free(maxColor);
   free(bkgColor); 
   free(missingColor);

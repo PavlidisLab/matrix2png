@@ -168,7 +168,7 @@ void stringlist2image (gdImagePtr img,
       if (rightJustify) {
 	len = strlen(word);
 	if (len < maxString) {
-	  word = leftPadString(word, maxString - len);
+	    word = leftPadString(word, maxString - len);
 	}
       }
 

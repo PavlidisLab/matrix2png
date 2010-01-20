@@ -45,7 +45,10 @@ typedef enum {white=1,
 	      violet,
 	      darkred,
 	      darkgreen,
-	      darkblue
+	      darkblue,
+	      lightred,
+	      lightgreen,
+	      lightblue
 } color_T;
 
 
@@ -66,6 +69,7 @@ void allocateColors (
 		     gdImage* img,
 		     colorV_T* backgroundColor,
 		     colorV_T*  minColor,
+		     colorV_T* midColor,
 		     colorV_T* maxColor,
 		     colorV_T* missingColor,
 		     BOOLEAN_T passThroughBlack,

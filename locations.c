@@ -273,7 +273,7 @@ void placeFeature(gdImagePtr img,
   if (desiredlooseloc == 0) die("Illegal location %s\n", locationAsString);
   desiredlocation = standardlocs[desiredlooseloc - 1];
 
-  DEBUG_CODE(1, fprintf(stderr, "Desired location is %s, %d\n", desiredlocation->description, (int)alignWithExisting););
+  DEBUG_CODE(1, fprintf(stderr, "Desired location is %s, alignWithExisting=%d\n", desiredlocation->description, (int)alignWithExisting););
 
   /* figure out the size of the image */
   currentXSize = gdImageSX(img);

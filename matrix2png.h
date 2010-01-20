@@ -45,6 +45,7 @@ gdImagePtr matrix2img (
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped Only used if useDataRange is false */
 		     colorV_T* minColor,
+		     colorV_T* midColor,
 		     colorV_T* maxColor,
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
@@ -69,6 +70,7 @@ gdImagePtr rawmatrix2img (
 		     double minVal, /* the minimum value to be represented in the image. Lower values will be clipped. Only used if useDataRange is false */
 		     double maxVal, /* the max value to be represented in the image. Higher values will be clipped  Only used if useDataRange is false*/
 		     colorV_T* minColor,
+		     colorV_T* midColor,
 		     colorV_T* maxColor,
 		     colorV_T* backgroundColor, /* used for extra parts of the image - try white or black */
 		     colorV_T* missingColor, /* used for extra parts of the image - try white or black */
