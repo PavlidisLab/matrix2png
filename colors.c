@@ -190,6 +190,12 @@ void string2color(char* string, colorV_T* colorVal)
     colorVal->namedcolor = darkgreen;
   } else if (!strcmp(string, "darkblue")) {
     colorVal->namedcolor = darkblue;
+  } else if (!strcmp(string, "lightblue")) {
+    colorVal->namedcolor = lightblue;
+  } else if (!strcmp(string, "lightgreen")) {
+    colorVal->namedcolor = lightgreen;
+  } else if (!strcmp(string, "lightred")) {
+    colorVal->namedcolor = lightred;
   } else {
     colorVal->namedcolor = 0;
     colorError(invalid, "(\"%s\" is not a valid choice)", string);
@@ -213,7 +219,7 @@ void color2rgb(colorV_T* colorVal, int* r, int* g, int* b) {
       *r = 255;    *g = 0;    *b = 0;
       break;
     case yellow:
-      *r = 255;    *g = 255;    *b = 128;
+      *r = 255;    *g = 255;    *b = 0;
       break;
     case green:
       *r = 0;    *g = 255;    *b = 0;
@@ -251,6 +257,16 @@ void color2rgb(colorV_T* colorVal, int* r, int* g, int* b) {
     case darkblue:
       *r = 0; *g = 0; *b = 128;
       break;
+    case lightred:
+      *r = 255; *g = 128; *b = 128;
+      break;
+    case lightgreen:
+      *r = 128; *g = 255; *b = 128;
+      break;
+    case lightblue:
+      *r = 128; *g = 128; *b = 255;
+      break;
+
     default:
       colorError(invalid);
       break;

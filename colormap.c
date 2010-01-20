@@ -37,7 +37,8 @@ char *brewerseq5[] = {"255:245:240", "254:224:210", "252:192:167", "251:154:122"
 
 /* user requests */
 char *coolbody[] = {"black", "darkblue", "blue", "yellow", "white", NULL};
-
+char *redblue[] = {"blue", "lightblue", "white", "lightred", "red", NULL};
+char *blueyelred[] = {"blue", "yellow", "red", NULL};
 
 /*****************************************************************************
  * allocateColorMap
@@ -190,6 +191,10 @@ char** getColorMap (int colorMap) {
     return brewerseq5;
   case 16 :
     return coolbody;
+  case 17 : 
+    return redblue;
+  case 18 : 
+    return blueyelred;
   default:
     colorError(invalid);
     break;
