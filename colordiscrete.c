@@ -26,6 +26,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
   char* string_ptr;
   int num_scanned;
   int one_value;
+  char* junk;
   char colorbuf[MAX_DROW];
   char buf[10];
 
@@ -52,7 +53,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
   } else {
 
     /* Read the first row, which is a header.*/
-    fgets(one_row, MAX_DROW, file);
+    junk = fgets(one_row, MAX_DROW, file);
 
     while(1) {
       if (fgets(one_row, MAX_DROW, file) == NULL) {
@@ -114,7 +115,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
 	return_value->count++;
       }
     }
-    if (return_value->count > MAXCOLORS) {
+    if (return_value->count > DMAP_INITIAL_COUNT) {
       // because one color may correspond to the same color, this isn't really accurate, but it is simple.
       die("Too many colors chosen in discrete map"); // this isn't really possible since the number of colors in the palette is small.
     }
