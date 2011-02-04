@@ -97,6 +97,7 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
   int textHeight;
   int linespacing, initX, initY;
   int xoffset, yoffset;
+  BOOLEAN_T rightJustify = FALSE;
   gdFontPtr font = NULL;
   /* make sure the text and the ysize are _exactly_ the same. Choose the appropriate font, up to large */
   int yBlockSize = matrixInfo->yblocksize;
@@ -120,19 +121,19 @@ void addRowLabels(gdImagePtr img, STRING_LIST_T* rowLabels,
 
   if (matrixInfo->rowLabelsLeft) {
     placeFeature(img, "leftmiddle", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
-
     /* repaint the text background, as for some reason we get 1 pixel of garbage exposed (roundoff?). Color index 0 is always the background. */
     gdImageFilledRectangle(img, initX, initY, textWidth + TEXTPADDING, textHeight, 0);
-    
+    rightJustify = matrixInfo->reverseJustification ? FALSE : TRUE;
   } else {
     placeFeature(img, "rightmiddle", TRUE, &initX, &initY, matrixInfo->usedRegion, textWidth + TEXTPADDING, textHeight, &xoffset, &yoffset);
+    rightJustify = matrixInfo->reverseJustification ? TRUE : FALSE;
   }
 
   matrixInfo->ulx += xoffset;
   matrixInfo->uly += yoffset;
   matrixInfo->lrx += xoffset;
   matrixInfo->lry += yoffset;
-  stringlist2image(img, rowLabels, matrixInfo->rowsToUse, matrixInfo->rowLabelsLeft /* justify right? */, FALSE, TEXTPADDING, linespacing, initX, initY, font);
+  stringlist2image(img, rowLabels, matrixInfo->rowsToUse, rightJustify, FALSE /* vertical */, TEXTPADDING, linespacing, initX, initY, font);
 
   DEBUG_CODE(1, fprintf(stderr, "--- finished row labels\n"););
 } /* addRowLabels */

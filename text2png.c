@@ -28,15 +28,15 @@
 gdFontPtr chooseFont (char* cmdlineflag) 
 {
   if (! strcmp (cmdlineflag, "tiny")) {
-    return gdFontTiny;
+    return gdFontGetTiny();
   } else if (! strcmp (cmdlineflag, "small")) {
-    return gdFontSmall;
+    return gdFontGetSmall();
   } else if (! strcmp (cmdlineflag, "medium")) {
-    return gdFontMediumBold;
+    return gdFontGetMediumBold();
   } else if (! strcmp (cmdlineflag, "large")) {
-    return gdFontLarge;
+    return gdFontGetLarge();
   } else if (! strcmp (cmdlineflag, "giant")) {
-    return gdFontGiant;
+    return gdFontGetGiant();
   } else {
     return NULL;
   }

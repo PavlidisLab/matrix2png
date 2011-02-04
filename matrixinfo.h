@@ -52,12 +52,14 @@ typedef struct matrixinfo_t  {
   double outliers;
   int xminSize; // todo: not needed
   int yminSize; // todo: not needed
+  char* fontName; // if supported
   DISCRETEMAP_T* discreteMap;
   USED_T* usedRegion;
   BOOLEAN_T dividers;
   BOOLEAN_T circles;
   BOOLEAN_T rowLabelsLeft;
   BOOLEAN_T colLabelsBottom;
+  BOOLEAN_T reverseJustification; // row label text alignment opposite of default?
   MATRIX_T* matrix; /* pointer to the matrix itself */
 } MATRIXINFO_T;
 

@@ -134,7 +134,6 @@ void allocateColors (
     DEBUG_CODE(1, fprintf(stderr, "Red step size: %f Green step size: %f Blue step size: %f\n", redStepSize, greenStepSize, blueStepSize); );
     makeColors(img, r, g, b, redStepSize, greenStepSize, blueStepSize, numColors/2 + 1);
   } else if (midColor != NULL) {
-    fprintf(stderr, "yay\n");
     /* first head to midcolor from start. */
     r = startRed;
     g = startGreen;

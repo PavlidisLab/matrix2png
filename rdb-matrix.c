@@ -335,6 +335,7 @@ RDB_MATRIX_T* read_rdb_matrix
 
     /* Read the next line, stopping if it's empty. */
     read_one_row(infile, MAX_ROW, one_row);
+
     if (strlen(one_row) == 0) {
       break;
     }
@@ -573,6 +574,12 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
     length = strlen(one_row);
     i_read = 0;
 
+    /*
+      Step through the line one character at a time. When we find a
+      field delimiter, we store the last set of tokens. Missing values
+      are a special case. Line ends are treated specially to avoid
+      fussing over trailing tabs.
+     */
     while (i_char <= length) { // note we purposely read just past the end.
       if (one_row[i_char] == '\t' || i_char == length) { // check for missing value.
 	if ((one_row[i_char] == '\t' && 
@@ -604,20 +611,30 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
 	  }
 	else // not a missing dataum, store the value.
 	  {
-	    if (!(startcol >= 0 && i_column < startcol)) { // only if we've reached the required column.
+	    if (startcol < 0 || i_column >= startcol) { // only if we've reached the required column.
 	      string[this_char] = '\0';
 	      num_scanned = sscanf(string, MSCAN, &one_value);
 	      if(i_read == num_cols && colstoread < 0) {
-		die("Problem reading row %d: Possible illegal character? Make sure the file is ASCII", i_row + 1);
-	      } if(i_read > num_cols) {
-		die("More data than column headings at row %d: Check data file format for correct header including 'corner string' (Expected %d columns based on header, read %d).", i_row + 1, num_cols, i_read);
+		die("Problem reading in row %d: Possible illegal character? Make sure the file is ASCII", i_row + 1);
 	      } else {
 		set_array_item(i_read, one_value, this_row);
 		i_read++;
 	      }
+	    } else {
+	      DEBUG_CODE(1, fprintf(stderr, "skipping column %d\n", i_column););
 	    }
 	  }
 	this_char = 0;
+
+	if (i_read >= num_cols) {
+	  /* We've read enough. Stop. Note that if row has extra
+	     fields, we silently ignore them. This didn't used to be
+	     the behavior but the philosophy is "do something
+	     reasonable". This is definitely the right thing to do if
+	     num_cols is set. */
+	  break;
+	}
+
 	i_column++;
       } else { // keep reading.
 	string[this_char] = one_row[i_char];
