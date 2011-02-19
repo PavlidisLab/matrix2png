@@ -216,7 +216,8 @@ static void read_one_row
   //  char*     fgets_result;       /* Error indicator for 'fgets' function. */
   int len = 0;
   if (length > 0) { ;} // avoid compiler warning...
-  
+  BOOLEAN_T format_notified = FALSE; // debug code;
+
   while(len <= MAX_ROW - 2) {
     char next = fgetc(infile);
     if (next == '\n' || next == EOF) {
@@ -224,7 +225,25 @@ static void read_one_row
       one_row[len++] = '\0';  
       break;
     } else if (next == '\r') {
-      continue;
+      next = fgetc(infile);
+      one_row[len++] = '\n'; 
+      one_row[len++] = '\0'; 
+      if (next != '\n') { 
+	/* oops. Read to the next DOS line */
+	if (!format_notified) {
+	  DEBUG_CODE(1, fprintf(stderr, "Looks like DOS format");)
+	  format_notified = 1;
+	}
+	ungetc(next, infile);
+      } else {
+	if (!format_notified) {
+	  DEBUG_CODE(1, fprintf(stderr, "Looks like Macintosh format");)
+	  format_notified = 1;
+	}
+      }
+
+      break;
+      /* Mac format, the \r was a line end.*/
     }
     one_row[len++] = next;
    }
@@ -661,6 +680,14 @@ RDB_MATRIX_T* read_rdb_matrix_wmissing
   num_rows = get_num_strings(row_names);
 
   DEBUG_CODE(1, fprintf(stderr, "Read from file: %d rows, %d cols\n", num_rows, num_cols););
+
+  if (num_rows == 0) {
+    die("No data rows were read from the file");
+  }
+
+  if (num_cols == 0) {
+    die("No data columns were read from the file");
+  }
 
   /* Assemble it all into an RDB matrix. */
   return_value = allocate_rdb_matrix(num_rows, num_cols, matrix);
