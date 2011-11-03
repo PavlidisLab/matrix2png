@@ -26,7 +26,7 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
   char* string_ptr;
   int num_scanned;
   int one_value;
-  char* junk;
+  //  char* junk;
   char colorbuf[MAX_DROW];
   char buf[10];
 
@@ -53,13 +53,35 @@ DISCRETEMAP_T* readDiscreteMap(FILE* file)
   } else {
 
     /* Read the first row, which is a header.*/
-    junk = fgets(one_row, MAX_DROW, file);
 
     while(1) {
-      if (fgets(one_row, MAX_DROW, file) == NULL) {
+      one_value = fgetc(file);
+      if (one_value == '\n' || one_value == '\r' || one_value == EOF) {
 	break;
       }
-      
+    }
+
+    while(1) {
+      int i;
+      i = 0; // start a row.
+      while(1) {
+	one_value = fgetc(file);
+	if (one_value == '\n' || one_value == '\r' || one_value == EOF) {
+	  break;
+	} else {
+	  one_row[i] = one_value;
+	  i++;
+	}
+      }
+
+      one_row[i] = '\0';
+
+      if (strlen(one_row) == 0) {
+	break;
+      }
+
+      DEBUG_CODE(1, fprintf(stderr, "Read: %s\n", one_row););
+
       if (return_value->maxcount <= return_value->count) {
 	growDiscreteMap(return_value);
       }
