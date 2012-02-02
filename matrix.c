@@ -95,7 +95,7 @@ static void check_null_matrix
     die("Attempted to access a null matrix.\n");
   }
 #else
-  /* Avoid compiler warning. */
+  /* Avoid compiler warning. Actually this also yields a warning in some situations. */
   matrix = NULL;
 #endif
 }
@@ -380,7 +380,6 @@ BOOLEAN_T is_symmetric
    MATRIX_T* matrix)
 {
   int num_rows;
-  int num_cols;
   int i_row;
   int i_col;
   MTYPE upper;
@@ -388,7 +387,6 @@ BOOLEAN_T is_symmetric
   
   /* Get the matrix dimensions. */
   num_rows = get_num_rows(matrix);
-  num_cols = get_num_cols(matrix);
 
   /* Check for symmetric across the diagonal. */
   for (i_row = 0; i_row < num_rows; i_row++) {
@@ -979,7 +977,6 @@ void normalize_matrix
     
     /* Then normalize the columns. */
     for (i_row = 0; i_row < num_rows; i_row++) {
-      this_row = get_matrix_row(i_row, matrix);
 
       /* Copy column elements into an array. */
       for (i_col = 0; i_col < num_cols; i_col++) {
@@ -1240,14 +1237,10 @@ int simple_compare (const void* elem1, const void* elem2)
 void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, double outliers, MTYPE* min, MTYPE* max) 
 {
   int i,j,d;
-  int lmaxrow, lmaxcol, lminrow, lmincol;
   MTYPE lmin = (MTYPE)(FLT_MAX);
   MTYPE lmax = -(MTYPE)(FLT_MAX);
   MTYPE value = 0.0;
-  lmaxrow = 0;
-  lmaxcol = 0;
-  lminrow = 0;
-  lmincol = 0;
+
 
   myassert(TRUE, outliers >= 0.0 && outliers <= 50.0, "Invalid outliers value %f", outliers);
 
@@ -1279,13 +1272,9 @@ void find_rawmatrix_min_and_max (MTYPE** matrix, int num_rows, int num_cols, dou
 	value = matrix[i][j];
 	if (value < lmin) {
 	  lmin = value;
-	  lminrow = i;
-	  lmincol = j;
 	} 
 	if (value > lmax) {
 	  lmax = value;
-	  lmaxrow = i;
-	  lmaxcol = j;
 	}
       }
     }
