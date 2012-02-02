@@ -90,14 +90,9 @@ void grow_matrix
 static void check_null_matrix
   (MATRIX_T* matrix)
 {
-#ifdef BOUNDS_CHECK
   if (matrix == NULL) {
     die("Attempted to access a null matrix.\n");
   }
-#else
-  /* Avoid compiler warning. Actually this also yields a warning in some situations. */
-  matrix = NULL;
-#endif
 }
 
 /**************************************************************************
@@ -107,9 +102,9 @@ static void matrix_row_check
   (int       row,
    MATRIX_T* matrix)
 {
-  check_null_matrix(matrix);
 
 #ifdef BOUNDS_CHECK
+  check_null_matrix(matrix);
   if (row < 0) {
     die("Invalid matrix row (%d).\n", row);
   } else if (row > get_num_rows(matrix)) {
