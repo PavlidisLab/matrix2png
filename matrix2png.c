@@ -385,6 +385,10 @@ int main (int argc, char **argv) {
   STRING_LIST_T* colnames = NULL;
   STRING_LIST_T* desctext = NULL;
 
+  /* outputs to files */
+  char* outFilename = NULL;
+  char* errFilename = NULL;
+
   verbosity = NORMAL_VERBOSE;
 
   DEBUG_CODE(1, fprintf(stderr, "Done initializing\n"););
@@ -432,6 +436,10 @@ int main (int argc, char **argv) {
      	       startc = atoi(_OPTION_));
      DATA_OPTN(1, trim, : Trim this percent of data extremes when determining data range (only without the -range option),
 	       outliers = atof(_OPTION_));
+     DATA_OPTN(1, outfile, <file>: Write stdout to a given file,
+	       outFilename = _OPTION_);
+     DATA_OPTN(1, errfile, <file>: Write stderr to a given file,
+	       errFilename = _OPTION_);
      DATA_OPTN(1, verbose, : Verbosity of the output 1|2|3|4|5 (default=2),
 	       verbosity = (VERBOSE_T)atoi(_OPTION_));
      DATA_OPTN(1, title, <title>: Add a title, titleText = (_OPTION_));
@@ -611,6 +619,20 @@ int main (int argc, char **argv) {
     fclose(descFile);
   }
   
+  /* redirect stdout and/or stderr to file(s) if needed */
+  if (errFilename != NULL) {
+    if(freopen(errFilename, "w", stderr) == NULL) {
+      fprintf(stderr, "Error redirecting to %s\n",errFilename);
+      exit(1);
+    }
+  }
+  if (outFilename != NULL) {
+    if(freopen(outFilename, "w", stdout) == NULL) {
+      fprintf(stderr, "Error redirecting to %s\n",outFilename);
+      exit(1);
+    }
+  }
+
   /*******************************************************************
    * starting here is the core code required for drawing an annotated
    * matrix image - the preceding just deals with the command line and

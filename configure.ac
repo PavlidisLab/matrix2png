@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(matrix2png.c)
-AM_INIT_AUTOMAKE(matrix2png, 1.2.2)
+AM_INIT_AUTOMAKE(matrix2png, 1.2.3)
 
 #AC_INIT(text2png.c)
 #AM_INIT_AUTOMAKE(text2png, 0.9)
