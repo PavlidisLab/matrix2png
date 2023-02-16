@@ -7,6 +7,8 @@
 
 See INSTALL for installation instructions.
 
+The https://matrix2png.msl.ubc.ca/ site provides an interactive Web interface 
+to this project.
 
 This software makes us of 'gd', a graphics library for generating
 'png' format documents, written by Tom Boutell (www.boutell.com). As
